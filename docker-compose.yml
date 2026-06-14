@@ -1,0 +1,35 @@
+# SMS Forwarder Py - Docker Compose
+# 支持Windows和Linux
+
+services:
+  sms-forwarder:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: sms-forwarder
+    ports:
+      - "8080:8000"
+    volumes:
+      - ./data:/app/backend/data
+      - ./config.yaml:/app/backend/config.yaml
+    environment:
+      - SFUIUSER=admin
+      - SFUIPASS=admin123
+      - SFDEBUG=false
+      - SFSMSRATELIMIT=10
+      - SFDIALRATELIMIT=5
+      - SFLOGINRATELIMIT=5
+      - SFOTARATELIMIT=4
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/api/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+    networks:
+      - sms-network
+
+networks:
+  sms-network:
+    driver: bridge

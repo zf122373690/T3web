@@ -1,0 +1,76 @@
+# SMS Forwarder Py - 配置文件示例
+# 复制此文件为config.yaml并修改
+
+# 服务器配置
+server:
+  host: "0.0.0.0"
+  port: 8080
+  debug: false
+
+# 认证配置
+auth:
+  # UI登录用户名
+  username: "admin"
+  # UI登录密码
+  password: "admin123"
+  # Token过期时间(秒)
+  token_ttl: 86400
+
+# 扫描配置
+scan:
+  # 并发数
+  concurrency: 50
+  # 扫描超时(秒)
+  timeout: 5
+  # TCP连接超时(秒)
+  tcp_timeout: 2
+  # 重试次数
+  retries: 3
+  # 重试间隔(毫秒)
+  retry_sleep_ms: 500
+  # 扫描结果TTL(秒)
+  ttl: 300
+
+# 短信配置
+sms:
+  # 最大长度
+  max_len: 500
+
+# 限流配置
+ratelimit:
+  # 短信发送限制 (次数/秒)
+  sms_rate_limit: 10
+  sms_rate_period: 60
+  # 拨号限制
+  dial_rate_limit: 5
+  dial_rate_period: 60
+  # 登录限制
+  login_rate_limit: 5
+  login_rate_period: 60
+  # OTA限制
+  ota_rate_limit: 4
+  ota_rate_period: 60
+
+# 安全配置
+security:
+  # 允许的IP段 (CIDR格式)
+  allowed_cidrs:
+    - "192.168.0.0/16"
+    - "10.0.0.0/8"
+    - "172.16.0.0/12"
+  # 设备默认用户名
+  default_user: "admin"
+  # 设备默认密码
+  default_pass: "admin"
+
+# 转发配置
+forward:
+  # 默认转发方式
+  method: "POST"
+  # 默认Headers
+  headers: ""
+
+# CORS配置
+cors:
+  # 允许的源 (留空则允许所有)
+  allow_origins: []
