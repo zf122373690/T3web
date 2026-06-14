@@ -147,7 +147,7 @@ def lan_discover_device(ip: str, key: str = LAN_DEVICE_KEY) -> dict[str, Any] | 
     ensure_private_ip(ip)
     try:
         with httpx.Client(timeout=HTTP_TIMEOUT) as client:
-            resp = client.get(f"http://{ip}/api/lan/discover", params={"key": key})
+            resp = client.get(f"http://{ip}/l/d", params={"key": key})
         if resp.status_code != 200:
             return None
         payload = resp.json()
@@ -239,12 +239,12 @@ def send_sms_to_device(
     lan_result = _request_lan_device(
         ip,
         "POST",
-        "/api/lan/sms/send",
+        "/l/s",
         json_body={"phone": phone, "msg": content, "slot": sim_slot},
         timeout=HTTP_TIMEOUT + 10,
     )
     if lan_result.get("ok") or lan_result.get("statusCode") not in (404, 405):
-        lan_result["endpoint"] = "/api/lan/sms/send"
+        lan_result["endpoint"] = "/l/s"
         return lan_result
     result = _request_device(
         ip,
@@ -266,9 +266,9 @@ def set_device_flymode(
     enabled: bool = False,
 ) -> dict[str, Any]:
     at = "AT+CFUN=0" if enabled else "AT+CFUN=1"
-    lan_result = _request_lan_device(ip, "POST", "/api/lan/at", json_body={"cmd": at, "timeout": 8000})
+    lan_result = _request_lan_device(ip, "POST", "/l/a", json_body={"cmd": at, "timeout": 8000})
     if lan_result.get("ok") or lan_result.get("statusCode") not in (404, 405):
-        lan_result["endpoint"] = "/api/lan/at"
+        lan_result["endpoint"] = "/l/a"
         return lan_result
     candidates = [
         ("POST", "/api/device/flymode", None, {"enabled": enabled}),
@@ -288,9 +288,9 @@ def set_device_flymode(
 
 
 def reboot_device(ip: str, user: str = DEVICE_USER, password: str = DEVICE_PASS) -> dict[str, Any]:
-    lan_result = _request_lan_device(ip, "POST", "/api/lan/reboot")
+    lan_result = _request_lan_device(ip, "POST", "/l/r")
     if lan_result.get("ok") or lan_result.get("statusCode") not in (404, 405):
-        lan_result["endpoint"] = "/api/lan/reboot"
+        lan_result["endpoint"] = "/l/r"
         return lan_result
     candidates = [
         ("POST", "/api/device/reboot"),
