@@ -1,0 +1,632 @@
+INFO:     Will watch for changes in these directories: ['F:\\´úÂë¿ª·¢\\T3web']
+INFO:     Uvicorn running on http://0.0.0.0:8080 (Press CTRL+C to quit)
+INFO:     Started reloader process [62052] using WatchFiles
+INFO:     Started server process [15688]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+WARNING:  WatchFiles detected changes in 'backend\app\routers\devices.py', 'backend\app\routers\scan.py', 'backend\app\device_client.py', 'backend\app\main.py'. Reloading...
+INFO:     Shutting down
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+INFO:     Finished server process [15688]
+INFO:     Started server process [32160]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+INFO:httpx:HTTP Request: POST http://172.22.22.75/mgr?a=getHtmlData_index "HTTP/1.1 404 Not Found"
+INFO:httpx:HTTP Request: GET http://198.18.0.21/mgr "HTTP/1.1 404 Not Found"
+INFO:httpx:HTTP Request: GET http://198.18.0.14/mgr "HTTP/1.1 404 Not Found"
+INFO:httpx:HTTP Request: GET http://198.18.0.6/mgr "HTTP/1.0 400 Bad Request"
+INFO:httpx:HTTP Request: GET http://198.18.0.24/mgr "HTTP/1.1 403 Forbidden"
+INFO:httpx:HTTP Request: GET http://198.18.0.25/mgr "HTTP/1.1 403 Forbidden"
+INFO:httpx:HTTP Request: GET http://198.18.0.5/mgr "HTTP/1.0 400 Bad Request"
+INFO:httpx:HTTP Request: GET http://198.18.0.4/mgr "HTTP/1.1 401 Unauthorized"
+INFO:httpx:HTTP Request: GET http://198.18.0.11/mgr "HTTP/1.1 403 Forbidden"
+INFO:httpx:HTTP Request: GET http://198.18.0.31/mgr "HTTP/1.1 403 Forbidden"
+INFO:httpx:HTTP Request: GET http://198.18.0.40/mgr "HTTP/1.1 404 Not Found"
+INFO:httpx:HTTP Request: GET http://198.18.0.7/mgr "HTTP/1.1 400 Bad Request"
+INFO:httpx:HTTP Request: GET http://198.18.0.39/mgr "HTTP/1.1 403 Forbidden"
+INFO:httpx:HTTP Request: GET http://198.18.0.8/mgr "HTTP/1.1 403 Forbidden"
+INFO:httpx:HTTP Request: GET http://198.18.0.29/mgr "HTTP/1.1 403 Forbidden"
+INFO:httpx:HTTP Request: GET http://198.18.0.28/mgr "HTTP/1.1 403 Forbidden"
+INFO:httpx:HTTP Request: GET http://198.18.0.23/mgr "HTTP/1.1 403 Forbidden"
+INFO:httpx:HTTP Request: GET http://198.18.0.30/mgr "HTTP/1.1 403 Forbidden"
+INFO:httpx:HTTP Request: GET http://198.18.0.12/mgr "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: GET http://198.18.0.9/mgr "HTTP/1.1 403 Forbidden"
+INFO:httpx:HTTP Request: GET http://198.18.0.10/mgr "HTTP/1.1 404 Not Found"
+INFO:httpx:HTTP Request: GET http://198.18.0.13/mgr "HTTP/1.1 308 Permanent Redirect"
+INFO:httpx:HTTP Request: GET http://198.18.0.37/mgr "HTTP/1.1 403 Forbidden"
+INFO:httpx:HTTP Request: GET http://198.18.0.38/mgr "HTTP/1.1 418 Unknown Status"
+INFO:httpx:HTTP Request: GET http://198.18.0.48/mgr "HTTP/1.1 406 Not Acceptable"
+INFO:httpx:HTTP Request: GET http://198.18.0.41/mgr "HTTP/1.1 404 Not Found"
+INFO:httpx:HTTP Request: GET http://198.18.0.34/mgr "HTTP/1.1 403 Forbidden"
+INFO:httpx:HTTP Request: GET http://198.18.0.26/mgr "HTTP/1.1 403 Forbidden"
+INFO:httpx:HTTP Request: GET http://198.18.0.32/mgr "HTTP/1.1 403 Forbidden"
+INFO:httpx:HTTP Request: GET http://198.18.0.27/mgr "HTTP/1.1 403 Forbidden"
+INFO:httpx:HTTP Request: GET http://198.18.0.45/mgr "HTTP/1.1 500 Internal Server Error"
+INFO:httpx:HTTP Request: GET http://198.18.0.42/mgr "HTTP/1.1 404 Not Found"
+INFO:httpx:HTTP Request: GET http://198.18.0.36/mgr "HTTP/1.1 403 Forbidden"
+INFO:httpx:HTTP Request: GET http://198.18.0.61/mgr "HTTP/1.1 404 Not Found"
+INFO:httpx:HTTP Request: GET http://198.18.0.35/mgr "HTTP/1.1 403 Forbidden"
+INFO:httpx:HTTP Request: GET http://198.18.0.54/mgr "HTTP/1.1 301 Moved Permanently"
+INFO:httpx:HTTP Request: GET http://198.18.0.64/mgr "HTTP/1.1 404 Not Found"
+INFO:httpx:HTTP Request: GET http://198.18.0.47/mgr "HTTP/1.1 403 Forbidden"
+INFO:httpx:HTTP Request: GET http://198.18.0.65/mgr "HTTP/1.1 403 Forbidden"
+INFO:httpx:HTTP Request: GET http://198.18.0.33/mgr "HTTP/1.1 403 Forbidden"
+INFO:httpx:HTTP Request: GET http://198.18.0.43/mgr "HTTP/1.1 403 Forbidden"
+INFO:httpx:HTTP Request: GET http://198.18.0.57/mgr "HTTP/1.1 403 Forbidden"
+INFO:httpx:HTTP Request: GET http://198.18.0.53/mgr "HTTP/1.1 503 Service Temporarily Unavailable"
+INFO:httpx:HTTP Request: GET http://198.18.0.44/mgr "HTTP/1.1 403 Forbidden"
+INFO:httpx:HTTP Request: GET http://198.18.0.52/mgr "HTTP/1.1 418 Unknown Status"
+INFO:httpx:HTTP Request: GET http://198.18.0.62/mgr "HTTP/1.1 503 Service Temporarily Unavailable"
+INFO:httpx:HTTP Request: GET http://198.18.0.66/mgr "HTTP/1.1 403 Forbidden"
+INFO:httpx:HTTP Request: GET http://198.18.0.60/mgr "HTTP/1.1 302 Moved Temporarily"
+INFO:httpx:HTTP Request: GET http://198.18.0.58/mgr "HTTP/1.1 404 Not Found"
+INFO:httpx:HTTP Request: GET http://198.18.0.56/mgr "HTTP/1.1 202 Accepted"
+INFO:httpx:HTTP Request: GET http://198.18.0.55/mgr "HTTP/1.1 404 Not Found"
+INFO:httpx:HTTP Request: GET http://198.18.0.59/mgr "HTTP/1.1 404 Not Found"
+INFO:httpx:HTTP Request: GET http://198.18.0.76/mgr "HTTP/1.0 400 Bad Request"
+INFO:httpx:HTTP Request: GET http://198.18.0.74/mgr "HTTP/1.1 404 Not Found"
+INFO:httpx:HTTP Request: GET http://198.18.0.72/mgr "HTTP/1.1 403 Forbidden"
+INFO:httpx:HTTP Request: GET http://198.18.0.70/mgr "HTTP/1.1 404 Not Found"
+INFO:httpx:HTTP Request: GET http://198.18.0.90/mgr "HTTP/1.1 404 Not Found"
+INFO:httpx:HTTP Request: GET http://198.18.0.75/mgr "HTTP/1.1 404 Not Found"
+INFO:httpx:HTTP Request: GET http://198.18.0.83/mgr "HTTP/1.0 400 Bad Request"
+INFO:httpx:HTTP Request: GET http://198.18.0.89/mgr "HTTP/1.1 400 Bad Request"
+INFO:httpx:HTTP Request: GET http://198.18.0.84/mgr "HTTP/1.0 400 Bad Request"
+INFO:httpx:HTTP Request: GET http://198.18.0.73/mgr "HTTP/1.1 400 Bad Request"
+INFO:httpx:HTTP Request: GET http://198.18.0.77/mgr "HTTP/1.1 301 Moved Permanently"
+INFO:httpx:HTTP Request: GET http://198.18.0.82/mgr "HTTP/1.0 400 Bad Request"
+INFO:httpx:HTTP Request: GET http://198.18.0.78/mgr "HTTP/1.1 404 Not Found"
+INFO:httpx:HTTP Request: GET http://198.18.0.79/mgr "HTTP/1.1 403 Forbidden"
+INFO:httpx:HTTP Request: GET http://198.18.0.104/mgr "HTTP/1.1 403 Forbidden"
+INFO:httpx:HTTP Request: GET http://198.18.0.96/mgr "HTTP/1.1 404 Not Found"
+INFO:httpx:HTTP Request: GET http://198.18.0.101/mgr "HTTP/1.1 410 Gone"
+INFO:httpx:HTTP Request: GET http://198.18.0.91/mgr "HTTP/1.1 403 Forbidden"
+INFO:httpx:HTTP Request: GET http://198.18.0.97/mgr "HTTP/1.1 410 Gone"
+INFO:httpx:HTTP Request: GET http://198.18.0.81/mgr "HTTP/1.1 400 Bad Request"
+INFO:httpx:HTTP Request: GET http://198.18.0.86/mgr "HTTP/1.1 404 Not Found"
+INFO:httpx:HTTP Request: GET http://198.18.0.103/mgr "HTTP/1.1 403 Forbidden"
+INFO:httpx:HTTP Request: GET http://198.18.0.108/mgr "HTTP/1.1 400 Bad Request"
+INFO:httpx:HTTP Request: GET http://198.18.0.80/mgr "HTTP/1.1 400 Bad Request"
+INFO:httpx:HTTP Request: GET http://198.18.0.100/mgr "HTTP/1.1 404 Not Found"
+INFO:httpx:HTTP Request: GET http://198.18.0.93/mgr "HTTP/1.1 404 Not Found"
+INFO:httpx:HTTP Request: GET http://198.18.0.105/mgr "HTTP/1.1 503 Service Temporarily Unavailable"
+INFO:httpx:HTTP Request: GET http://198.18.0.110/mgr "HTTP/1.0 400 Bad Request"
+INFO:httpx:HTTP Request: GET http://198.18.0.92/mgr "HTTP/1.1 400 Bad Request"
+INFO:httpx:HTTP Request: GET http://198.18.0.112/mgr "HTTP/1.1 400 Bad Request"
+INFO:httpx:HTTP Request: GET http://198.18.0.111/mgr "HTTP/1.1 500 Internal Server Error"
+INFO:httpx:HTTP Request: GET http://198.18.0.119/mgr "HTTP/1.1 404 Not Found"
+INFO:httpx:HTTP Request: GET http://198.18.0.120/mgr "HTTP/1.0 400 Bad Request"
+INFO:httpx:HTTP Request: GET http://198.18.0.122/mgr "HTTP/1.1 403 Forbidden"
+INFO:httpx:HTTP Request: GET http://198.18.0.116/mgr "HTTP/1.1 500 Internal Server Error"
+INFO:httpx:HTTP Request: GET http://198.18.0.109/mgr "HTTP/1.0 400 Bad Request"
+INFO:httpx:HTTP Request: GET http://198.18.0.118/mgr "HTTP/1.1 500 Internal Server Error"
+INFO:httpx:HTTP Request: GET http://198.18.0.115/mgr "HTTP/1.1 404 Not Found"
+INFO:httpx:HTTP Request: GET http://198.18.0.113/mgr "HTTP/1.1 400 Bad Request"
+INFO:httpx:HTTP Request: GET http://198.18.0.114/mgr "HTTP/1.1 500 Internal Server Error"
+INFO:httpx:HTTP Request: GET http://198.18.0.117/mgr "HTTP/1.1 308 Permanent Redirect"
+INFO:httpx:HTTP Request: GET http://198.18.0.128/mgr "HTTP/1.0 400 Bad Request"
+INFO:httpx:HTTP Request: GET http://198.18.0.127/mgr "HTTP/1.0 400 Bad Request"
+INFO:httpx:HTTP Request: GET http://198.18.0.132/mgr "HTTP/1.1 400 Bad Request"
+INFO:httpx:HTTP Request: GET http://198.18.0.125/mgr "HTTP/1.1 500 Domain Not Found"
+INFO:httpx:HTTP Request: GET http://198.18.0.134/mgr "HTTP/1.1 418 Unknown Status"
+INFO:httpx:HTTP Request: GET http://198.18.0.131/mgr "HTTP/1.1 404 Not Found"
+INFO:httpx:HTTP Request: GET http://198.18.0.130/mgr "HTTP/1.0 400 Bad Request"
+INFO:httpx:HTTP Request: GET http://198.18.0.141/mgr "HTTP/1.0 400 Bad Request"
+INFO:httpx:HTTP Request: GET http://198.18.0.135/mgr "HTTP/1.1 403 Forbidden"
+INFO:httpx:HTTP Request: GET http://198.18.0.138/mgr "HTTP/1.1 403 Forbidden"
+INFO:httpx:HTTP Request: GET http://198.18.0.139/mgr "HTTP/1.1 400 Bad Request"
+INFO:httpx:HTTP Request: GET http://198.18.0.136/mgr "HTTP/1.0 400 Bad Request"
+INFO:httpx:HTTP Request: GET http://198.18.0.147/mgr "HTTP/1.1 403 Forbidden"
+INFO:httpx:HTTP Request: GET http://198.18.0.153/mgr "HTTP/1.1 301 Moved Permanently"
+INFO:httpx:HTTP Request: GET http://198.18.0.126/mgr "HTTP/1.1 404 Not Found"
+INFO:httpx:HTTP Request: GET http://198.18.0.140/mgr "HTTP/1.1 503 Service Temporarily Unavailable"
+INFO:httpx:HTTP Request: GET http://198.18.0.154/mgr "HTTP/1.1 418 Unknown Status"
+INFO:httpx:HTTP Request: GET http://198.18.0.155/mgr "HTTP/1.1 404 Not Found"
+INFO:httpx:HTTP Request: GET http://198.18.0.151/mgr "HTTP/1.1 403 Forbidden"
+INFO:httpx:HTTP Request: GET http://198.18.0.152/mgr "HTTP/1.1 301 Moved Permanently"
+INFO:httpx:HTTP Request: GET http://198.18.0.156/mgr "HTTP/1.1 301 Moved Permanently"
+INFO:httpx:HTTP Request: GET http://198.18.0.160/mgr "HTTP/1.1 404 Not Found"
+INFO:httpx:HTTP Request: GET http://198.18.0.144/mgr "HTTP/1.1 403 Forbidden"
+INFO:httpx:HTTP Request: GET http://198.18.0.164/mgr "HTTP/1.1 302 Moved Temporarily"
+INFO:httpx:HTTP Request: GET http://198.18.0.169/mgr "HTTP/1.1 403 Forbidden"
+INFO:httpx:HTTP Request: GET http://198.18.0.165/mgr "HTTP/1.1 403 Forbidden"
+INFO:httpx:HTTP Request: GET http://198.18.0.170/mgr "HTTP/1.1 403 Forbidden"
+INFO:httpx:HTTP Request: GET http://198.18.0.168/mgr "HTTP/1.1 302 Moved Temporarily"
+INFO:httpx:HTTP Request: GET http://198.18.0.167/mgr "HTTP/1.1 403 Forbidden"
+INFO:httpx:HTTP Request: GET http://198.18.0.158/mgr "HTTP/1.1 400 Bad Request"
+INFO:httpx:HTTP Request: GET http://198.18.0.163/mgr "HTTP/1.1 403 Forbidden"
+INFO:httpx:HTTP Request: GET http://198.18.0.166/mgr "HTTP/1.1 403 Forbidden"
+INFO:httpx:HTTP Request: GET http://198.18.0.162/mgr "HTTP/1.1 302 Moved Temporarily"
+INFO:httpx:HTTP Request: GET http://198.18.0.172/mgr "HTTP/1.1 403 Forbidden"
+INFO:httpx:HTTP Request: GET http://198.18.0.175/mgr "HTTP/1.1 403 Forbidden"
+INFO:httpx:HTTP Request: GET http://198.18.0.171/mgr "HTTP/1.1 403 Forbidden"
+INFO:httpx:HTTP Request: GET http://198.18.0.184/mgr "HTTP/1.1 403 Forbidden"
+INFO:httpx:HTTP Request: GET http://198.18.0.161/mgr "HTTP/1.0 400 Bad Request"
+INFO:httpx:HTTP Request: GET http://198.18.0.179/mgr "HTTP/1.1 403 Forbidden"
+INFO:httpx:HTTP Request: GET http://198.18.0.187/mgr "HTTP/1.1 404 Not Found"
+INFO:httpx:HTTP Request: GET http://198.18.0.190/mgr "HTTP/1.1 302 Moved Temporarily"
+INFO:httpx:HTTP Request: GET http://198.18.0.176/mgr "HTTP/1.1 403 Forbidden"
+INFO:httpx:HTTP Request: GET http://198.18.0.186/mgr "HTTP/1.1 302 Moved Temporarily"
+INFO:httpx:HTTP Request: GET http://198.18.0.173/mgr "HTTP/1.1 403 Forbidden"
+INFO:httpx:HTTP Request: GET http://198.18.0.185/mgr "HTTP/1.1 302 Moved Temporarily"
+INFO:httpx:HTTP Request: GET http://198.18.0.191/mgr "HTTP/1.1 403 Forbidden"
+INFO:httpx:HTTP Request: GET http://198.18.0.178/mgr "HTTP/1.1 302 Moved Temporarily"
+INFO:httpx:HTTP Request: GET http://198.18.0.204/mgr "HTTP/1.1 403 Forbidden"
+INFO:httpx:HTTP Request: GET http://198.18.0.192/mgr "HTTP/1.1 403 Forbidden"
+INFO:httpx:HTTP Request: GET http://198.18.0.174/mgr "HTTP/1.1 403 Forbidden"
+INFO:httpx:HTTP Request: GET http://198.18.0.188/mgr "HTTP/1.1 403 Forbidden"
+INFO:httpx:HTTP Request: GET http://198.18.0.194/mgr "HTTP/1.1 403 Forbidden"
+INFO:httpx:HTTP Request: GET http://198.18.0.177/mgr "HTTP/1.1 403 Forbidden"
+INFO:httpx:HTTP Request: GET http://198.18.0.181/mgr "HTTP/1.1 403 Forbidden"
+INFO:httpx:HTTP Request: GET http://198.18.0.200/mgr "HTTP/1.1 418 Unknown Status"
+INFO:httpx:HTTP Request: GET http://198.18.0.196/mgr "HTTP/1.0 400 Bad Request"
+INFO:httpx:HTTP Request: GET http://198.18.0.201/mgr "HTTP/1.1 404 Not Found"
+INFO:httpx:HTTP Request: GET http://198.18.0.195/mgr "HTTP/1.1 301 Moved Permanently"
+INFO:httpx:HTTP Request: GET http://198.18.0.189/mgr "HTTP/1.1 405 Method Not Allowed"
+INFO:httpx:HTTP Request: GET http://198.18.0.199/mgr "HTTP/1.1 403 Forbidden"
+INFO:httpx:HTTP Request: GET http://198.18.0.211/mgr "HTTP/1.1 403 Forbidden"
+INFO:httpx:HTTP Request: GET http://198.18.0.207/mgr "HTTP/1.0 400 Bad Request"
+INFO:httpx:HTTP Request: GET http://198.18.0.197/mgr "HTTP/1.1 404 Not Found"
+INFO:httpx:HTTP Request: GET http://198.18.0.202/mgr "HTTP/1.1 403 Forbidden"
+INFO:httpx:HTTP Request: GET http://198.18.0.212/mgr "HTTP/1.1 403 Forbidden"
+INFO:httpx:HTTP Request: GET http://198.18.0.208/mgr "HTTP/1.1 404 Not Found"
+INFO:httpx:HTTP Request: GET http://198.18.0.206/mgr "HTTP/1.1 404 Not Found"
+INFO:httpx:HTTP Request: GET http://198.18.0.222/mgr "HTTP/1.1 404 Not Found"
+INFO:httpx:HTTP Request: GET http://198.18.0.215/mgr "HTTP/1.1 403 Forbidden"
+INFO:httpx:HTTP Request: GET http://198.18.0.210/mgr "HTTP/1.1 400 Bad Request"
+INFO:httpx:HTTP Request: GET http://198.18.0.205/mgr "HTTP/1.1 404 Not Found"
+INFO:httpx:HTTP Request: GET http://198.18.0.217/mgr "HTTP/1.1 301 Moved Permanently"
+INFO:httpx:HTTP Request: GET http://198.18.0.209/mgr "HTTP/1.1 301 Moved Permanently"
+INFO:httpx:HTTP Request: GET http://198.18.0.243/mgr "HTTP/1.1 403 Forbidden"
+INFO:httpx:HTTP Request: GET http://198.18.0.216/mgr "HTTP/1.1 403 Forbidden"
+INFO:httpx:HTTP Request: GET http://198.18.0.248/mgr "HTTP/1.1 404 Not Found"
+INFO:httpx:HTTP Request: GET http://198.18.0.237/mgr "HTTP/1.1 404 Not Found"
+INFO:httpx:HTTP Request: GET http://198.18.0.249/mgr "HTTP/1.1 404 Not Found"
+INFO:httpx:HTTP Request: GET http://198.18.0.247/mgr "HTTP/1.1 404 Not Found"
+INFO:httpx:HTTP Request: GET http://198.18.0.220/mgr "HTTP/1.1 404 Not Found"
+INFO:httpx:HTTP Request: GET http://198.18.0.225/mgr "HTTP/1.1 404 Not Found"
+INFO:httpx:HTTP Request: GET http://198.18.0.253/mgr "HTTP/1.1 403 Forbidden"
+INFO:httpx:HTTP Request: GET http://198.18.0.228/mgr "HTTP/1.1 404 Not Found"
+INFO:httpx:HTTP Request: GET http://198.18.0.221/mgr "HTTP/1.1 404 Not Found"
+INFO:httpx:HTTP Request: GET http://198.18.0.238/mgr "HTTP/1.1 404 Not Found"
+INFO:httpx:HTTP Request: GET http://198.18.0.231/mgr "HTTP/1.1 404 Not Found"
+INFO:httpx:HTTP Request: GET http://198.18.0.234/mgr "HTTP/1.1 404 Not Found"
+INFO:httpx:HTTP Request: GET http://198.18.0.235/mgr "HTTP/1.1 404 Not Found"
+INFO:httpx:HTTP Request: GET http://198.18.0.224/mgr "HTTP/1.1 404 Not Found"
+INFO:httpx:HTTP Request: GET http://198.18.0.236/mgr "HTTP/1.1 404 Not Found"
+INFO:httpx:HTTP Request: GET http://198.18.0.239/mgr "HTTP/1.1 404 Not Found"
+INFO:httpx:HTTP Request: GET http://198.18.0.219/mgr "HTTP/1.1 404 Not Found"
+INFO:httpx:HTTP Request: GET http://198.18.0.242/mgr "HTTP/1.1 403 Forbidden"
+INFO:httpx:HTTP Request: GET http://198.18.0.251/mgr "HTTP/1.1 404 Not Found"
+INFO:httpx:HTTP Request: GET http://198.18.0.230/mgr "HTTP/1.1 404 Not Found"
+INFO:httpx:HTTP Request: GET http://198.18.0.227/mgr "HTTP/1.1 404 Not Found"
+INFO:httpx:HTTP Request: GET http://198.18.0.223/mgr "HTTP/1.1 404 Not Found"
+INFO:httpx:HTTP Request: GET http://198.18.0.226/mgr "HTTP/1.1 404 Not Found"
+INFO:httpx:HTTP Request: GET http://198.18.0.233/mgr "HTTP/1.1 404 Not Found"
+INFO:httpx:HTTP Request: GET http://198.18.0.241/mgr "HTTP/1.1 404 Not Found"
+INFO:httpx:HTTP Request: GET http://198.18.0.254/mgr "HTTP/1.1 404 Not Found"
+INFO:httpx:HTTP Request: GET http://198.18.0.240/mgr "HTTP/1.1 404 Not Found"
+INFO:httpx:HTTP Request: GET http://198.18.0.229/mgr "HTTP/1.1 404 Not Found"
+INFO:httpx:HTTP Request: GET http://198.18.0.252/mgr "HTTP/1.1 403 Forbidden"
+INFO:httpx:HTTP Request: GET http://198.18.0.232/mgr "HTTP/1.1 404 Not Found"
+INFO:httpx:HTTP Request: GET http://198.18.0.246/mgr "HTTP/1.1 403 Forbidden"
+INFO:httpx:HTTP Request: GET http://198.18.0.244/mgr "HTTP/1.1 403 Forbidden"
+INFO:httpx:HTTP Request: GET http://198.18.0.250/mgr "HTTP/1.1 404 Not Found"
+INFO:httpx:HTTP Request: GET http://198.18.0.245/mgr "HTTP/1.1 403 Forbidden"
+INFO:httpx:HTTP Request: GET http://198.18.0.218/mgr "HTTP/1.1 401 Unauthorized"
+INFO:httpx:HTTP Request: GET http://172.22.22.1/mgr "HTTP/1.1 302 Moved Temporarily"
+INFO:httpx:HTTP Request: GET http://172.22.22.75/mgr "HTTP/1.1 404 Not Found"
+INFO:httpx:HTTP Request: GET http://172.22.22.131/mgr "HTTP/1.1 302 Moved Temporarily"
+INFO:httpx:HTTP Request: GET http://172.22.22.220/mgr "HTTP/1.1 302 Found"
+INFO:httpx:HTTP Request: GET http://172.22.22.1/mgr "HTTP/1.1 302 Moved Temporarily"
+INFO:httpx:HTTP Request: GET http://172.22.22.75/mgr "HTTP/1.1 404 Not Found"
+INFO:httpx:HTTP Request: GET http://172.22.22.131/mgr "HTTP/1.1 302 Moved Temporarily"
+INFO:httpx:HTTP Request: GET http://172.22.22.220/mgr "HTTP/1.1 302 Found"
+INFO:httpx:HTTP Request: GET http://172.22.22.75/mgr "HTTP/1.1 404 Not Found"
+INFO:httpx:HTTP Request: GET http://198.18.0.9/mgr "HTTP/1.1 403 Forbidden"
+INFO:httpx:HTTP Request: GET http://198.18.0.10/mgr "HTTP/1.1 404 Not Found"
+INFO:httpx:HTTP Request: GET http://198.18.0.8/mgr "HTTP/1.1 403 Forbidden"
+INFO:httpx:HTTP Request: GET http://198.18.0.7/mgr "HTTP/1.1 400 Bad Request"
+INFO:httpx:HTTP Request: GET http://198.18.0.39/mgr "HTTP/1.1 403 Forbidden"
+INFO:httpx:HTTP Request: GET http://198.18.0.6/mgr "HTTP/1.0 400 Bad Request"
+INFO:httpx:HTTP Request: GET http://198.18.0.11/mgr "HTTP/1.1 403 Forbidden"
+INFO:httpx:HTTP Request: GET http://198.18.0.30/mgr "HTTP/1.1 403 Forbidden"
+INFO:httpx:HTTP Request: GET http://198.18.0.44/mgr "HTTP/1.1 403 Forbidden"
+INFO:httpx:HTTP Request: GET http://198.18.0.23/mgr "HTTP/1.1 403 Forbidden"
+INFO:httpx:HTTP Request: GET http://198.18.0.32/mgr "HTTP/1.1 403 Forbidden"
+INFO:httpx:HTTP Request: GET http://198.18.0.28/mgr "HTTP/1.1 403 Forbidden"
+INFO:httpx:HTTP Request: GET http://198.18.0.35/mgr "HTTP/1.1 403 Forbidden"
+INFO:httpx:HTTP Request: GET http://198.18.0.34/mgr "HTTP/1.1 403 Forbidden"
+INFO:httpx:HTTP Request: GET http://198.18.0.12/mgr "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: GET http://198.18.0.37/mgr "HTTP/1.1 403 Forbidden"
+INFO:httpx:HTTP Request: GET http://198.18.0.24/mgr "HTTP/1.1 403 Forbidden"
+INFO:httpx:HTTP Request: GET http://198.18.0.42/mgr "HTTP/1.1 404 Not Found"
+INFO:httpx:HTTP Request: GET http://198.18.0.40/mgr "HTTP/1.1 404 Not Found"
+INFO:httpx:HTTP Request: GET http://198.18.0.53/mgr "HTTP/1.1 503 Service Temporarily Unavailable"
+INFO:httpx:HTTP Request: GET http://198.18.0.52/mgr "HTTP/1.1 418 Unknown Status"
+INFO:httpx:HTTP Request: GET http://198.18.0.27/mgr "HTTP/1.1 403 Forbidden"
+INFO:httpx:HTTP Request: GET http://198.18.0.36/mgr "HTTP/1.1 403 Forbidden"
+INFO:httpx:HTTP Request: GET http://198.18.0.29/mgr "HTTP/1.1 403 Forbidden"
+INFO:httpx:HTTP Request: GET http://198.18.0.61/mgr "HTTP/1.1 404 Not Found"
+INFO:httpx:HTTP Request: GET http://198.18.0.33/mgr "HTTP/1.1 403 Forbidden"
+INFO:httpx:HTTP Request: GET http://198.18.0.60/mgr "HTTP/1.1 302 Moved Temporarily"
+INFO:httpx:HTTP Request: GET http://198.18.0.55/mgr "HTTP/1.1 404 Not Found"
+INFO:httpx:HTTP Request: GET http://198.18.0.58/mgr "HTTP/1.1 404 Not Found"
+INFO:httpx:HTTP Request: GET http://198.18.0.47/mgr "HTTP/1.1 403 Forbidden"
+INFO:httpx:HTTP Request: GET http://198.18.0.43/mgr "HTTP/1.1 403 Forbidden"
+INFO:httpx:HTTP Request: GET http://198.18.0.54/mgr "HTTP/1.1 301 Moved Permanently"
+INFO:httpx:HTTP Request: GET http://198.18.0.62/mgr "HTTP/1.1 503 Service Temporarily Unavailable"
+INFO:httpx:HTTP Request: GET http://198.18.0.5/mgr "HTTP/1.0 400 Bad Request"
+INFO:httpx:HTTP Request: GET http://198.18.0.56/mgr "HTTP/1.1 202 Accepted"
+INFO:httpx:HTTP Request: GET http://198.18.0.59/mgr "HTTP/1.1 404 Not Found"
+INFO:httpx:HTTP Request: GET http://198.18.0.4/mgr "HTTP/1.1 401 Unauthorized"
+INFO:httpx:HTTP Request: GET http://198.18.0.66/mgr "HTTP/1.1 403 Forbidden"
+INFO:httpx:HTTP Request: GET http://198.18.0.45/mgr "HTTP/1.1 500 Internal Server Error"
+INFO:httpx:HTTP Request: GET http://198.18.0.14/mgr "HTTP/1.1 404 Not Found"
+INFO:httpx:HTTP Request: GET http://198.18.0.21/mgr "HTTP/1.1 404 Not Found"
+INFO:httpx:HTTP Request: GET http://198.18.0.31/mgr "HTTP/1.1 403 Forbidden"
+INFO:httpx:HTTP Request: GET http://198.18.0.70/mgr "HTTP/1.1 404 Not Found"
+INFO:httpx:HTTP Request: GET http://198.18.0.38/mgr "HTTP/1.1 418 Unknown Status"
+INFO:httpx:HTTP Request: GET http://198.18.0.48/mgr "HTTP/1.1 406 Not Acceptable"
+INFO:httpx:HTTP Request: GET http://198.18.0.13/mgr "HTTP/1.1 308 Permanent Redirect"
+INFO:httpx:HTTP Request: GET http://198.18.0.64/mgr "HTTP/1.1 404 Not Found"
+INFO:httpx:HTTP Request: GET http://198.18.0.65/mgr "HTTP/1.1 403 Forbidden"
+INFO:httpx:HTTP Request: GET http://198.18.0.41/mgr "HTTP/1.1 404 Not Found"
+INFO:httpx:HTTP Request: GET http://198.18.0.72/mgr "HTTP/1.1 403 Forbidden"
+INFO:httpx:HTTP Request: GET http://198.18.0.57/mgr "HTTP/1.1 403 Forbidden"
+INFO:httpx:HTTP Request: GET http://198.18.0.79/mgr "HTTP/1.1 403 Forbidden"
+INFO:httpx:HTTP Request: GET http://198.18.0.105/mgr "HTTP/1.1 503 Service Temporarily Unavailable"
+INFO:httpx:HTTP Request: GET http://198.18.0.77/mgr "HTTP/1.1 301 Moved Permanently"
+INFO:httpx:HTTP Request: GET http://198.18.0.74/mgr "HTTP/1.1 404 Not Found"
+INFO:httpx:HTTP Request: GET http://198.18.0.84/mgr "HTTP/1.0 400 Bad Request"
+INFO:httpx:HTTP Request: GET http://198.18.0.91/mgr "HTTP/1.1 403 Forbidden"
+INFO:httpx:HTTP Request: GET http://198.18.0.97/mgr "HTTP/1.1 410 Gone"
+INFO:httpx:HTTP Request: GET http://198.18.0.130/mgr "HTTP/1.0 400 Bad Request"
+INFO:httpx:HTTP Request: GET http://198.18.0.82/mgr "HTTP/1.0 400 Bad Request"
+INFO:httpx:HTTP Request: GET http://198.18.0.101/mgr "HTTP/1.1 410 Gone"
+INFO:httpx:HTTP Request: GET http://198.18.0.104/mgr "HTTP/1.1 403 Forbidden"
+INFO:httpx:HTTP Request: GET http://198.18.0.78/mgr "HTTP/1.1 404 Not Found"
+INFO:httpx:HTTP Request: GET http://198.18.0.93/mgr "HTTP/1.1 404 Not Found"
+INFO:httpx:HTTP Request: GET http://198.18.0.114/mgr "HTTP/1.1 500 Internal Server Error"
+INFO:httpx:HTTP Request: GET http://198.18.0.89/mgr "HTTP/1.1 400 Bad Request"
+INFO:httpx:HTTP Request: GET http://198.18.0.83/mgr "HTTP/1.0 400 Bad Request"
+INFO:httpx:HTTP Request: GET http://198.18.0.81/mgr "HTTP/1.1 400 Bad Request"
+INFO:httpx:HTTP Request: GET http://198.18.0.103/mgr "HTTP/1.1 403 Forbidden"
+INFO:httpx:HTTP Request: GET http://198.18.0.100/mgr "HTTP/1.1 404 Not Found"
+INFO:httpx:HTTP Request: GET http://198.18.0.113/mgr "HTTP/1.1 400 Bad Request"
+INFO:httpx:HTTP Request: GET http://198.18.0.119/mgr "HTTP/1.1 404 Not Found"
+INFO:httpx:HTTP Request: GET http://198.18.0.111/mgr "HTTP/1.1 500 Internal Server Error"
+INFO:httpx:HTTP Request: GET http://198.18.0.80/mgr "HTTP/1.1 400 Bad Request"
+INFO:httpx:HTTP Request: GET http://198.18.0.90/mgr "HTTP/1.1 404 Not Found"
+INFO:httpx:HTTP Request: GET http://198.18.0.128/mgr "HTTP/1.0 400 Bad Request"
+INFO:httpx:HTTP Request: GET http://198.18.0.75/mgr "HTTP/1.1 404 Not Found"
+INFO:httpx:HTTP Request: GET http://198.18.0.96/mgr "HTTP/1.1 404 Not Found"
+INFO:httpx:HTTP Request: GET http://198.18.0.109/mgr "HTTP/1.0 400 Bad Request"
+INFO:httpx:HTTP Request: GET http://198.18.0.73/mgr "HTTP/1.0 400 Bad Request"
+INFO:httpx:HTTP Request: GET http://198.18.0.92/mgr "HTTP/1.1 400 Bad Request"
+INFO:httpx:HTTP Request: GET http://198.18.0.76/mgr "HTTP/1.0 400 Bad Request"
+INFO:httpx:HTTP Request: GET http://198.18.0.86/mgr "HTTP/1.1 404 Not Found"
+INFO:httpx:HTTP Request: GET http://198.18.0.132/mgr "HTTP/1.1 400 Bad Request"
+INFO:httpx:HTTP Request: GET http://198.18.0.131/mgr "HTTP/1.1 404 Not Found"
+INFO:httpx:HTTP Request: GET http://198.18.0.112/mgr "HTTP/1.1 400 Bad Request"
+INFO:httpx:HTTP Request: GET http://198.18.0.115/mgr "HTTP/1.1 404 Not Found"
+INFO:httpx:HTTP Request: GET http://198.18.0.108/mgr "HTTP/1.1 400 Bad Request"
+INFO:httpx:HTTP Request: GET http://198.18.0.125/mgr "HTTP/1.1 500 Domain Not Found"
+INFO:httpx:HTTP Request: GET http://198.18.0.127/mgr "HTTP/1.0 400 Bad Request"
+INFO:httpx:HTTP Request: GET http://198.18.0.147/mgr "HTTP/1.1 403 Forbidden"
+INFO:httpx:HTTP Request: GET http://198.18.0.110/mgr "HTTP/1.0 400 Bad Request"
+INFO:httpx:HTTP Request: GET http://198.18.0.167/mgr "HTTP/1.1 403 Forbidden"
+INFO:httpx:HTTP Request: GET http://198.18.0.118/mgr "HTTP/1.1 500 Internal Server Error"
+INFO:httpx:HTTP Request: GET http://198.18.0.122/mgr "HTTP/1.1 403 Forbidden"
+INFO:httpx:HTTP Request: GET http://198.18.0.164/mgr "HTTP/1.1 302 Moved Temporarily"
+INFO:httpx:HTTP Request: GET http://198.18.0.150/mgr "HTTP/1.0 400 Bad Request"
+INFO:httpx:HTTP Request: GET http://198.18.0.155/mgr "HTTP/1.1 404 Not Found"
+INFO:httpx:HTTP Request: GET http://198.18.0.116/mgr "HTTP/1.1 500 Internal Server Error"
+INFO:httpx:HTTP Request: GET http://198.18.0.117/mgr "HTTP/1.1 308 Permanent Redirect"
+INFO:httpx:HTTP Request: GET http://198.18.0.134/mgr "HTTP/1.1 418 Unknown Status"
+INFO:httpx:HTTP Request: GET http://198.18.0.163/mgr "HTTP/1.1 403 Forbidden"
+INFO:httpx:HTTP Request: GET http://198.18.0.171/mgr "HTTP/1.1 403 Forbidden"
+INFO:httpx:HTTP Request: GET http://198.18.0.144/mgr "HTTP/1.1 403 Forbidden"
+INFO:httpx:HTTP Request: GET http://198.18.0.138/mgr "HTTP/1.1 403 Forbidden"
+INFO:httpx:HTTP Request: GET http://198.18.0.136/mgr "HTTP/1.0 400 Bad Request"
+INFO:httpx:HTTP Request: GET http://198.18.0.166/mgr "HTTP/1.1 403 Forbidden"
+INFO:httpx:HTTP Request: GET http://198.18.0.120/mgr "HTTP/1.0 400 Bad Request"
+INFO:httpx:HTTP Request: GET http://198.18.0.139/mgr "HTTP/1.1 400 Bad Request"
+INFO:httpx:HTTP Request: GET http://198.18.0.162/mgr "HTTP/1.1 302 Moved Temporarily"
+INFO:httpx:HTTP Request: GET http://198.18.0.160/mgr "HTTP/1.1 404 Not Found"
+INFO:httpx:HTTP Request: GET http://198.18.0.161/mgr "HTTP/1.0 400 Bad Request"
+INFO:httpx:HTTP Request: GET http://198.18.0.174/mgr "HTTP/1.1 403 Forbidden"
+INFO:httpx:HTTP Request: GET http://198.18.0.173/mgr "HTTP/1.1 403 Forbidden"
+WARNING:  WatchFiles detected changes in 'backend\app\device_client.py', 'backend\app\routers\scan.py'. Reloading...
+INFO:httpx:HTTP Request: GET http://198.18.0.141/mgr "HTTP/1.0 400 Bad Request"
+INFO:httpx:HTTP Request: GET http://198.18.0.175/mgr "HTTP/1.1 403 Forbidden"
+INFO:httpx:HTTP Request: GET http://198.18.0.152/mgr "HTTP/1.1 301 Moved Permanently"
+INFO:httpx:HTTP Request: GET http://198.18.0.172/mgr "HTTP/1.1 403 Forbidden"
+INFO:httpx:HTTP Request: GET http://198.18.0.179/mgr "HTTP/1.1 403 Forbidden"
+INFO:httpx:HTTP Request: GET http://198.18.0.176/mgr "HTTP/1.1 403 Forbidden"
+INFO:httpx:HTTP Request: GET http://198.18.0.170/mgr "HTTP/1.1 403 Forbidden"
+INFO:httpx:HTTP Request: GET http://198.18.0.178/mgr "HTTP/1.1 302 Moved Temporarily"
+INFO:httpx:HTTP Request: GET http://198.18.0.185/mgr "HTTP/1.1 302 Moved Temporarily"
+INFO:httpx:HTTP Request: GET http://198.18.0.140/mgr "HTTP/1.1 503 Service Temporarily Unavailable"
+INFO:httpx:HTTP Request: GET http://198.18.0.154/mgr "HTTP/1.1 418 Unknown Status"
+INFO:httpx:HTTP Request: GET http://198.18.0.156/mgr "HTTP/1.1 301 Moved Permanently"
+INFO:httpx:HTTP Request: GET http://198.18.0.165/mgr "HTTP/1.1 403 Forbidden"
+INFO:httpx:HTTP Request: GET http://198.18.0.169/mgr "HTTP/1.1 403 Forbidden"
+INFO:httpx:HTTP Request: GET http://198.18.0.158/mgr "HTTP/1.1 400 Bad Request"
+INFO:httpx:HTTP Request: GET http://198.18.0.187/mgr "HTTP/1.1 404 Not Found"
+INFO:httpx:HTTP Request: GET http://198.18.0.184/mgr "HTTP/1.1 403 Forbidden"
+INFO:httpx:HTTP Request: GET http://198.18.0.192/mgr "HTTP/1.1 403 Forbidden"
+INFO:httpx:HTTP Request: GET http://198.18.0.151/mgr "HTTP/1.1 403 Forbidden"
+INFO:httpx:HTTP Request: GET http://198.18.0.196/mgr "HTTP/1.0 400 Bad Request"
+INFO:httpx:HTTP Request: GET http://198.18.0.204/mgr "HTTP/1.1 403 Forbidden"
+INFO:httpx:HTTP Request: GET http://198.18.0.205/mgr "HTTP/1.1 404 Not Found"
+INFO:httpx:HTTP Request: GET http://198.18.0.197/mgr "HTTP/1.1 404 Not Found"
+INFO:httpx:HTTP Request: GET http://198.18.0.202/mgr "HTTP/1.1 403 Forbidden"
+INFO:httpx:HTTP Request: GET http://198.18.0.153/mgr "HTTP/1.1 301 Moved Permanently"
+INFO:httpx:HTTP Request: GET http://198.18.0.195/mgr "HTTP/1.1 301 Moved Permanently"
+INFO:httpx:HTTP Request: GET http://198.18.0.168/mgr "HTTP/1.1 302 Moved Temporarily"
+INFO:httpx:HTTP Request: GET http://198.18.0.190/mgr "HTTP/1.1 302 Moved Temporarily"
+INFO:httpx:HTTP Request: GET http://198.18.0.200/mgr "HTTP/1.1 418 Unknown Status"
+INFO:httpx:HTTP Request: GET http://198.18.0.208/mgr "HTTP/1.1 404 Not Found"
+INFO:httpx:HTTP Request: GET http://198.18.0.201/mgr "HTTP/1.1 404 Not Found"
+INFO:httpx:HTTP Request: GET http://198.18.0.135/mgr "HTTP/1.1 403 Forbidden"
+INFO:httpx:HTTP Request: GET http://198.18.0.206/mgr "HTTP/1.1 404 Not Found"
+INFO:httpx:HTTP Request: GET http://198.18.0.177/mgr "HTTP/1.1 403 Forbidden"
+INFO:httpx:HTTP Request: GET http://198.18.0.181/mgr "HTTP/1.1 403 Forbidden"
+INFO:httpx:HTTP Request: GET http://198.18.0.211/mgr "HTTP/1.1 403 Forbidden"
+INFO:httpx:HTTP Request: GET http://198.18.0.215/mgr "HTTP/1.1 403 Forbidden"
+INFO:httpx:HTTP Request: GET http://198.18.0.216/mgr "HTTP/1.1 403 Forbidden"
+INFO:httpx:HTTP Request: GET http://198.18.0.209/mgr "HTTP/1.1 301 Moved Permanently"
+INFO:httpx:HTTP Request: GET http://198.18.0.210/mgr "HTTP/1.1 400 Bad Request"
+INFO:httpx:HTTP Request: GET http://198.18.0.186/mgr "HTTP/1.1 302 Moved Temporarily"
+INFO:httpx:HTTP Request: GET http://198.18.0.188/mgr "HTTP/1.1 403 Forbidden"
+INFO:httpx:HTTP Request: GET http://198.18.0.191/mgr "HTTP/1.1 403 Forbidden"
+INFO:httpx:HTTP Request: GET http://198.18.0.221/mgr "HTTP/1.1 404 Not Found"
+INFO:httpx:HTTP Request: GET http://198.18.0.227/mgr "HTTP/1.1 404 Not Found"
+INFO:httpx:HTTP Request: GET http://198.18.0.189/mgr "HTTP/1.1 405 Method Not Allowed"
+INFO:httpx:HTTP Request: GET http://198.18.0.222/mgr "HTTP/1.1 404 Not Found"
+INFO:httpx:HTTP Request: GET http://198.18.0.199/mgr "HTTP/1.1 403 Forbidden"
+INFO:httpx:HTTP Request: GET http://198.18.0.225/mgr "HTTP/1.1 404 Not Found"
+INFO:httpx:HTTP Request: GET http://198.18.0.224/mgr "HTTP/1.1 404 Not Found"
+INFO:httpx:HTTP Request: GET http://198.18.0.212/mgr "HTTP/1.1 403 Forbidden"
+INFO:httpx:HTTP Request: GET http://198.18.0.219/mgr "HTTP/1.1 404 Not Found"
+INFO:httpx:HTTP Request: GET http://198.18.0.207/mgr "HTTP/1.0 400 Bad Request"
+INFO:httpx:HTTP Request: GET http://198.18.0.235/mgr "HTTP/1.1 404 Not Found"
+INFO:httpx:HTTP Request: GET http://198.18.0.228/mgr "HTTP/1.1 404 Not Found"
+INFO:httpx:HTTP Request: GET http://198.18.0.231/mgr "HTTP/1.1 404 Not Found"
+INFO:httpx:HTTP Request: GET http://198.18.0.223/mgr "HTTP/1.1 404 Not Found"
+INFO:httpx:HTTP Request: GET http://198.18.0.218/mgr "HTTP/1.1 401 Unauthorized"
+INFO:httpx:HTTP Request: GET http://198.18.0.194/mgr "HTTP/1.1 403 Forbidden"
+INFO:httpx:HTTP Request: GET http://198.18.0.234/mgr "HTTP/1.1 404 Not Found"
+INFO:httpx:HTTP Request: GET http://198.18.0.220/mgr "HTTP/1.1 404 Not Found"
+INFO:httpx:HTTP Request: GET http://198.18.0.233/mgr "HTTP/1.1 404 Not Found"
+INFO:httpx:HTTP Request: GET http://198.18.0.229/mgr "HTTP/1.1 404 Not Found"
+INFO:httpx:HTTP Request: GET http://198.18.0.226/mgr "HTTP/1.1 404 Not Found"
+INFO:httpx:HTTP Request: GET http://198.18.0.230/mgr "HTTP/1.1 404 Not Found"
+INFO:httpx:HTTP Request: GET http://198.18.0.232/mgr "HTTP/1.1 404 Not Found"
+INFO:httpx:HTTP Request: GET http://198.18.0.217/mgr "HTTP/1.1 301 Moved Permanently"
+INFO:httpx:HTTP Request: GET http://198.18.0.246/mgr "HTTP/1.1 403 Forbidden"
+INFO:httpx:HTTP Request: GET http://198.18.0.238/mgr "HTTP/1.1 404 Not Found"
+INFO:httpx:HTTP Request: GET http://198.18.0.242/mgr "HTTP/1.1 403 Forbidden"
+INFO:httpx:HTTP Request: GET http://198.18.0.244/mgr "HTTP/1.1 403 Forbidden"
+INFO:httpx:HTTP Request: GET http://198.18.0.241/mgr "HTTP/1.1 404 Not Found"
+INFO:httpx:HTTP Request: GET http://198.18.0.243/mgr "HTTP/1.1 403 Forbidden"
+INFO:httpx:HTTP Request: GET http://198.18.0.239/mgr "HTTP/1.1 404 Not Found"
+INFO:httpx:HTTP Request: GET http://198.18.0.245/mgr "HTTP/1.1 403 Forbidden"
+INFO:httpx:HTTP Request: GET http://198.18.0.240/mgr "HTTP/1.1 404 Not Found"
+INFO:httpx:HTTP Request: GET http://198.18.0.251/mgr "HTTP/1.1 404 Not Found"
+INFO:httpx:HTTP Request: GET http://198.18.0.236/mgr "HTTP/1.1 404 Not Found"
+INFO:httpx:HTTP Request: GET http://198.18.0.249/mgr "HTTP/1.1 404 Not Found"
+INFO:httpx:HTTP Request: GET http://198.18.0.237/mgr "HTTP/1.1 404 Not Found"
+INFO:httpx:HTTP Request: GET http://198.18.0.252/mgr "HTTP/1.1 403 Forbidden"
+INFO:httpx:HTTP Request: GET http://198.18.0.253/mgr "HTTP/1.1 403 Forbidden"
+INFO:httpx:HTTP Request: GET http://198.18.0.250/mgr "HTTP/1.1 404 Not Found"
+INFO:httpx:HTTP Request: GET http://198.18.0.247/mgr "HTTP/1.1 404 Not Found"
+INFO:httpx:HTTP Request: GET http://198.18.0.248/mgr "HTTP/1.1 404 Not Found"
+INFO:httpx:HTTP Request: GET http://198.18.0.254/mgr "HTTP/1.1 404 Not Found"
+INFO:     Shutting down
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+INFO:     Finished server process [32160]
+INFO:httpx:HTTP Request: GET http://198.18.0.4/mgr "HTTP/1.1 401 Unauthorized"
+INFO:httpx:HTTP Request: GET http://198.18.0.21/mgr "HTTP/1.1 404 Not Found"
+INFO:httpx:HTTP Request: GET http://198.18.0.10/mgr "HTTP/1.1 404 Not Found"
+INFO:httpx:HTTP Request: GET http://198.18.0.9/mgr "HTTP/1.1 403 Forbidden"
+INFO:httpx:HTTP Request: GET http://198.18.0.7/mgr "HTTP/1.1 400 Bad Request"
+INFO:httpx:HTTP Request: GET http://198.18.0.24/mgr "HTTP/1.1 403 Forbidden"
+INFO:httpx:HTTP Request: GET http://198.18.0.5/mgr "HTTP/1.0 400 Bad Request"
+INFO:httpx:HTTP Request: GET http://198.18.0.23/mgr "HTTP/1.1 403 Forbidden"
+INFO:httpx:HTTP Request: GET http://198.18.0.8/mgr "HTTP/1.1 403 Forbidden"
+INFO:httpx:HTTP Request: GET http://198.18.0.26/mgr "HTTP/1.1 403 Forbidden"
+INFO:httpx:HTTP Request: GET http://198.18.0.25/mgr "HTTP/1.1 403 Forbidden"
+INFO:httpx:HTTP Request: GET http://198.18.0.14/mgr "HTTP/1.1 404 Not Found"
+INFO:httpx:HTTP Request: GET http://198.18.0.6/mgr "HTTP/1.0 400 Bad Request"
+INFO:httpx:HTTP Request: GET http://198.18.0.11/mgr "HTTP/1.1 403 Forbidden"
+INFO:httpx:HTTP Request: GET http://198.18.0.27/mgr "HTTP/1.1 403 Forbidden"
+INFO:httpx:HTTP Request: GET http://198.18.0.12/mgr "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: GET http://198.18.0.13/mgr "HTTP/1.1 308 Permanent Redirect"
+INFO:     Started server process [48068]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+WARNING:  WatchFiles detected changes in 'backend\app\device_client.py'. Reloading...
+INFO:     Shutting down
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+INFO:     Finished server process [48068]
+INFO:     Started server process [33924]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+WARNING:  WatchFiles detected changes in 'backend\app\routers\scan.py'. Reloading...
+INFO:     Shutting down
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+INFO:     Finished server process [33924]
+INFO:     Started server process [7316]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+WARNING:  WatchFiles detected changes in 'backend\app\device_client.py'. Reloading...
+INFO:     Shutting down
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+INFO:     Finished server process [7316]
+WARNING:  WatchFiles detected changes in 'backend\app\routers\devices.py'. Reloading...
+INFO:     Started server process [36824]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+WARNING:  WatchFiles detected changes in 'backend\app\routers\messages.py'. Reloading...
+INFO:     Shutting down
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+INFO:     Finished server process [36824]
+WARNING:  WatchFiles detected changes in 'backend\app\main.py'. Reloading...
+INFO:     Started server process [53396]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+ERROR:    Traceback (most recent call last):
+  File "C:\Program Files\WindowsApps\PythonSoftwareFoundation.Python.3.13_3.13.3824.0_x64__qbz5n2kfra8p0\Lib\asyncio\runners.py", line 119, in run
+    return self._loop.run_until_complete(task)
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^
+  File "C:\Program Files\WindowsApps\PythonSoftwareFoundation.Python.3.13_3.13.3824.0_x64__qbz5n2kfra8p0\Lib\asyncio\base_events.py", line 725, in run_until_complete
+    return future.result()
+           ~~~~~~~~~~~~~^^
+asyncio.exceptions.CancelledError
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "C:\Program Files\WindowsApps\PythonSoftwareFoundation.Python.3.13_3.13.3824.0_x64__qbz5n2kfra8p0\Lib\asyncio\runners.py", line 196, in run
+    return runner.run(main)
+           ~~~~~~~~~~^^^^^^
+  File "C:\Program Files\WindowsApps\PythonSoftwareFoundation.Python.3.13_3.13.3824.0_x64__qbz5n2kfra8p0\Lib\asyncio\runners.py", line 124, in run
+    raise KeyboardInterrupt()
+KeyboardInterrupt
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "C:\Users\feiyu\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.13_qbz5n2kfra8p0\LocalCache\local-packages\Python313\site-packages\starlette\routing.py", line 700, in lifespan
+    await receive()
+  File "C:\Users\feiyu\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.13_qbz5n2kfra8p0\LocalCache\local-packages\Python313\site-packages\uvicorn\lifespan\on.py", line 137, in receive
+    return await self.receive_queue.get()
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Program Files\WindowsApps\PythonSoftwareFoundation.Python.3.13_3.13.3824.0_x64__qbz5n2kfra8p0\Lib\asyncio\queues.py", line 186, in get
+    await getter
+asyncio.exceptions.CancelledError
+
+INFO:     Started server process [40632]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+INFO:httpx:HTTP Request: POST http://172.22.22.75/api/device/flymode "HTTP/1.1 404 Not Found"
+INFO:httpx:HTTP Request: POST http://172.22.22.75/api/serial/flymode "HTTP/1.1 404 Not Found"
+INFO:httpx:HTTP Request: POST http://172.22.22.75/api/flymode?enabled=true "HTTP/1.1 404 Not Found"
+INFO:httpx:HTTP Request: GET http://172.22.22.1/mgr "HTTP/1.1 302 Moved Temporarily"
+INFO:httpx:HTTP Request: POST http://172.22.22.1/mgr?a=getHtmlData_index "HTTP/1.1 302 Moved Temporarily"
+INFO:httpx:HTTP Request: GET http://172.22.22.75/mgr "HTTP/1.1 404 Not Found"
+INFO:httpx:HTTP Request: GET http://172.22.22.131/mgr "HTTP/1.1 302 Moved Temporarily"
+INFO:httpx:HTTP Request: GET http://172.22.22.220/mgr "HTTP/1.1 302 Found"
+INFO:httpx:HTTP Request: POST http://172.22.22.131/mgr?a=getHtmlData_index "HTTP/1.1 302 Moved Temporarily"
+INFO:httpx:HTTP Request: POST http://172.22.22.75/mgr?a=getHtmlData_index "HTTP/1.1 404 Not Found"
+INFO:httpx:HTTP Request: POST http://172.22.22.220/mgr?a=getHtmlData_index "HTTP/1.1 302 Found"
+WARNING:  WatchFiles detected changes in 'backend\app\routers\scan.py'. Reloading...
+INFO:     Shutting down
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+INFO:     Finished server process [40632]
+INFO:     Started server process [11252]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+INFO:httpx:HTTP Request: GET http://172.22.22.1/mgr "HTTP/1.1 302 Moved Temporarily"
+INFO:httpx:HTTP Request: POST http://172.22.22.1/mgr?a=getHtmlData_index "HTTP/1.1 302 Moved Temporarily"
+INFO:httpx:HTTP Request: GET http://172.22.22.75/mgr "HTTP/1.1 404 Not Found"
+INFO:httpx:HTTP Request: POST http://172.22.22.75/mgr?a=getHtmlData_index "HTTP/1.1 404 Not Found"
+INFO:httpx:HTTP Request: GET http://172.22.22.1/mgr "HTTP/1.1 302 Moved Temporarily"
+INFO:httpx:HTTP Request: GET http://172.22.22.131/mgr "HTTP/1.1 302 Moved Temporarily"
+INFO:httpx:HTTP Request: POST http://172.22.22.1/mgr?a=getHtmlData_index "HTTP/1.1 302 Moved Temporarily"
+INFO:httpx:HTTP Request: POST http://172.22.22.131/mgr?a=getHtmlData_index "HTTP/1.1 302 Moved Temporarily"
+INFO:httpx:HTTP Request: GET http://172.22.22.75/mgr "HTTP/1.1 404 Not Found"
+INFO:httpx:HTTP Request: POST http://172.22.22.75/mgr?a=getHtmlData_index "HTTP/1.1 404 Not Found"
+INFO:httpx:HTTP Request: GET http://172.22.22.220/mgr "HTTP/1.1 302 Found"
+INFO:httpx:HTTP Request: POST http://172.22.22.220/mgr?a=getHtmlData_index "HTTP/1.1 302 Found"
+INFO:httpx:HTTP Request: GET http://172.22.22.131/mgr "HTTP/1.1 302 Moved Temporarily"
+INFO:httpx:HTTP Request: POST http://172.22.22.131/mgr?a=getHtmlData_index "HTTP/1.1 302 Moved Temporarily"
+INFO:httpx:HTTP Request: GET http://172.22.22.220/mgr "HTTP/1.1 302 Found"
+INFO:httpx:HTTP Request: POST http://172.22.22.220/mgr?a=getHtmlData_index "HTTP/1.1 302 Found"
+WARNING:  WatchFiles detected changes in 'backend\app\config.py'. Reloading...
+INFO:     Shutting down
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+INFO:     Finished server process [11252]
+WARNING:  WatchFiles detected changes in 'backend\app\routers\scan.py', 'backend\app\device_client.py'. Reloading...
+INFO:     Started server process [48320]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+ERROR:    Traceback (most recent call last):
+  File "C:\Program Files\WindowsApps\PythonSoftwareFoundation.Python.3.13_3.13.3824.0_x64__qbz5n2kfra8p0\Lib\asyncio\runners.py", line 119, in run
+    return self._loop.run_until_complete(task)
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^
+  File "C:\Program Files\WindowsApps\PythonSoftwareFoundation.Python.3.13_3.13.3824.0_x64__qbz5n2kfra8p0\Lib\asyncio\base_events.py", line 725, in run_until_complete
+    return future.result()
+           ~~~~~~~~~~~~~^^
+asyncio.exceptions.CancelledError
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "C:\Program Files\WindowsApps\PythonSoftwareFoundation.Python.3.13_3.13.3824.0_x64__qbz5n2kfra8p0\Lib\asyncio\runners.py", line 196, in run
+    return runner.run(main)
+           ~~~~~~~~~~^^^^^^
+  File "C:\Program Files\WindowsApps\PythonSoftwareFoundation.Python.3.13_3.13.3824.0_x64__qbz5n2kfra8p0\Lib\asyncio\runners.py", line 124, in run
+    raise KeyboardInterrupt()
+KeyboardInterrupt
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "C:\Users\feiyu\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.13_qbz5n2kfra8p0\LocalCache\local-packages\Python313\site-packages\starlette\routing.py", line 700, in lifespan
+    await receive()
+  File "C:\Users\feiyu\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.13_qbz5n2kfra8p0\LocalCache\local-packages\Python313\site-packages\uvicorn\lifespan\on.py", line 137, in receive
+    return await self.receive_queue.get()
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Program Files\WindowsApps\PythonSoftwareFoundation.Python.3.13_3.13.3824.0_x64__qbz5n2kfra8p0\Lib\asyncio\queues.py", line 186, in get
+    await getter
+asyncio.exceptions.CancelledError
+
+INFO:     Started server process [41992]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+WARNING:  WatchFiles detected changes in 'backend\app\routers\devices.py'. Reloading...
+INFO:     Shutting down
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+INFO:     Finished server process [41992]
+INFO:     Started server process [48060]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+WARNING:  WatchFiles detected changes in 'backend\app\routers\devices.py'. Reloading...
+INFO:     Shutting down
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+INFO:     Finished server process [48060]
+INFO:     Started server process [17036]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+INFO:httpx:HTTP Request: GET http://172.22.22.1/api/lan/discover?key=T3-C3-LAN-KEY-2026 "HTTP/1.1 302 Moved Temporarily"
+INFO:httpx:HTTP Request: GET http://172.22.22.75/api/lan/discover?key=T3-C3-LAN-KEY-2026 "HTTP/1.1 404 Not Found"
+INFO:httpx:HTTP Request: GET http://172.22.22.131/api/lan/discover?key=T3-C3-LAN-KEY-2026 "HTTP/1.1 302 Moved Temporarily"
+INFO:httpx:HTTP Request: GET http://172.22.22.220/api/lan/discover?key=T3-C3-LAN-KEY-2026 "HTTP/1.1 302 Found"
+WARNING:  WatchFiles detected changes in 'backend\app\device_client.py'. Reloading...
+INFO:     Shutting down
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+INFO:     Finished server process [17036]
+INFO:     Started server process [52836]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+INFO:httpx:HTTP Request: GET http://172.22.22.1/api/lan/discover?key=T3-C3-LAN-KEY-2026 "HTTP/1.1 302 Moved Temporarily"
+INFO:httpx:HTTP Request: GET http://172.22.22.75/api/lan/discover?key=T3-C3-LAN-KEY-2026 "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: GET http://172.22.22.131/api/lan/discover?key=T3-C3-LAN-KEY-2026 "HTTP/1.1 302 Moved Temporarily"
+INFO:httpx:HTTP Request: GET http://172.22.22.220/api/lan/discover?key=T3-C3-LAN-KEY-2026 "HTTP/1.1 302 Found"
+INFO:httpx:HTTP Request: POST http://172.22.22.75/api/lan/sms/send?key=T3-C3-LAN-KEY-2026 "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: POST http://172.22.22.75/api/lan/sms/send?key=T3-C3-LAN-KEY-2026 "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: POST http://172.22.22.75/api/lan/sms/send?key=T3-C3-LAN-KEY-2026 "HTTP/1.1 200 OK"

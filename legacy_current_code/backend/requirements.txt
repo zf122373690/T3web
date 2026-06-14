@@ -1,0 +1,25 @@
+# SMS Forwarder Py - Requirements
+# 后端依赖
+
+# Web框架
+fastapi>=0.104.0
+uvicorn[standard]>=0.24.0
+
+# 数据库
+sqlalchemy>=2.0.0
+
+# HTTP客户端
+httpx>=0.25.0
+
+# 前端静态文件服务
+python-multipart>=0.0.6
+
+# Windows/Linux兼容
+pyyaml>=6.0.1
+
+# 可选: 生产环境部署
+gunicorn>=21.0.0
+
+# 开发依赖
+pytest>=7.4.0
+pytest-asyncio>=0.21.0

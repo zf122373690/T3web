@@ -1,32 +1,40 @@
-import apiClient from './client';
-import type {ListResult, Stats, Conversation, TextMessage} from './types';
+import {api} from './client';
 
-// 获取统计信息
-export const getStats = (): Promise<Stats> => {
-    return apiClient.get('/messages/stats');
-};
+export interface MessageItem {
+  id: number;
+  phone: string;
+  from: string;
+  content: string;
+  direction: string;
+  status: string;
+  createdAt: number;
+  time: number;
+}
 
-// 获取会话列表（按对方号码分组）
-export const getConversations = (): Promise<Conversation[]> => {
-    return apiClient.get('/messages/conversations');
-};
+export interface MessageStats {
+  total: number;
+  today: number;
+  week: number;
+  failed: number;
+}
 
-// 获取指定会话的所有消息
-export const getConversationMessages = (peer: string): Promise<TextMessage[]> => {
-    return apiClient.get(`/messages/conversations/${encodeURIComponent(peer)}/messages`);
-};
+export function listMessages(params: {page?: number; pageSize?: number; search?: string} = {}) {
+  const query = new URLSearchParams({
+    page: String(params.page ?? 1),
+    page_size: String(params.pageSize ?? 50),
+    search: params.search ?? '',
+  });
+  return api.get<{items: MessageItem[]; total: number; page: number; pageSize: number}>(`/messages?${query}`);
+}
 
-// 删除单条短信
-export const deleteMessage = (id: string) => {
-    return apiClient.delete(`/messages/${id}`);
-};
+export function getMessageStats() {
+  return api.get<MessageStats>('/messages/stats');
+}
 
-// 删除整个会话（与某个联系人的所有消息）
-export const deleteConversation = (peer: string) => {
-    return apiClient.delete(`/messages/conversations/${encodeURIComponent(peer)}`);
-};
+export function deleteMessage(id: number) {
+  return api.delete<{success: boolean}>(`/messages/${id}`);
+}
 
-// 清空所有短信
-export const clearMessages = () => {
-    return apiClient.delete('/messages');
-};
+export function clearMessages() {
+  return api.delete<{success: boolean}>('/messages');
+}

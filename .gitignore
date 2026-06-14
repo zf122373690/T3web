@@ -1,1 +1,9 @@
-node_modules
+__pycache__/
+*.pyc
+.venv/
+node_modules/
+frontend/dist/
+backend/static/assets/
+backend/static/index.html
+data/*.db
+data/*.db-*

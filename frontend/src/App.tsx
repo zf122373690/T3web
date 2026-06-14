@@ -1,46 +1,34 @@
-import {BrowserRouter, Route, Routes} from 'react-router-dom';
-import {QueryProvider} from './providers/QueryProvider';
-import {ProtectedRoute} from './components/ProtectedRoute';
+import {Navigate, Route, Routes} from 'react-router-dom';
 import Layout from './components/Layout';
 import Login from './pages/Login';
-import OIDCCallback from './pages/OIDCCallback';
 import Dashboard from './pages/Dashboard';
+import Devices from './pages/Devices';
+import Scan from './pages/Scan';
+import Serial from './pages/Serial';
 import Messages from './pages/Messages';
-import SerialControl from './pages/SerialControl';
-import NotificationChannels from './pages/NotificationChannels';
-import ScheduledTasksConfig from './pages/ScheduledTasksConfig';
-import {Toaster} from "@/components/ui/sonner.tsx";
 
-function App() {
-    return (
-        <QueryProvider>
-            <BrowserRouter>
-                <Routes>
-                    {/* 公开路由 */}
-                    <Route path="/login" element={<Login/>}/>
-                    <Route path="/oidc/callback" element={<OIDCCallback/>}/>
-
-                    {/* 受保护的路由 */}
-                    <Route
-                        path="/"
-                        element={
-                            <ProtectedRoute>
-                                <Layout/>
-                            </ProtectedRoute>
-                        }
-                    >
-                        <Route index element={<Dashboard/>}/>
-                        <Route path="messages" element={<Messages/>}/>
-                        <Route path="serial" element={<SerialControl/>}/>
-                        <Route path="notifications" element={<NotificationChannels/>}/>
-                        <Route path="scheduled-tasks" element={<ScheduledTasksConfig/>}/>
-                    </Route>
-                </Routes>
-            </BrowserRouter>
-
-            <Toaster/>
-        </QueryProvider>
-    );
+function Protected({children}: {children: React.ReactNode}) {
+  return localStorage.getItem('token') ? children : <Navigate to="/login" replace />;
 }
 
-export default App;
+export default function App() {
+  return (
+    <Routes>
+      <Route path="/login" element={<Login />} />
+      <Route
+        path="/"
+        element={
+          <Protected>
+            <Layout />
+          </Protected>
+        }
+      >
+        <Route index element={<Dashboard />} />
+        <Route path="serial" element={<Serial />} />
+        <Route path="messages" element={<Messages />} />
+        <Route path="devices" element={<Devices />} />
+        <Route path="scan" element={<Scan />} />
+      </Route>
+    </Routes>
+  );
+}
