@@ -630,3 +630,1525 @@ INFO:httpx:HTTP Request: GET http://172.22.22.220/api/lan/discover?key=T3-C3-LAN
 INFO:httpx:HTTP Request: POST http://172.22.22.75/api/lan/sms/send?key=T3-C3-LAN-KEY-2026 "HTTP/1.1 200 OK"
 INFO:httpx:HTTP Request: POST http://172.22.22.75/api/lan/sms/send?key=T3-C3-LAN-KEY-2026 "HTTP/1.1 200 OK"
 INFO:httpx:HTTP Request: POST http://172.22.22.75/api/lan/sms/send?key=T3-C3-LAN-KEY-2026 "HTTP/1.1 200 OK"
+WARNING:  WatchFiles detected changes in 'backend\app\device_client.py'. Reloading...
+INFO:     Shutting down
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+INFO:     Finished server process [52836]
+INFO:     Started server process [51556]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+INFO:httpx:HTTP Request: POST http://172.22.22.75/l/s?key=T3-C3-LAN-KEY-2026 "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: POST http://172.22.22.75/l/s?key=T3-C3-LAN-KEY-2026 "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: POST http://172.22.22.75/l/s?key=T3-C3-LAN-KEY-2026 "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: GET http://172.22.22.1/l/d?key=T3-C3-LAN-KEY-2026 "HTTP/1.1 302 Moved Temporarily"
+INFO:httpx:HTTP Request: GET http://172.22.22.75/l/d?key=T3-C3-LAN-KEY-2026 "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: GET http://172.22.22.131/l/d?key=T3-C3-LAN-KEY-2026 "HTTP/1.1 302 Moved Temporarily"
+INFO:httpx:HTTP Request: GET http://172.22.22.220/l/d?key=T3-C3-LAN-KEY-2026 "HTTP/1.1 302 Found"
+INFO:httpx:HTTP Request: POST http://172.22.22.75/l/s?key=T3-C3-LAN-KEY-2026 "HTTP/1.1 200 OK"
+WARNING:  WatchFiles detected changes in 'backend\app\device_client.py'. Reloading...
+INFO:httpx:HTTP Request: POST http://172.22.22.75/l/s?key=T3-C3-LAN-KEY-2026 "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: POST http://172.22.22.75/l/a?key=T3-C3-LAN-KEY-2026 "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: POST http://172.22.22.75/l/a?key=T3-C3-LAN-KEY-2026 "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: POST http://172.22.22.75/l/a?key=T3-C3-LAN-KEY-2026 "HTTP/1.1 200 OK"
+INFO:     Shutting down
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+INFO:     Finished server process [51556]
+WARNING:  WatchFiles detected changes in 'backend\app\routers\devices.py'. Reloading...
+INFO:     Started server process [47772]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+ERROR:    Traceback (most recent call last):
+  File "C:\Program Files\WindowsApps\PythonSoftwareFoundation.Python.3.13_3.13.3824.0_x64__qbz5n2kfra8p0\Lib\asyncio\runners.py", line 119, in run
+    return self._loop.run_until_complete(task)
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^
+  File "C:\Program Files\WindowsApps\PythonSoftwareFoundation.Python.3.13_3.13.3824.0_x64__qbz5n2kfra8p0\Lib\asyncio\base_events.py", line 725, in run_until_complete
+    return future.result()
+           ~~~~~~~~~~~~~^^
+asyncio.exceptions.CancelledError
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "C:\Program Files\WindowsApps\PythonSoftwareFoundation.Python.3.13_3.13.3824.0_x64__qbz5n2kfra8p0\Lib\asyncio\runners.py", line 196, in run
+    return runner.run(main)
+           ~~~~~~~~~~^^^^^^
+  File "C:\Program Files\WindowsApps\PythonSoftwareFoundation.Python.3.13_3.13.3824.0_x64__qbz5n2kfra8p0\Lib\asyncio\runners.py", line 124, in run
+    raise KeyboardInterrupt()
+KeyboardInterrupt
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "C:\Users\feiyu\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.13_qbz5n2kfra8p0\LocalCache\local-packages\Python313\site-packages\starlette\routing.py", line 700, in lifespan
+    await receive()
+  File "C:\Users\feiyu\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.13_qbz5n2kfra8p0\LocalCache\local-packages\Python313\site-packages\uvicorn\lifespan\on.py", line 137, in receive
+    return await self.receive_queue.get()
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Program Files\WindowsApps\PythonSoftwareFoundation.Python.3.13_3.13.3824.0_x64__qbz5n2kfra8p0\Lib\asyncio\queues.py", line 186, in get
+    await getter
+asyncio.exceptions.CancelledError
+
+INFO:     Started server process [8620]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+WARNING:  WatchFiles detected changes in 'backend\app\device_client.py'. Reloading...
+INFO:     Shutting down
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+INFO:     Finished server process [8620]
+INFO:     Started server process [25248]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+INFO:httpx:HTTP Request: POST http://172.22.22.75/l/a?key=T3-C3-LAN-KEY-2026 "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: POST http://172.22.22.75/l/a?key=T3-C3-LAN-KEY-2026 "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: POST http://172.22.22.75/l/r?key=T3-C3-LAN-KEY-2026 "HTTP/1.1 200 OK"
+WARNING:  WatchFiles detected changes in 'backend\app\config.py'. Reloading...
+INFO:     Shutting down
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+INFO:     Finished server process [25248]
+INFO:     Started server process [41348]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+WARNING:  WatchFiles detected changes in 'backend\app\routers\messages.py'. Reloading...
+INFO:     Shutting down
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+INFO:     Finished server process [41348]
+INFO:     Started server process [59620]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+WARNING:  WatchFiles detected changes in 'backend\app\routers\messages.py'. Reloading...
+INFO:     Shutting down
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+INFO:     Finished server process [59620]
+INFO:     Started server process [8064]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+WARNING:  WatchFiles detected changes in 'backend\app\device_client.py', 'backend\app\config.py'. Reloading...
+INFO:     Shutting down
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+INFO:     Finished server process [8064]
+WARNING:  WatchFiles detected changes in 'backend\app\routers\devices.py', 'backend\app\routers\scan.py'. Reloading...
+INFO:     Started server process [34924]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+ERROR:    Traceback (most recent call last):
+  File "C:\Program Files\WindowsApps\PythonSoftwareFoundation.Python.3.13_3.13.3824.0_x64__qbz5n2kfra8p0\Lib\asyncio\runners.py", line 119, in run
+    return self._loop.run_until_complete(task)
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^
+  File "C:\Program Files\WindowsApps\PythonSoftwareFoundation.Python.3.13_3.13.3824.0_x64__qbz5n2kfra8p0\Lib\asyncio\base_events.py", line 725, in run_until_complete
+    return future.result()
+           ~~~~~~~~~~~~~^^
+asyncio.exceptions.CancelledError
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "C:\Program Files\WindowsApps\PythonSoftwareFoundation.Python.3.13_3.13.3824.0_x64__qbz5n2kfra8p0\Lib\asyncio\runners.py", line 196, in run
+    return runner.run(main)
+           ~~~~~~~~~~^^^^^^
+  File "C:\Program Files\WindowsApps\PythonSoftwareFoundation.Python.3.13_3.13.3824.0_x64__qbz5n2kfra8p0\Lib\asyncio\runners.py", line 124, in run
+    raise KeyboardInterrupt()
+KeyboardInterrupt
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "C:\Users\feiyu\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.13_qbz5n2kfra8p0\LocalCache\local-packages\Python313\site-packages\starlette\routing.py", line 700, in lifespan
+    await receive()
+  File "C:\Users\feiyu\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.13_qbz5n2kfra8p0\LocalCache\local-packages\Python313\site-packages\uvicorn\lifespan\on.py", line 137, in receive
+    return await self.receive_queue.get()
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Program Files\WindowsApps\PythonSoftwareFoundation.Python.3.13_3.13.3824.0_x64__qbz5n2kfra8p0\Lib\asyncio\queues.py", line 186, in get
+    await getter
+asyncio.exceptions.CancelledError
+
+INFO:     Started server process [47176]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+WARNING:  WatchFiles detected changes in 'backend\app\auth.py', 'backend\app\routers\auth.py'. Reloading...
+INFO:     Shutting down
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+INFO:     Finished server process [47176]
+WARNING:  WatchFiles detected changes in 'backend\app\config.py'. Reloading...
+INFO:     Started server process [28932]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+ERROR:    Traceback (most recent call last):
+  File "C:\Program Files\WindowsApps\PythonSoftwareFoundation.Python.3.13_3.13.3824.0_x64__qbz5n2kfra8p0\Lib\asyncio\runners.py", line 119, in run
+    return self._loop.run_until_complete(task)
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^
+  File "C:\Program Files\WindowsApps\PythonSoftwareFoundation.Python.3.13_3.13.3824.0_x64__qbz5n2kfra8p0\Lib\asyncio\base_events.py", line 725, in run_until_complete
+    return future.result()
+           ~~~~~~~~~~~~~^^
+asyncio.exceptions.CancelledError
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "C:\Program Files\WindowsApps\PythonSoftwareFoundation.Python.3.13_3.13.3824.0_x64__qbz5n2kfra8p0\Lib\asyncio\runners.py", line 196, in run
+    return runner.run(main)
+           ~~~~~~~~~~^^^^^^
+  File "C:\Program Files\WindowsApps\PythonSoftwareFoundation.Python.3.13_3.13.3824.0_x64__qbz5n2kfra8p0\Lib\asyncio\runners.py", line 124, in run
+    raise KeyboardInterrupt()
+KeyboardInterrupt
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "C:\Users\feiyu\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.13_qbz5n2kfra8p0\LocalCache\local-packages\Python313\site-packages\starlette\routing.py", line 700, in lifespan
+    await receive()
+  File "C:\Users\feiyu\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.13_qbz5n2kfra8p0\LocalCache\local-packages\Python313\site-packages\uvicorn\lifespan\on.py", line 137, in receive
+    return await self.receive_queue.get()
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Program Files\WindowsApps\PythonSoftwareFoundation.Python.3.13_3.13.3824.0_x64__qbz5n2kfra8p0\Lib\asyncio\queues.py", line 186, in get
+    await getter
+asyncio.exceptions.CancelledError
+
+INFO:     Started server process [44496]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+INFO:httpx:HTTP Request: GET http://172.22.22.1/l/d?key=T3-C3-LAN-KEY-2026 "HTTP/1.1 302 Moved Temporarily"
+INFO:httpx:HTTP Request: GET http://172.22.22.75/l/d?key=T3-C3-LAN-KEY-2026 "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: GET http://172.22.22.131/l/d?key=T3-C3-LAN-KEY-2026 "HTTP/1.1 302 Moved Temporarily"
+INFO:httpx:HTTP Request: POST http://172.22.22.75/l/c?key=T3-C3-LAN-KEY-2026 "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: GET http://172.22.22.220/l/d?key=T3-C3-LAN-KEY-2026 "HTTP/1.1 302 Found"
+INFO:httpx:HTTP Request: POST http://172.22.22.75/l/s?key=T3-C3-LAN-KEY-2026 "HTTP/1.1 200 OK"
+WARNING:  WatchFiles detected changes in 'backend\app\routers\messages.py'. Reloading...
+INFO:     Shutting down
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+INFO:     Finished server process [44496]
+INFO:     Started server process [40840]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+WARNING:  WatchFiles detected changes in 'backend\app\routers\messages.py'. Reloading...
+INFO:     Shutting down
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+INFO:     Finished server process [40840]
+INFO:     Started server process [59692]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+INFO:httpx:HTTP Request: GET http://172.22.22.1/l/d?key=T3-C3-LAN-KEY-2026 "HTTP/1.1 302 Moved Temporarily"
+INFO:httpx:HTTP Request: GET http://172.22.22.73/l/d?key=T3-C3-LAN-KEY-2026 "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: GET http://172.22.22.131/l/d?key=T3-C3-LAN-KEY-2026 "HTTP/1.1 302 Moved Temporarily"
+INFO:httpx:HTTP Request: POST http://172.22.22.73/l/c?key=T3-C3-LAN-KEY-2026 "HTTP/1.1 404 Not Found"
+INFO:httpx:HTTP Request: GET http://172.22.22.220/l/d?key=T3-C3-LAN-KEY-2026 "HTTP/1.1 302 Found"
+ERROR:    Exception in ASGI application
+Traceback (most recent call last):
+  File "C:\Users\feiyu\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.13_qbz5n2kfra8p0\LocalCache\local-packages\Python313\site-packages\uvicorn\protocols\http\httptools_impl.py", line 409, in run_asgi
+    result = await app(  # type: ignore[func-returns-value]
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        self.scope, self.receive, self.send
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\feiyu\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.13_qbz5n2kfra8p0\LocalCache\local-packages\Python313\site-packages\uvicorn\middleware\proxy_headers.py", line 60, in __call__
+    return await self.app(scope, receive, send)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\feiyu\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.13_qbz5n2kfra8p0\LocalCache\local-packages\Python313\site-packages\fastapi\applications.py", line 1054, in __call__
+    await super().__call__(scope, receive, send)
+  File "C:\Users\feiyu\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.13_qbz5n2kfra8p0\LocalCache\local-packages\Python313\site-packages\starlette\applications.py", line 113, in __call__
+    await self.middleware_stack(scope, receive, send)
+  File "C:\Users\feiyu\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.13_qbz5n2kfra8p0\LocalCache\local-packages\Python313\site-packages\starlette\middleware\errors.py", line 187, in __call__
+    raise exc
+  File "C:\Users\feiyu\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.13_qbz5n2kfra8p0\LocalCache\local-packages\Python313\site-packages\starlette\middleware\errors.py", line 165, in __call__
+    await self.app(scope, receive, _send)
+  File "C:\Users\feiyu\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.13_qbz5n2kfra8p0\LocalCache\local-packages\Python313\site-packages\starlette\middleware\cors.py", line 85, in __call__
+    await self.app(scope, receive, send)
+  File "C:\Users\feiyu\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.13_qbz5n2kfra8p0\LocalCache\local-packages\Python313\site-packages\starlette\middleware\exceptions.py", line 62, in __call__
+    await wrap_app_handling_exceptions(self.app, conn)(scope, receive, send)
+  File "C:\Users\feiyu\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.13_qbz5n2kfra8p0\LocalCache\local-packages\Python313\site-packages\starlette\_exception_handler.py", line 53, in wrapped_app
+    raise exc
+  File "C:\Users\feiyu\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.13_qbz5n2kfra8p0\LocalCache\local-packages\Python313\site-packages\starlette\_exception_handler.py", line 42, in wrapped_app
+    await app(scope, receive, sender)
+  File "C:\Users\feiyu\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.13_qbz5n2kfra8p0\LocalCache\local-packages\Python313\site-packages\starlette\routing.py", line 715, in __call__
+    await self.middleware_stack(scope, receive, send)
+  File "C:\Users\feiyu\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.13_qbz5n2kfra8p0\LocalCache\local-packages\Python313\site-packages\starlette\routing.py", line 735, in app
+    await route.handle(scope, receive, send)
+  File "C:\Users\feiyu\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.13_qbz5n2kfra8p0\LocalCache\local-packages\Python313\site-packages\starlette\routing.py", line 288, in handle
+    await self.app(scope, receive, send)
+  File "C:\Users\feiyu\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.13_qbz5n2kfra8p0\LocalCache\local-packages\Python313\site-packages\starlette\routing.py", line 76, in app
+    await wrap_app_handling_exceptions(app, request)(scope, receive, send)
+  File "C:\Users\feiyu\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.13_qbz5n2kfra8p0\LocalCache\local-packages\Python313\site-packages\starlette\_exception_handler.py", line 53, in wrapped_app
+    raise exc
+  File "C:\Users\feiyu\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.13_qbz5n2kfra8p0\LocalCache\local-packages\Python313\site-packages\starlette\_exception_handler.py", line 42, in wrapped_app
+    await app(scope, receive, sender)
+  File "C:\Users\feiyu\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.13_qbz5n2kfra8p0\LocalCache\local-packages\Python313\site-packages\starlette\routing.py", line 73, in app
+    response = await f(request)
+               ^^^^^^^^^^^^^^^^
+  File "C:\Users\feiyu\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.13_qbz5n2kfra8p0\LocalCache\local-packages\Python313\site-packages\fastapi\routing.py", line 301, in app
+    raw_response = await run_endpoint_function(
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<3 lines>...
+    )
+    ^
+  File "C:\Users\feiyu\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.13_qbz5n2kfra8p0\LocalCache\local-packages\Python313\site-packages\fastapi\routing.py", line 212, in run_endpoint_function
+    return await dependant.call(**values)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "F:\代码开发\T3web\backend\app\routers\messages.py", line 43, in ingest_message
+    body = await request.json()
+           ^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\feiyu\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.13_qbz5n2kfra8p0\LocalCache\local-packages\Python313\site-packages\starlette\requests.py", line 249, in json
+    self._json = json.loads(body)
+                 ~~~~~~~~~~^^^^^^
+  File "C:\Program Files\WindowsApps\PythonSoftwareFoundation.Python.3.13_3.13.3824.0_x64__qbz5n2kfra8p0\Lib\json\__init__.py", line 352, in loads
+    return _default_decoder.decode(s)
+           ~~~~~~~~~~~~~~~~~~~~~~~^^^
+  File "C:\Program Files\WindowsApps\PythonSoftwareFoundation.Python.3.13_3.13.3824.0_x64__qbz5n2kfra8p0\Lib\json\decoder.py", line 345, in decode
+    obj, end = self.raw_decode(s, idx=_w(s, 0).end())
+               ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Program Files\WindowsApps\PythonSoftwareFoundation.Python.3.13_3.13.3824.0_x64__qbz5n2kfra8p0\Lib\json\decoder.py", line 361, in raw_decode
+    obj, end = self.scan_once(s, idx)
+               ~~~~~~~~~~~~~~^^^^^^^^
+json.decoder.JSONDecodeError: Invalid control character at: line 1 column 85 (char 84)
+WARNING:  WatchFiles detected changes in 'backend\app\serial_manager.py'. Reloading...
+INFO:     Shutting down
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+INFO:     Finished server process [59692]
+WARNING:  WatchFiles detected changes in 'backend\app\routers\serial.py', 'backend\app\main.py'. Reloading...
+INFO:     Started server process [42948]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+WARNING:  WatchFiles detected changes in 'backend\app\serial_manager.py'. Reloading...
+INFO:     Shutting down
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+INFO:     Finished server process [42948]
+INFO:     Started server process [3140]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+WARNING:  WatchFiles detected changes in 'backend\app\serial_manager.py'. Reloading...
+INFO:     Shutting down
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+INFO:     Finished server process [3140]
+WARNING:  WatchFiles detected changes in 'backend\app\routers\serial.py'. Reloading...
+INFO:     Started server process [6656]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+ERROR:    Traceback (most recent call last):
+  File "C:\Program Files\WindowsApps\PythonSoftwareFoundation.Python.3.13_3.13.3824.0_x64__qbz5n2kfra8p0\Lib\asyncio\runners.py", line 119, in run
+    return self._loop.run_until_complete(task)
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^
+  File "C:\Program Files\WindowsApps\PythonSoftwareFoundation.Python.3.13_3.13.3824.0_x64__qbz5n2kfra8p0\Lib\asyncio\base_events.py", line 725, in run_until_complete
+    return future.result()
+           ~~~~~~~~~~~~~^^
+asyncio.exceptions.CancelledError
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "C:\Program Files\WindowsApps\PythonSoftwareFoundation.Python.3.13_3.13.3824.0_x64__qbz5n2kfra8p0\Lib\asyncio\runners.py", line 196, in run
+    return runner.run(main)
+           ~~~~~~~~~~^^^^^^
+  File "C:\Program Files\WindowsApps\PythonSoftwareFoundation.Python.3.13_3.13.3824.0_x64__qbz5n2kfra8p0\Lib\asyncio\runners.py", line 124, in run
+    raise KeyboardInterrupt()
+KeyboardInterrupt
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "C:\Users\feiyu\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.13_qbz5n2kfra8p0\LocalCache\local-packages\Python313\site-packages\starlette\routing.py", line 700, in lifespan
+    await receive()
+  File "C:\Users\feiyu\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.13_qbz5n2kfra8p0\LocalCache\local-packages\Python313\site-packages\uvicorn\lifespan\on.py", line 137, in receive
+    return await self.receive_queue.get()
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Program Files\WindowsApps\PythonSoftwareFoundation.Python.3.13_3.13.3824.0_x64__qbz5n2kfra8p0\Lib\asyncio\queues.py", line 186, in get
+    await getter
+asyncio.exceptions.CancelledError
+
+INFO:     Started server process [26956]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+WARNING:  WatchFiles detected changes in 'backend\app\serial_manager.py'. Reloading...
+INFO:     Shutting down
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+INFO:     Finished server process [26956]
+WARNING:  WatchFiles detected changes in 'backend\app\serial_manager.py'. Reloading...
+INFO:     Started server process [60148]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+ERROR:    Traceback (most recent call last):
+  File "C:\Program Files\WindowsApps\PythonSoftwareFoundation.Python.3.13_3.13.3824.0_x64__qbz5n2kfra8p0\Lib\asyncio\runners.py", line 119, in run
+    return self._loop.run_until_complete(task)
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^
+  File "C:\Program Files\WindowsApps\PythonSoftwareFoundation.Python.3.13_3.13.3824.0_x64__qbz5n2kfra8p0\Lib\asyncio\base_events.py", line 725, in run_until_complete
+    return future.result()
+           ~~~~~~~~~~~~~^^
+asyncio.exceptions.CancelledError
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "C:\Program Files\WindowsApps\PythonSoftwareFoundation.Python.3.13_3.13.3824.0_x64__qbz5n2kfra8p0\Lib\asyncio\runners.py", line 196, in run
+    return runner.run(main)
+           ~~~~~~~~~~^^^^^^
+  File "C:\Program Files\WindowsApps\PythonSoftwareFoundation.Python.3.13_3.13.3824.0_x64__qbz5n2kfra8p0\Lib\asyncio\runners.py", line 124, in run
+    raise KeyboardInterrupt()
+KeyboardInterrupt
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "C:\Users\feiyu\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.13_qbz5n2kfra8p0\LocalCache\local-packages\Python313\site-packages\starlette\routing.py", line 700, in lifespan
+    await receive()
+  File "C:\Users\feiyu\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.13_qbz5n2kfra8p0\LocalCache\local-packages\Python313\site-packages\uvicorn\lifespan\on.py", line 137, in receive
+    return await self.receive_queue.get()
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Program Files\WindowsApps\PythonSoftwareFoundation.Python.3.13_3.13.3824.0_x64__qbz5n2kfra8p0\Lib\asyncio\queues.py", line 186, in get
+    await getter
+asyncio.exceptions.CancelledError
+
+INFO:     Started server process [39904]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+INFO:httpx:HTTP Request: GET http://172.22.22.1/l/d?key=T3-C3-LAN-KEY-2026 "HTTP/1.1 302 Moved Temporarily"
+INFO:httpx:HTTP Request: GET http://172.22.22.75/l/d?key=T3-C3-LAN-KEY-2026 "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: GET http://172.22.22.131/l/d?key=T3-C3-LAN-KEY-2026 "HTTP/1.1 302 Moved Temporarily"
+INFO:httpx:HTTP Request: GET http://172.22.22.220/l/d?key=T3-C3-LAN-KEY-2026 "HTTP/1.1 302 Found"
+INFO:httpx:HTTP Request: POST http://172.22.22.75/l/c?key=T3-C3-LAN-KEY-2026 "HTTP/1.1 200 OK"
+WARNING:  WatchFiles detected changes in 'backend\app\serial_manager.py'. Reloading...
+INFO:     Shutting down
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+INFO:     Finished server process [39904]
+INFO:     Started server process [48756]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+WARNING:  WatchFiles detected changes in 'backend\app\routers\serial.py'. Reloading...
+INFO:     Shutting down
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+INFO:     Finished server process [48756]
+INFO:     Started server process [33452]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+WARNING:  WatchFiles detected changes in 'backend\app\device_client.py'. Reloading...
+INFO:     Shutting down
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+INFO:     Finished server process [33452]
+WARNING:  WatchFiles detected changes in 'backend\app\routers\devices.py'. Reloading...
+INFO:     Started server process [14824]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+ERROR:    Traceback (most recent call last):
+  File "C:\Program Files\WindowsApps\PythonSoftwareFoundation.Python.3.13_3.13.3824.0_x64__qbz5n2kfra8p0\Lib\asyncio\runners.py", line 119, in run
+    return self._loop.run_until_complete(task)
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^
+  File "C:\Program Files\WindowsApps\PythonSoftwareFoundation.Python.3.13_3.13.3824.0_x64__qbz5n2kfra8p0\Lib\asyncio\base_events.py", line 725, in run_until_complete
+    return future.result()
+           ~~~~~~~~~~~~~^^
+asyncio.exceptions.CancelledError
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "C:\Program Files\WindowsApps\PythonSoftwareFoundation.Python.3.13_3.13.3824.0_x64__qbz5n2kfra8p0\Lib\asyncio\runners.py", line 196, in run
+    return runner.run(main)
+           ~~~~~~~~~~^^^^^^
+  File "C:\Program Files\WindowsApps\PythonSoftwareFoundation.Python.3.13_3.13.3824.0_x64__qbz5n2kfra8p0\Lib\asyncio\runners.py", line 124, in run
+    raise KeyboardInterrupt()
+KeyboardInterrupt
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "C:\Users\feiyu\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.13_qbz5n2kfra8p0\LocalCache\local-packages\Python313\site-packages\starlette\routing.py", line 700, in lifespan
+    await receive()
+  File "C:\Users\feiyu\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.13_qbz5n2kfra8p0\LocalCache\local-packages\Python313\site-packages\uvicorn\lifespan\on.py", line 137, in receive
+    return await self.receive_queue.get()
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Program Files\WindowsApps\PythonSoftwareFoundation.Python.3.13_3.13.3824.0_x64__qbz5n2kfra8p0\Lib\asyncio\queues.py", line 186, in get
+    await getter
+asyncio.exceptions.CancelledError
+
+INFO:     Started server process [40248]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+WARNING:  WatchFiles detected changes in 'backend\app\routers\devices.py'. Reloading...
+INFO:     Shutting down
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+INFO:     Finished server process [40248]
+INFO:     Started server process [33692]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+WARNING:  WatchFiles detected changes in 'backend\app\routers\devices.py'. Reloading...
+INFO:     Shutting down
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+INFO:     Finished server process [33692]
+WARNING:  WatchFiles detected changes in 'backend\app\routers\serial.py'. Reloading...
+INFO:     Started server process [34148]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+ERROR:    Traceback (most recent call last):
+  File "C:\Program Files\WindowsApps\PythonSoftwareFoundation.Python.3.13_3.13.3824.0_x64__qbz5n2kfra8p0\Lib\asyncio\runners.py", line 119, in run
+    return self._loop.run_until_complete(task)
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^
+  File "C:\Program Files\WindowsApps\PythonSoftwareFoundation.Python.3.13_3.13.3824.0_x64__qbz5n2kfra8p0\Lib\asyncio\base_events.py", line 725, in run_until_complete
+    return future.result()
+           ~~~~~~~~~~~~~^^
+asyncio.exceptions.CancelledError
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "C:\Program Files\WindowsApps\PythonSoftwareFoundation.Python.3.13_3.13.3824.0_x64__qbz5n2kfra8p0\Lib\asyncio\runners.py", line 196, in run
+    return runner.run(main)
+           ~~~~~~~~~~^^^^^^
+  File "C:\Program Files\WindowsApps\PythonSoftwareFoundation.Python.3.13_3.13.3824.0_x64__qbz5n2kfra8p0\Lib\asyncio\runners.py", line 124, in run
+    raise KeyboardInterrupt()
+KeyboardInterrupt
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "C:\Users\feiyu\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.13_qbz5n2kfra8p0\LocalCache\local-packages\Python313\site-packages\starlette\routing.py", line 700, in lifespan
+    await receive()
+  File "C:\Users\feiyu\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.13_qbz5n2kfra8p0\LocalCache\local-packages\Python313\site-packages\uvicorn\lifespan\on.py", line 137, in receive
+    return await self.receive_queue.get()
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Program Files\WindowsApps\PythonSoftwareFoundation.Python.3.13_3.13.3824.0_x64__qbz5n2kfra8p0\Lib\asyncio\queues.py", line 186, in get
+    await getter
+asyncio.exceptions.CancelledError
+
+INFO:     Started server process [10716]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+INFO:httpx:HTTP Request: GET http://172.22.22.75/api/status "HTTP/1.1 401 Unauthorized"
+INFO:httpx:HTTP Request: GET http://172.22.22.75/api/config "HTTP/1.1 401 Unauthorized"
+WARNING:  WatchFiles detected changes in 'backend\app\serial_manager.py'. Reloading...
+INFO:     Shutting down
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+INFO:     Finished server process [10716]
+WARNING:  WatchFiles detected changes in 'backend\app\serial_manager.py'. Reloading...
+INFO:     Started server process [32448]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+ERROR:    Traceback (most recent call last):
+  File "C:\Program Files\WindowsApps\PythonSoftwareFoundation.Python.3.13_3.13.3824.0_x64__qbz5n2kfra8p0\Lib\asyncio\runners.py", line 119, in run
+    return self._loop.run_until_complete(task)
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^
+  File "C:\Program Files\WindowsApps\PythonSoftwareFoundation.Python.3.13_3.13.3824.0_x64__qbz5n2kfra8p0\Lib\asyncio\base_events.py", line 725, in run_until_complete
+    return future.result()
+           ~~~~~~~~~~~~~^^
+asyncio.exceptions.CancelledError
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "C:\Program Files\WindowsApps\PythonSoftwareFoundation.Python.3.13_3.13.3824.0_x64__qbz5n2kfra8p0\Lib\asyncio\runners.py", line 196, in run
+    return runner.run(main)
+           ~~~~~~~~~~^^^^^^
+  File "C:\Program Files\WindowsApps\PythonSoftwareFoundation.Python.3.13_3.13.3824.0_x64__qbz5n2kfra8p0\Lib\asyncio\runners.py", line 124, in run
+    raise KeyboardInterrupt()
+KeyboardInterrupt
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "C:\Users\feiyu\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.13_qbz5n2kfra8p0\LocalCache\local-packages\Python313\site-packages\starlette\routing.py", line 700, in lifespan
+    await receive()
+  File "C:\Users\feiyu\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.13_qbz5n2kfra8p0\LocalCache\local-packages\Python313\site-packages\uvicorn\lifespan\on.py", line 137, in receive
+    return await self.receive_queue.get()
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Program Files\WindowsApps\PythonSoftwareFoundation.Python.3.13_3.13.3824.0_x64__qbz5n2kfra8p0\Lib\asyncio\queues.py", line 186, in get
+    await getter
+asyncio.exceptions.CancelledError
+
+INFO:     Started server process [3956]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+WARNING:  WatchFiles detected changes in 'backend\app\serial_manager.py'. Reloading...
+INFO:     Shutting down
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+INFO:     Finished server process [3956]
+WARNING:  WatchFiles detected changes in 'backend\app\routers\serial.py'. Reloading...
+INFO:     Started server process [52196]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+ERROR:    Traceback (most recent call last):
+  File "C:\Program Files\WindowsApps\PythonSoftwareFoundation.Python.3.13_3.13.3824.0_x64__qbz5n2kfra8p0\Lib\asyncio\runners.py", line 119, in run
+    return self._loop.run_until_complete(task)
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^
+  File "C:\Program Files\WindowsApps\PythonSoftwareFoundation.Python.3.13_3.13.3824.0_x64__qbz5n2kfra8p0\Lib\asyncio\base_events.py", line 725, in run_until_complete
+    return future.result()
+           ~~~~~~~~~~~~~^^
+asyncio.exceptions.CancelledError
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "C:\Program Files\WindowsApps\PythonSoftwareFoundation.Python.3.13_3.13.3824.0_x64__qbz5n2kfra8p0\Lib\asyncio\runners.py", line 196, in run
+    return runner.run(main)
+           ~~~~~~~~~~^^^^^^
+  File "C:\Program Files\WindowsApps\PythonSoftwareFoundation.Python.3.13_3.13.3824.0_x64__qbz5n2kfra8p0\Lib\asyncio\runners.py", line 124, in run
+    raise KeyboardInterrupt()
+KeyboardInterrupt
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "C:\Users\feiyu\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.13_qbz5n2kfra8p0\LocalCache\local-packages\Python313\site-packages\starlette\routing.py", line 700, in lifespan
+    await receive()
+  File "C:\Users\feiyu\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.13_qbz5n2kfra8p0\LocalCache\local-packages\Python313\site-packages\uvicorn\lifespan\on.py", line 137, in receive
+    return await self.receive_queue.get()
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Program Files\WindowsApps\PythonSoftwareFoundation.Python.3.13_3.13.3824.0_x64__qbz5n2kfra8p0\Lib\asyncio\queues.py", line 186, in get
+    await getter
+asyncio.exceptions.CancelledError
+
+INFO:     Started server process [46772]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+WARNING:  WatchFiles detected changes in 'backend\app\serial_manager.py'. Reloading...
+INFO:     Shutting down
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+INFO:     Finished server process [46772]
+WARNING:  WatchFiles detected changes in 'backend\app\routers\serial.py', 'backend\app\serial_manager.py'. Reloading...
+INFO:     Started server process [33512]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+ERROR:    Traceback (most recent call last):
+  File "C:\Program Files\WindowsApps\PythonSoftwareFoundation.Python.3.13_3.13.3824.0_x64__qbz5n2kfra8p0\Lib\asyncio\runners.py", line 119, in run
+    return self._loop.run_until_complete(task)
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^
+  File "C:\Program Files\WindowsApps\PythonSoftwareFoundation.Python.3.13_3.13.3824.0_x64__qbz5n2kfra8p0\Lib\asyncio\base_events.py", line 725, in run_until_complete
+    return future.result()
+           ~~~~~~~~~~~~~^^
+asyncio.exceptions.CancelledError
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "C:\Program Files\WindowsApps\PythonSoftwareFoundation.Python.3.13_3.13.3824.0_x64__qbz5n2kfra8p0\Lib\asyncio\runners.py", line 196, in run
+    return runner.run(main)
+           ~~~~~~~~~~^^^^^^
+  File "C:\Program Files\WindowsApps\PythonSoftwareFoundation.Python.3.13_3.13.3824.0_x64__qbz5n2kfra8p0\Lib\asyncio\runners.py", line 124, in run
+    raise KeyboardInterrupt()
+KeyboardInterrupt
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "C:\Users\feiyu\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.13_qbz5n2kfra8p0\LocalCache\local-packages\Python313\site-packages\starlette\routing.py", line 700, in lifespan
+    await receive()
+  File "C:\Users\feiyu\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.13_qbz5n2kfra8p0\LocalCache\local-packages\Python313\site-packages\uvicorn\lifespan\on.py", line 137, in receive
+    return await self.receive_queue.get()
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Program Files\WindowsApps\PythonSoftwareFoundation.Python.3.13_3.13.3824.0_x64__qbz5n2kfra8p0\Lib\asyncio\queues.py", line 186, in get
+    await getter
+asyncio.exceptions.CancelledError
+
+INFO:     Started server process [44420]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+INFO:     ('127.0.0.1', 54282) - "WebSocket /api/serial/ws?token=LXfvOPUg5HnUEPdHgP5QcM_svqKzq_c86FS5M411jbI" [accepted]
+INFO:     connection open
+INFO:     connection closed
+WARNING:  WatchFiles detected changes in 'backend\app\serial_manager.py'. Reloading...
+INFO:     Shutting down
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+INFO:     Finished server process [44420]
+INFO:     Started server process [8024]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+WARNING:  WatchFiles detected changes in 'backend\app\serial_manager.py'. Reloading...
+INFO:     Shutting down
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+INFO:     Finished server process [8024]
+WARNING:  WatchFiles detected changes in 'backend\app\serial_manager.py'. Reloading...
+INFO:     Started server process [33036]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+ERROR:    Traceback (most recent call last):
+  File "C:\Program Files\WindowsApps\PythonSoftwareFoundation.Python.3.13_3.13.3824.0_x64__qbz5n2kfra8p0\Lib\asyncio\runners.py", line 119, in run
+    return self._loop.run_until_complete(task)
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^
+  File "C:\Program Files\WindowsApps\PythonSoftwareFoundation.Python.3.13_3.13.3824.0_x64__qbz5n2kfra8p0\Lib\asyncio\base_events.py", line 725, in run_until_complete
+    return future.result()
+           ~~~~~~~~~~~~~^^
+asyncio.exceptions.CancelledError
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "C:\Program Files\WindowsApps\PythonSoftwareFoundation.Python.3.13_3.13.3824.0_x64__qbz5n2kfra8p0\Lib\asyncio\runners.py", line 196, in run
+    return runner.run(main)
+           ~~~~~~~~~~^^^^^^
+  File "C:\Program Files\WindowsApps\PythonSoftwareFoundation.Python.3.13_3.13.3824.0_x64__qbz5n2kfra8p0\Lib\asyncio\runners.py", line 124, in run
+    raise KeyboardInterrupt()
+KeyboardInterrupt
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "C:\Users\feiyu\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.13_qbz5n2kfra8p0\LocalCache\local-packages\Python313\site-packages\starlette\routing.py", line 700, in lifespan
+    await receive()
+  File "C:\Users\feiyu\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.13_qbz5n2kfra8p0\LocalCache\local-packages\Python313\site-packages\uvicorn\lifespan\on.py", line 137, in receive
+    return await self.receive_queue.get()
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Program Files\WindowsApps\PythonSoftwareFoundation.Python.3.13_3.13.3824.0_x64__qbz5n2kfra8p0\Lib\asyncio\queues.py", line 186, in get
+    await getter
+asyncio.exceptions.CancelledError
+
+INFO:     Started server process [29832]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+WARNING:  WatchFiles detected changes in 'backend\app\serial_manager.py'. Reloading...
+INFO:     Shutting down
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+INFO:     Finished server process [29832]
+WARNING:  WatchFiles detected changes in 'backend\app\routers\serial.py'. Reloading...
+INFO:     Started server process [11520]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+ERROR:    Traceback (most recent call last):
+  File "C:\Program Files\WindowsApps\PythonSoftwareFoundation.Python.3.13_3.13.3824.0_x64__qbz5n2kfra8p0\Lib\asyncio\runners.py", line 119, in run
+    return self._loop.run_until_complete(task)
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^
+  File "C:\Program Files\WindowsApps\PythonSoftwareFoundation.Python.3.13_3.13.3824.0_x64__qbz5n2kfra8p0\Lib\asyncio\base_events.py", line 725, in run_until_complete
+    return future.result()
+           ~~~~~~~~~~~~~^^
+asyncio.exceptions.CancelledError
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "C:\Program Files\WindowsApps\PythonSoftwareFoundation.Python.3.13_3.13.3824.0_x64__qbz5n2kfra8p0\Lib\asyncio\runners.py", line 196, in run
+    return runner.run(main)
+           ~~~~~~~~~~^^^^^^
+  File "C:\Program Files\WindowsApps\PythonSoftwareFoundation.Python.3.13_3.13.3824.0_x64__qbz5n2kfra8p0\Lib\asyncio\runners.py", line 124, in run
+    raise KeyboardInterrupt()
+KeyboardInterrupt
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "C:\Users\feiyu\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.13_qbz5n2kfra8p0\LocalCache\local-packages\Python313\site-packages\starlette\routing.py", line 700, in lifespan
+    await receive()
+  File "C:\Users\feiyu\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.13_qbz5n2kfra8p0\LocalCache\local-packages\Python313\site-packages\uvicorn\lifespan\on.py", line 137, in receive
+    return await self.receive_queue.get()
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Program Files\WindowsApps\PythonSoftwareFoundation.Python.3.13_3.13.3824.0_x64__qbz5n2kfra8p0\Lib\asyncio\queues.py", line 186, in get
+    await getter
+asyncio.exceptions.CancelledError
+
+INFO:     Started server process [7016]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+INFO:     ('127.0.0.1', 58559) - "WebSocket /api/serial/ws?token=LXfvOPUg5HnUEPdHgP5QcM_svqKzq_c86FS5M411jbI" [accepted]
+INFO:     connection open
+INFO:     connection closed
+INFO:httpx:HTTP Request: GET http://172.22.22.75/api/status "HTTP/1.1 401 Unauthorized"
+INFO:httpx:HTTP Request: GET http://172.22.22.75/api/config "HTTP/1.1 401 Unauthorized"
+WARNING:  WatchFiles detected changes in 'backend\app\routers\serial.py'. Reloading...
+INFO:     Shutting down
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+INFO:     Finished server process [7016]
+WARNING:  WatchFiles detected changes in 'backend\app\routers\serial.py'. Reloading...
+INFO:     Started server process [35580]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+ERROR:    Traceback (most recent call last):
+  File "C:\Program Files\WindowsApps\PythonSoftwareFoundation.Python.3.13_3.13.3824.0_x64__qbz5n2kfra8p0\Lib\asyncio\runners.py", line 119, in run
+    return self._loop.run_until_complete(task)
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^
+  File "C:\Program Files\WindowsApps\PythonSoftwareFoundation.Python.3.13_3.13.3824.0_x64__qbz5n2kfra8p0\Lib\asyncio\base_events.py", line 725, in run_until_complete
+    return future.result()
+           ~~~~~~~~~~~~~^^
+asyncio.exceptions.CancelledError
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "C:\Program Files\WindowsApps\PythonSoftwareFoundation.Python.3.13_3.13.3824.0_x64__qbz5n2kfra8p0\Lib\asyncio\runners.py", line 196, in run
+    return runner.run(main)
+           ~~~~~~~~~~^^^^^^
+  File "C:\Program Files\WindowsApps\PythonSoftwareFoundation.Python.3.13_3.13.3824.0_x64__qbz5n2kfra8p0\Lib\asyncio\runners.py", line 124, in run
+    raise KeyboardInterrupt()
+KeyboardInterrupt
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "C:\Users\feiyu\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.13_qbz5n2kfra8p0\LocalCache\local-packages\Python313\site-packages\starlette\routing.py", line 700, in lifespan
+    await receive()
+  File "C:\Users\feiyu\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.13_qbz5n2kfra8p0\LocalCache\local-packages\Python313\site-packages\uvicorn\lifespan\on.py", line 137, in receive
+    return await self.receive_queue.get()
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Program Files\WindowsApps\PythonSoftwareFoundation.Python.3.13_3.13.3824.0_x64__qbz5n2kfra8p0\Lib\asyncio\queues.py", line 186, in get
+    await getter
+asyncio.exceptions.CancelledError
+
+INFO:     Started server process [40792]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+WARNING:  WatchFiles detected changes in 'backend\app\routers\devices.py'. Reloading...
+INFO:     Shutting down
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+INFO:     Finished server process [40792]
+WARNING:  WatchFiles detected changes in 'backend\app\routers\devices.py'. Reloading...
+INFO:     Started server process [40616]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+ERROR:    Traceback (most recent call last):
+  File "C:\Program Files\WindowsApps\PythonSoftwareFoundation.Python.3.13_3.13.3824.0_x64__qbz5n2kfra8p0\Lib\asyncio\runners.py", line 119, in run
+    return self._loop.run_until_complete(task)
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^
+  File "C:\Program Files\WindowsApps\PythonSoftwareFoundation.Python.3.13_3.13.3824.0_x64__qbz5n2kfra8p0\Lib\asyncio\base_events.py", line 725, in run_until_complete
+    return future.result()
+           ~~~~~~~~~~~~~^^
+asyncio.exceptions.CancelledError
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "C:\Program Files\WindowsApps\PythonSoftwareFoundation.Python.3.13_3.13.3824.0_x64__qbz5n2kfra8p0\Lib\asyncio\runners.py", line 196, in run
+    return runner.run(main)
+           ~~~~~~~~~~^^^^^^
+  File "C:\Program Files\WindowsApps\PythonSoftwareFoundation.Python.3.13_3.13.3824.0_x64__qbz5n2kfra8p0\Lib\asyncio\runners.py", line 124, in run
+    raise KeyboardInterrupt()
+KeyboardInterrupt
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "C:\Users\feiyu\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.13_qbz5n2kfra8p0\LocalCache\local-packages\Python313\site-packages\starlette\routing.py", line 700, in lifespan
+    await receive()
+  File "C:\Users\feiyu\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.13_qbz5n2kfra8p0\LocalCache\local-packages\Python313\site-packages\uvicorn\lifespan\on.py", line 137, in receive
+    return await self.receive_queue.get()
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Program Files\WindowsApps\PythonSoftwareFoundation.Python.3.13_3.13.3824.0_x64__qbz5n2kfra8p0\Lib\asyncio\queues.py", line 186, in get
+    await getter
+asyncio.exceptions.CancelledError
+
+INFO:     Started server process [61032]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+INFO:     ('127.0.0.1', 64523) - "WebSocket /api/serial/ws?token=LXfvOPUg5HnUEPdHgP5QcM_svqKzq_c86FS5M411jbI" [accepted]
+INFO:     connection open
+INFO:     connection closed
+INFO:     ('127.0.0.1', 64903) - "WebSocket /api/serial/ws?token=LXfvOPUg5HnUEPdHgP5QcM_svqKzq_c86FS5M411jbI" [accepted]
+INFO:     connection open
+INFO:     connection closed
+INFO:     ('127.0.0.1', 64938) - "WebSocket /api/serial/ws?token=LXfvOPUg5HnUEPdHgP5QcM_svqKzq_c86FS5M411jbI" [accepted]
+INFO:     connection open
+INFO:     connection closed
+INFO:     ('127.0.0.1', 49768) - "WebSocket /api/serial/ws?token=LXfvOPUg5HnUEPdHgP5QcM_svqKzq_c86FS5M411jbI" [accepted]
+INFO:     connection open
+INFO:     connection closed
+INFO:     ('127.0.0.1', 49828) - "WebSocket /api/serial/ws?token=LXfvOPUg5HnUEPdHgP5QcM_svqKzq_c86FS5M411jbI" [accepted]
+INFO:     connection open
+INFO:     connection closed
+INFO:     ('127.0.0.1', 49838) - "WebSocket /api/serial/ws?token=LXfvOPUg5HnUEPdHgP5QcM_svqKzq_c86FS5M411jbI" [accepted]
+INFO:     connection open
+INFO:     connection closed
+INFO:     ('127.0.0.1', 49853) - "WebSocket /api/serial/ws?token=LXfvOPUg5HnUEPdHgP5QcM_svqKzq_c86FS5M411jbI" [accepted]
+INFO:     connection open
+INFO:     connection closed
+INFO:     ('127.0.0.1', 56182) - "WebSocket /api/serial/ws?token=LXfvOPUg5HnUEPdHgP5QcM_svqKzq_c86FS5M411jbI" [accepted]
+INFO:     connection open
+INFO:     connection closed
+INFO:     ('127.0.0.1', 56289) - "WebSocket /api/serial/ws?token=LXfvOPUg5HnUEPdHgP5QcM_svqKzq_c86FS5M411jbI" [accepted]
+INFO:     connection open
+INFO:     connection closed
+INFO:httpx:HTTP Request: GET http://172.22.22.75/api/status "HTTP/1.1 401 Unauthorized"
+INFO:httpx:HTTP Request: GET http://172.22.22.75/api/config "HTTP/1.1 401 Unauthorized"
+INFO:httpx:HTTP Request: GET http://172.22.22.75/api/status "HTTP/1.1 401 Unauthorized"
+INFO:httpx:HTTP Request: GET http://172.22.22.75/api/config "HTTP/1.1 401 Unauthorized"
+INFO:httpx:HTTP Request: GET http://172.22.22.75/api/status "HTTP/1.1 401 Unauthorized"
+INFO:httpx:HTTP Request: GET http://172.22.22.75/api/config "HTTP/1.1 401 Unauthorized"
+INFO:httpx:HTTP Request: GET http://172.22.22.75/api/status "HTTP/1.1 401 Unauthorized"
+INFO:httpx:HTTP Request: GET http://172.22.22.75/api/config "HTTP/1.1 401 Unauthorized"
+INFO:httpx:HTTP Request: GET http://172.22.22.75/api/status "HTTP/1.1 401 Unauthorized"
+INFO:httpx:HTTP Request: GET http://172.22.22.75/api/config "HTTP/1.1 401 Unauthorized"
+INFO:httpx:HTTP Request: GET http://172.22.22.75/api/status "HTTP/1.1 401 Unauthorized"
+INFO:httpx:HTTP Request: GET http://172.22.22.75/api/config "HTTP/1.1 401 Unauthorized"
+INFO:httpx:HTTP Request: GET http://172.22.22.75/api/status "HTTP/1.1 401 Unauthorized"
+INFO:httpx:HTTP Request: GET http://172.22.22.75/api/config "HTTP/1.1 401 Unauthorized"
+INFO:httpx:HTTP Request: GET http://172.22.22.75/api/status "HTTP/1.1 401 Unauthorized"
+INFO:httpx:HTTP Request: GET http://172.22.22.75/api/config "HTTP/1.1 401 Unauthorized"
+INFO:     ('127.0.0.1', 63814) - "WebSocket /api/serial/ws?token=LXfvOPUg5HnUEPdHgP5QcM_svqKzq_c86FS5M411jbI" [accepted]
+INFO:     connection open
+INFO:     connection closed
+INFO:     ('127.0.0.1', 63850) - "WebSocket /api/serial/ws?token=LXfvOPUg5HnUEPdHgP5QcM_svqKzq_c86FS5M411jbI" [accepted]
+INFO:     connection open
+INFO:     connection closed
+INFO:     ('127.0.0.1', 60498) - "WebSocket /api/serial/ws?token=LXfvOPUg5HnUEPdHgP5QcM_svqKzq_c86FS5M411jbI" [accepted]
+INFO:     connection open
+INFO:     connection closed
+INFO:httpx:HTTP Request: GET http://172.22.22.75/api/status "HTTP/1.1 401 Unauthorized"
+INFO:httpx:HTTP Request: GET http://172.22.22.75/api/config "HTTP/1.1 401 Unauthorized"
+INFO:httpx:HTTP Request: GET http://172.22.22.75/api/status "HTTP/1.1 401 Unauthorized"
+INFO:httpx:HTTP Request: GET http://172.22.22.75/api/config "HTTP/1.1 401 Unauthorized"
+INFO:httpx:HTTP Request: POST http://172.22.22.75/l/s?key=T3-C3-LAN-KEY-2026 "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: GET http://172.22.22.75/api/status "HTTP/1.1 401 Unauthorized"
+INFO:httpx:HTTP Request: GET http://172.22.22.75/api/config "HTTP/1.1 401 Unauthorized"
+INFO:httpx:HTTP Request: GET http://172.22.22.75/api/status "HTTP/1.1 401 Unauthorized"
+INFO:httpx:HTTP Request: GET http://172.22.22.75/api/config "HTTP/1.1 401 Unauthorized"
+INFO:httpx:HTTP Request: GET http://172.22.22.75/api/status "HTTP/1.1 401 Unauthorized"
+INFO:httpx:HTTP Request: GET http://172.22.22.75/api/config "HTTP/1.1 401 Unauthorized"
+INFO:     ('127.0.0.1', 63178) - "WebSocket /api/serial/ws?token=LXfvOPUg5HnUEPdHgP5QcM_svqKzq_c86FS5M411jbI" [accepted]
+INFO:     connection open
+INFO:     connection closed
+INFO:     ('127.0.0.1', 63243) - "WebSocket /api/serial/ws?token=LXfvOPUg5HnUEPdHgP5QcM_svqKzq_c86FS5M411jbI" [accepted]
+INFO:     connection open
+INFO:     connection closed
+INFO:     ('127.0.0.1', 63281) - "WebSocket /api/serial/ws?token=LXfvOPUg5HnUEPdHgP5QcM_svqKzq_c86FS5M411jbI" [accepted]
+INFO:     connection open
+INFO:     connection closed
+INFO:httpx:HTTP Request: GET http://172.22.22.75/api/status "HTTP/1.1 401 Unauthorized"
+INFO:httpx:HTTP Request: GET http://172.22.22.75/api/config "HTTP/1.1 401 Unauthorized"
+ERROR:    Exception in ASGI application
+Traceback (most recent call last):
+  File "C:\Users\feiyu\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.13_qbz5n2kfra8p0\LocalCache\local-packages\Python313\site-packages\uvicorn\protocols\http\httptools_impl.py", line 409, in run_asgi
+    result = await app(  # type: ignore[func-returns-value]
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        self.scope, self.receive, self.send
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\feiyu\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.13_qbz5n2kfra8p0\LocalCache\local-packages\Python313\site-packages\uvicorn\middleware\proxy_headers.py", line 60, in __call__
+    return await self.app(scope, receive, send)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\feiyu\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.13_qbz5n2kfra8p0\LocalCache\local-packages\Python313\site-packages\fastapi\applications.py", line 1054, in __call__
+    await super().__call__(scope, receive, send)
+  File "C:\Users\feiyu\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.13_qbz5n2kfra8p0\LocalCache\local-packages\Python313\site-packages\starlette\applications.py", line 113, in __call__
+    await self.middleware_stack(scope, receive, send)
+  File "C:\Users\feiyu\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.13_qbz5n2kfra8p0\LocalCache\local-packages\Python313\site-packages\starlette\middleware\errors.py", line 187, in __call__
+    raise exc
+  File "C:\Users\feiyu\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.13_qbz5n2kfra8p0\LocalCache\local-packages\Python313\site-packages\starlette\middleware\errors.py", line 165, in __call__
+    await self.app(scope, receive, _send)
+  File "C:\Users\feiyu\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.13_qbz5n2kfra8p0\LocalCache\local-packages\Python313\site-packages\starlette\middleware\cors.py", line 85, in __call__
+    await self.app(scope, receive, send)
+  File "C:\Users\feiyu\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.13_qbz5n2kfra8p0\LocalCache\local-packages\Python313\site-packages\starlette\middleware\exceptions.py", line 62, in __call__
+    await wrap_app_handling_exceptions(self.app, conn)(scope, receive, send)
+  File "C:\Users\feiyu\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.13_qbz5n2kfra8p0\LocalCache\local-packages\Python313\site-packages\starlette\_exception_handler.py", line 53, in wrapped_app
+    raise exc
+  File "C:\Users\feiyu\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.13_qbz5n2kfra8p0\LocalCache\local-packages\Python313\site-packages\starlette\_exception_handler.py", line 42, in wrapped_app
+    await app(scope, receive, sender)
+  File "C:\Users\feiyu\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.13_qbz5n2kfra8p0\LocalCache\local-packages\Python313\site-packages\starlette\routing.py", line 715, in __call__
+    await self.middleware_stack(scope, receive, send)
+  File "C:\Users\feiyu\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.13_qbz5n2kfra8p0\LocalCache\local-packages\Python313\site-packages\starlette\routing.py", line 735, in app
+    await route.handle(scope, receive, send)
+  File "C:\Users\feiyu\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.13_qbz5n2kfra8p0\LocalCache\local-packages\Python313\site-packages\starlette\routing.py", line 288, in handle
+    await self.app(scope, receive, send)
+  File "C:\Users\feiyu\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.13_qbz5n2kfra8p0\LocalCache\local-packages\Python313\site-packages\starlette\routing.py", line 76, in app
+    await wrap_app_handling_exceptions(app, request)(scope, receive, send)
+  File "C:\Users\feiyu\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.13_qbz5n2kfra8p0\LocalCache\local-packages\Python313\site-packages\starlette\_exception_handler.py", line 53, in wrapped_app
+    raise exc
+  File "C:\Users\feiyu\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.13_qbz5n2kfra8p0\LocalCache\local-packages\Python313\site-packages\starlette\_exception_handler.py", line 42, in wrapped_app
+    await app(scope, receive, sender)
+  File "C:\Users\feiyu\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.13_qbz5n2kfra8p0\LocalCache\local-packages\Python313\site-packages\starlette\routing.py", line 73, in app
+    response = await f(request)
+               ^^^^^^^^^^^^^^^^
+  File "C:\Users\feiyu\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.13_qbz5n2kfra8p0\LocalCache\local-packages\Python313\site-packages\fastapi\routing.py", line 301, in app
+    raw_response = await run_endpoint_function(
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<3 lines>...
+    )
+    ^
+  File "C:\Users\feiyu\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.13_qbz5n2kfra8p0\LocalCache\local-packages\Python313\site-packages\fastapi\routing.py", line 212, in run_endpoint_function
+    return await dependant.call(**values)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "F:\代码开发\T3web\backend\app\routers\messages.py", line 43, in ingest_message
+    body = await request.json()
+           ^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\feiyu\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.13_qbz5n2kfra8p0\LocalCache\local-packages\Python313\site-packages\starlette\requests.py", line 249, in json
+    self._json = json.loads(body)
+                 ~~~~~~~~~~^^^^^^
+  File "C:\Program Files\WindowsApps\PythonSoftwareFoundation.Python.3.13_3.13.3824.0_x64__qbz5n2kfra8p0\Lib\json\__init__.py", line 352, in loads
+    return _default_decoder.decode(s)
+           ~~~~~~~~~~~~~~~~~~~~~~~^^^
+  File "C:\Program Files\WindowsApps\PythonSoftwareFoundation.Python.3.13_3.13.3824.0_x64__qbz5n2kfra8p0\Lib\json\decoder.py", line 345, in decode
+    obj, end = self.raw_decode(s, idx=_w(s, 0).end())
+               ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Program Files\WindowsApps\PythonSoftwareFoundation.Python.3.13_3.13.3824.0_x64__qbz5n2kfra8p0\Lib\json\decoder.py", line 361, in raw_decode
+    obj, end = self.scan_once(s, idx)
+               ~~~~~~~~~~~~~~^^^^^^^^
+json.decoder.JSONDecodeError: Invalid control character at: line 1 column 81 (char 80)
+INFO:httpx:HTTP Request: GET http://172.22.22.73/api/status "HTTP/1.1 401 Unauthorized"
+INFO:httpx:HTTP Request: GET http://172.22.22.73/api/config "HTTP/1.1 401 Unauthorized"
+INFO:httpx:HTTP Request: GET http://172.22.22.73/api/status "HTTP/1.1 401 Unauthorized"
+INFO:httpx:HTTP Request: GET http://172.22.22.73/api/config "HTTP/1.1 401 Unauthorized"
+INFO:httpx:HTTP Request: GET http://172.22.22.73/api/status "HTTP/1.1 401 Unauthorized"
+INFO:httpx:HTTP Request: GET http://172.22.22.73/api/config "HTTP/1.1 401 Unauthorized"
+INFO:httpx:HTTP Request: GET http://172.22.22.73/api/status "HTTP/1.1 401 Unauthorized"
+INFO:httpx:HTTP Request: GET http://172.22.22.73/api/config "HTTP/1.1 401 Unauthorized"
+INFO:httpx:HTTP Request: GET http://172.22.22.73/api/status "HTTP/1.1 401 Unauthorized"
+INFO:httpx:HTTP Request: GET http://172.22.22.73/api/config "HTTP/1.1 401 Unauthorized"
+INFO:httpx:HTTP Request: GET http://172.22.22.75/api/status "HTTP/1.1 401 Unauthorized"
+INFO:httpx:HTTP Request: GET http://172.22.22.75/api/config "HTTP/1.1 401 Unauthorized"
+WARNING:  WatchFiles detected changes in 'backend\app\routers\devices.py'. Reloading...
+INFO:httpx:HTTP Request: GET http://172.22.22.75/api/status "HTTP/1.1 401 Unauthorized"
+INFO:httpx:HTTP Request: GET http://172.22.22.75/api/config "HTTP/1.1 401 Unauthorized"
+INFO:httpx:HTTP Request: GET http://172.22.22.75/api/status "HTTP/1.1 401 Unauthorized"
+INFO:httpx:HTTP Request: GET http://172.22.22.75/api/config "HTTP/1.1 401 Unauthorized"
+INFO:httpx:HTTP Request: GET http://172.22.22.75/api/status "HTTP/1.1 401 Unauthorized"
+INFO:httpx:HTTP Request: GET http://172.22.22.75/api/config "HTTP/1.1 401 Unauthorized"
+INFO:httpx:HTTP Request: GET http://172.22.22.75/api/status "HTTP/1.1 401 Unauthorized"
+INFO:httpx:HTTP Request: GET http://172.22.22.75/api/config "HTTP/1.1 401 Unauthorized"
+INFO:httpx:HTTP Request: GET http://172.22.22.75/api/status "HTTP/1.1 401 Unauthorized"
+INFO:httpx:HTTP Request: GET http://172.22.22.75/api/config "HTTP/1.1 401 Unauthorized"
+INFO:httpx:HTTP Request: GET http://172.22.22.75/api/status "HTTP/1.1 401 Unauthorized"
+INFO:httpx:HTTP Request: GET http://172.22.22.75/api/config "HTTP/1.1 401 Unauthorized"
+INFO:httpx:HTTP Request: GET http://172.22.22.75/api/status "HTTP/1.1 401 Unauthorized"
+INFO:httpx:HTTP Request: GET http://172.22.22.75/api/config "HTTP/1.1 401 Unauthorized"
+INFO:httpx:HTTP Request: GET http://172.22.22.75/api/status "HTTP/1.1 401 Unauthorized"
+INFO:httpx:HTTP Request: GET http://172.22.22.75/api/config "HTTP/1.1 401 Unauthorized"
+INFO:httpx:HTTP Request: GET http://172.22.22.75/api/status "HTTP/1.1 401 Unauthorized"
+INFO:httpx:HTTP Request: GET http://172.22.22.75/api/config "HTTP/1.1 401 Unauthorized"
+INFO:     Shutting down
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+INFO:     Finished server process [61032]
+INFO:     Started server process [62860]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+INFO:httpx:HTTP Request: GET http://172.22.22.73/api/status "HTTP/1.1 401 Unauthorized"
+INFO:httpx:HTTP Request: GET http://172.22.22.73/api/config "HTTP/1.1 401 Unauthorized"
+INFO:httpx:HTTP Request: POST http://172.22.22.73/l/a?key=T3-C3-LAN-KEY-2026 "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: GET http://172.22.22.75/api/status "HTTP/1.1 401 Unauthorized"
+INFO:httpx:HTTP Request: GET http://172.22.22.75/api/config "HTTP/1.1 401 Unauthorized"
+INFO:httpx:HTTP Request: GET http://172.22.22.73/api/status "HTTP/1.1 401 Unauthorized"
+INFO:httpx:HTTP Request: GET http://172.22.22.73/api/config "HTTP/1.1 401 Unauthorized"
+INFO:httpx:HTTP Request: GET http://172.22.22.73/api/status "HTTP/1.1 401 Unauthorized"
+INFO:httpx:HTTP Request: GET http://172.22.22.73/api/config "HTTP/1.1 401 Unauthorized"
+INFO:httpx:HTTP Request: GET http://172.22.22.75/api/status "HTTP/1.1 401 Unauthorized"
+INFO:httpx:HTTP Request: GET http://172.22.22.75/api/config "HTTP/1.1 401 Unauthorized"
+INFO:httpx:HTTP Request: GET http://172.22.22.75/api/status "HTTP/1.1 401 Unauthorized"
+INFO:httpx:HTTP Request: GET http://172.22.22.75/api/config "HTTP/1.1 401 Unauthorized"
+INFO:httpx:HTTP Request: GET http://172.22.22.75/api/status "HTTP/1.1 401 Unauthorized"
+INFO:httpx:HTTP Request: GET http://172.22.22.75/api/config "HTTP/1.1 401 Unauthorized"
+WARNING:  WatchFiles detected changes in 'backend\app\routers\devices.py'. Reloading...
+INFO:     Shutting down
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+INFO:     Finished server process [62860]
+INFO:     Started server process [56084]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+INFO:httpx:HTTP Request: GET http://172.22.22.73/api/status "HTTP/1.1 401 Unauthorized"
+INFO:httpx:HTTP Request: GET http://172.22.22.73/api/config "HTTP/1.1 401 Unauthorized"
+INFO:httpx:HTTP Request: GET http://172.22.22.73/api/status "HTTP/1.1 401 Unauthorized"
+INFO:httpx:HTTP Request: GET http://172.22.22.73/api/config "HTTP/1.1 401 Unauthorized"
+INFO:httpx:HTTP Request: GET http://172.22.22.73/api/status "HTTP/1.1 401 Unauthorized"
+INFO:httpx:HTTP Request: GET http://172.22.22.73/api/config "HTTP/1.1 401 Unauthorized"
+INFO:httpx:HTTP Request: GET http://172.22.22.75/api/status "HTTP/1.1 401 Unauthorized"
+INFO:httpx:HTTP Request: GET http://172.22.22.75/api/config "HTTP/1.1 401 Unauthorized"
+INFO:httpx:HTTP Request: GET http://172.22.22.73/api/status "HTTP/1.1 401 Unauthorized"
+INFO:httpx:HTTP Request: GET http://172.22.22.73/api/config "HTTP/1.1 401 Unauthorized"
+INFO:httpx:HTTP Request: POST http://172.22.22.73/l/a?key=T3-C3-LAN-KEY-2026 "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: POST http://172.22.22.73/l/a?key=T3-C3-LAN-KEY-2026 "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: GET http://172.22.22.75/api/status "HTTP/1.1 401 Unauthorized"
+INFO:httpx:HTTP Request: GET http://172.22.22.75/api/config "HTTP/1.1 401 Unauthorized"
+INFO:httpx:HTTP Request: GET http://172.22.22.73/api/status "HTTP/1.1 401 Unauthorized"
+INFO:httpx:HTTP Request: GET http://172.22.22.73/api/config "HTTP/1.1 401 Unauthorized"
+INFO:httpx:HTTP Request: POST http://172.22.22.73/l/a?key=T3-C3-LAN-KEY-2026 "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: GET http://172.22.22.73/api/ota/check "HTTP/1.1 401 Unauthorized"
+INFO:httpx:HTTP Request: GET http://172.22.22.73/api/status "HTTP/1.1 401 Unauthorized"
+INFO:httpx:HTTP Request: GET http://172.22.22.73/api/config "HTTP/1.1 401 Unauthorized"
+INFO:httpx:HTTP Request: GET http://172.22.22.75/api/status "HTTP/1.1 401 Unauthorized"
+INFO:httpx:HTTP Request: GET http://172.22.22.75/api/config "HTTP/1.1 401 Unauthorized"
+INFO:httpx:HTTP Request: GET http://172.22.22.73/api/status "HTTP/1.1 401 Unauthorized"
+INFO:httpx:HTTP Request: GET http://172.22.22.73/api/config "HTTP/1.1 401 Unauthorized"
+INFO:httpx:HTTP Request: POST http://172.22.22.73/l/a?key=T3-C3-LAN-KEY-2026 "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: GET http://172.22.22.75/api/status "HTTP/1.1 401 Unauthorized"
+INFO:httpx:HTTP Request: GET http://172.22.22.75/api/config "HTTP/1.1 401 Unauthorized"
+INFO:httpx:HTTP Request: POST http://172.22.22.75/l/a?key=T3-C3-LAN-KEY-2026 "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: POST http://172.22.22.75/l/a?key=T3-C3-LAN-KEY-2026 "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: POST http://172.22.22.75/l/a?key=T3-C3-LAN-KEY-2026 "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: POST http://172.22.22.75/l/a?key=T3-C3-LAN-KEY-2026 "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: POST http://172.22.22.75/l/a?key=T3-C3-LAN-KEY-2026 "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: POST http://172.22.22.75/l/a?key=T3-C3-LAN-KEY-2026 "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: POST http://172.22.22.75/l/a?key=T3-C3-LAN-KEY-2026 "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: POST http://172.22.22.75/l/a?key=T3-C3-LAN-KEY-2026 "HTTP/1.1 500 Internal Server Error"
+INFO:httpx:HTTP Request: POST http://172.22.22.75/l/a?key=T3-C3-LAN-KEY-2026 "HTTP/1.1 500 Internal Server Error"
+INFO:httpx:HTTP Request: POST http://172.22.22.75/l/a?key=T3-C3-LAN-KEY-2026 "HTTP/1.1 500 Internal Server Error"
+INFO:httpx:HTTP Request: POST http://172.22.22.75/l/a?key=T3-C3-LAN-KEY-2026 "HTTP/1.1 500 Internal Server Error"
+INFO:httpx:HTTP Request: POST http://172.22.22.75/l/a?key=T3-C3-LAN-KEY-2026 "HTTP/1.1 500 Internal Server Error"
+INFO:httpx:HTTP Request: POST http://172.22.22.75/l/a?key=T3-C3-LAN-KEY-2026 "HTTP/1.1 500 Internal Server Error"
+INFO:httpx:HTTP Request: POST http://172.22.22.75/l/a?key=T3-C3-LAN-KEY-2026 "HTTP/1.1 500 Internal Server Error"
+INFO:httpx:HTTP Request: POST http://172.22.22.75/l/a?key=T3-C3-LAN-KEY-2026 "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: POST http://172.22.22.75/l/a?key=T3-C3-LAN-KEY-2026 "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: POST http://172.22.22.75/l/a?key=T3-C3-LAN-KEY-2026 "HTTP/1.1 500 Internal Server Error"
+INFO:httpx:HTTP Request: POST http://172.22.22.75/l/a?key=T3-C3-LAN-KEY-2026 "HTTP/1.1 500 Internal Server Error"
+INFO:httpx:HTTP Request: POST http://172.22.22.75/l/a?key=T3-C3-LAN-KEY-2026 "HTTP/1.1 500 Internal Server Error"
+INFO:httpx:HTTP Request: POST http://172.22.22.75/l/a?key=T3-C3-LAN-KEY-2026 "HTTP/1.1 500 Internal Server Error"
+INFO:httpx:HTTP Request: POST http://172.22.22.75/l/a?key=T3-C3-LAN-KEY-2026 "HTTP/1.1 500 Internal Server Error"
+INFO:httpx:HTTP Request: POST http://172.22.22.75/l/a?key=T3-C3-LAN-KEY-2026 "HTTP/1.1 500 Internal Server Error"
+INFO:httpx:HTTP Request: POST http://172.22.22.75/l/a?key=T3-C3-LAN-KEY-2026 "HTTP/1.1 500 Internal Server Error"
+INFO:httpx:HTTP Request: POST http://172.22.22.75/l/a?key=T3-C3-LAN-KEY-2026 "HTTP/1.1 500 Internal Server Error"
+INFO:httpx:HTTP Request: POST http://172.22.22.75/l/a?key=T3-C3-LAN-KEY-2026 "HTTP/1.1 500 Internal Server Error"
+INFO:httpx:HTTP Request: POST http://172.22.22.75/l/a?key=T3-C3-LAN-KEY-2026 "HTTP/1.1 500 Internal Server Error"
+INFO:httpx:HTTP Request: POST http://172.22.22.75/l/a?key=T3-C3-LAN-KEY-2026 "HTTP/1.1 500 Internal Server Error"
+INFO:httpx:HTTP Request: POST http://172.22.22.75/l/a?key=T3-C3-LAN-KEY-2026 "HTTP/1.1 500 Internal Server Error"
+INFO:httpx:HTTP Request: POST http://172.22.22.75/l/a?key=T3-C3-LAN-KEY-2026 "HTTP/1.1 500 Internal Server Error"
+INFO:httpx:HTTP Request: POST http://172.22.22.75/l/a?key=T3-C3-LAN-KEY-2026 "HTTP/1.1 500 Internal Server Error"
+INFO:httpx:HTTP Request: POST http://172.22.22.75/l/a?key=T3-C3-LAN-KEY-2026 "HTTP/1.1 500 Internal Server Error"
+INFO:httpx:HTTP Request: POST http://172.22.22.75/l/a?key=T3-C3-LAN-KEY-2026 "HTTP/1.1 500 Internal Server Error"
+INFO:httpx:HTTP Request: POST http://172.22.22.75/l/a?key=T3-C3-LAN-KEY-2026 "HTTP/1.1 500 Internal Server Error"
+INFO:httpx:HTTP Request: POST http://172.22.22.75/l/a?key=T3-C3-LAN-KEY-2026 "HTTP/1.1 500 Internal Server Error"
+INFO:httpx:HTTP Request: POST http://172.22.22.75/l/a?key=T3-C3-LAN-KEY-2026 "HTTP/1.1 500 Internal Server Error"
+INFO:httpx:HTTP Request: POST http://172.22.22.75/l/a?key=T3-C3-LAN-KEY-2026 "HTTP/1.1 500 Internal Server Error"
+INFO:httpx:HTTP Request: POST http://172.22.22.75/l/a?key=T3-C3-LAN-KEY-2026 "HTTP/1.1 500 Internal Server Error"
+INFO:httpx:HTTP Request: POST http://172.22.22.75/l/a?key=T3-C3-LAN-KEY-2026 "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: POST http://172.22.22.73/l/a?key=T3-C3-LAN-KEY-2026 "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: GET http://172.22.22.75/api/status "HTTP/1.1 401 Unauthorized"
+INFO:httpx:HTTP Request: GET http://172.22.22.75/api/config "HTTP/1.1 401 Unauthorized"
+INFO:httpx:HTTP Request: POST http://172.22.22.75/l/a?key=T3-C3-LAN-KEY-2026 "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: POST http://172.22.22.75/l/a?key=T3-C3-LAN-KEY-2026 "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: POST http://172.22.22.75/l/a?key=T3-C3-LAN-KEY-2026 "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: POST http://172.22.22.75/l/a?key=T3-C3-LAN-KEY-2026 "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: POST http://172.22.22.75/l/a?key=T3-C3-LAN-KEY-2026 "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: POST http://172.22.22.75/l/a?key=T3-C3-LAN-KEY-2026 "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: POST http://172.22.22.75/l/a?key=T3-C3-LAN-KEY-2026 "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: POST http://172.22.22.75/l/a?key=T3-C3-LAN-KEY-2026 "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: POST http://172.22.22.75/l/a?key=T3-C3-LAN-KEY-2026 "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: POST http://172.22.22.75/l/a?key=T3-C3-LAN-KEY-2026 "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: POST http://172.22.22.75/l/a?key=T3-C3-LAN-KEY-2026 "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: POST http://172.22.22.75/l/a?key=T3-C3-LAN-KEY-2026 "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: POST http://172.22.22.75/l/a?key=T3-C3-LAN-KEY-2026 "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: POST http://172.22.22.75/l/a?key=T3-C3-LAN-KEY-2026 "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: POST http://172.22.22.75/l/a?key=T3-C3-LAN-KEY-2026 "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: POST http://172.22.22.75/l/a?key=T3-C3-LAN-KEY-2026 "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: POST http://172.22.22.75/l/a?key=T3-C3-LAN-KEY-2026 "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: POST http://172.22.22.75/l/a?key=T3-C3-LAN-KEY-2026 "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: POST http://172.22.22.75/l/a?key=T3-C3-LAN-KEY-2026 "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: GET http://172.22.22.75/api/status "HTTP/1.1 401 Unauthorized"
+INFO:httpx:HTTP Request: GET http://172.22.22.75/api/config "HTTP/1.1 401 Unauthorized"
+INFO:httpx:HTTP Request: GET http://172.22.22.73/api/status "HTTP/1.1 401 Unauthorized"
+INFO:httpx:HTTP Request: GET http://172.22.22.73/api/config "HTTP/1.1 401 Unauthorized"
+INFO:httpx:HTTP Request: GET http://172.22.22.75/api/status "HTTP/1.1 401 Unauthorized"
+INFO:httpx:HTTP Request: GET http://172.22.22.75/api/config "HTTP/1.1 401 Unauthorized"
+INFO:httpx:HTTP Request: GET http://172.22.22.73/api/status "HTTP/1.1 401 Unauthorized"
+INFO:httpx:HTTP Request: GET http://172.22.22.73/api/config "HTTP/1.1 401 Unauthorized"
+INFO:httpx:HTTP Request: GET http://172.22.22.75/api/status "HTTP/1.1 401 Unauthorized"
+INFO:httpx:HTTP Request: GET http://172.22.22.73/api/status "HTTP/1.1 401 Unauthorized"
+INFO:httpx:HTTP Request: GET http://172.22.22.75/api/config "HTTP/1.1 401 Unauthorized"
+INFO:httpx:HTTP Request: GET http://172.22.22.73/api/config "HTTP/1.1 401 Unauthorized"
+INFO:httpx:HTTP Request: GET http://172.22.22.73/api/status "HTTP/1.1 401 Unauthorized"
+INFO:httpx:HTTP Request: GET http://172.22.22.73/api/config "HTTP/1.1 401 Unauthorized"
+INFO:httpx:HTTP Request: POST http://172.22.22.75/l/a?key=T3-C3-LAN-KEY-2026 "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: POST http://172.22.22.75/l/a?key=T3-C3-LAN-KEY-2026 "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: GET http://172.22.22.73/api/status "HTTP/1.1 401 Unauthorized"
+INFO:httpx:HTTP Request: GET http://172.22.22.73/api/config "HTTP/1.1 401 Unauthorized"
+INFO:httpx:HTTP Request: POST http://172.22.22.73/l/a?key=T3-C3-LAN-KEY-2026 "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: GET http://172.22.22.75/api/status "HTTP/1.1 401 Unauthorized"
+INFO:httpx:HTTP Request: POST http://172.22.22.75/l/a?key=T3-C3-LAN-KEY-2026 "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: GET http://172.22.22.75/api/config "HTTP/1.1 401 Unauthorized"
+INFO:httpx:HTTP Request: POST http://172.22.22.75/l/a?key=T3-C3-LAN-KEY-2026 "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: POST http://172.22.22.75/l/a?key=T3-C3-LAN-KEY-2026 "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: POST http://172.22.22.75/l/r?key=T3-C3-LAN-KEY-2026 "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: POST http://172.22.22.75/l/a?key=T3-C3-LAN-KEY-2026 "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: POST http://172.22.22.75/l/a?key=T3-C3-LAN-KEY-2026 "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: POST http://172.22.22.75/l/a?key=T3-C3-LAN-KEY-2026 "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: POST http://172.22.22.75/l/a?key=T3-C3-LAN-KEY-2026 "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: GET http://172.22.22.73/api/status "HTTP/1.1 401 Unauthorized"
+INFO:httpx:HTTP Request: GET http://172.22.22.73/api/config "HTTP/1.1 401 Unauthorized"
+INFO:httpx:HTTP Request: POST http://172.22.22.73/l/a?key=T3-C3-LAN-KEY-2026 "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: POST http://172.22.22.73/l/a?key=T3-C3-LAN-KEY-2026 "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: POST http://172.22.22.73/l/a?key=T3-C3-LAN-KEY-2026 "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: POST http://172.22.22.73/l/a?key=T3-C3-LAN-KEY-2026 "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: GET http://172.22.22.75/api/status "HTTP/1.1 401 Unauthorized"
+INFO:httpx:HTTP Request: GET http://172.22.22.75/api/config "HTTP/1.1 401 Unauthorized"
+INFO:httpx:HTTP Request: GET http://172.22.22.73/api/status "HTTP/1.1 401 Unauthorized"
+INFO:httpx:HTTP Request: GET http://172.22.22.73/api/config "HTTP/1.1 401 Unauthorized"
+INFO:httpx:HTTP Request: GET http://172.22.22.75/api/status "HTTP/1.1 401 Unauthorized"
+INFO:httpx:HTTP Request: GET http://172.22.22.75/api/config "HTTP/1.1 401 Unauthorized"
+INFO:httpx:HTTP Request: GET http://172.22.22.75/api/status "HTTP/1.1 401 Unauthorized"
+INFO:httpx:HTTP Request: GET http://172.22.22.75/api/config "HTTP/1.1 401 Unauthorized"
+INFO:httpx:HTTP Request: GET http://172.22.22.73/api/status "HTTP/1.1 401 Unauthorized"
+INFO:httpx:HTTP Request: GET http://172.22.22.75/api/status "HTTP/1.1 401 Unauthorized"
+INFO:httpx:HTTP Request: GET http://172.22.22.73/api/config "HTTP/1.1 401 Unauthorized"
+INFO:httpx:HTTP Request: GET http://172.22.22.75/api/config "HTTP/1.1 401 Unauthorized"
+INFO:httpx:HTTP Request: GET http://172.22.22.73/api/status "HTTP/1.1 401 Unauthorized"
+INFO:httpx:HTTP Request: GET http://172.22.22.73/api/config "HTTP/1.1 401 Unauthorized"
+INFO:httpx:HTTP Request: POST http://172.22.22.73/l/a?key=T3-C3-LAN-KEY-2026 "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: POST http://172.22.22.73/l/a?key=T3-C3-LAN-KEY-2026 "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: POST http://172.22.22.73/l/a?key=T3-C3-LAN-KEY-2026 "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: POST http://172.22.22.73/l/a?key=T3-C3-LAN-KEY-2026 "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: GET http://172.22.22.75/api/status "HTTP/1.1 401 Unauthorized"
+INFO:httpx:HTTP Request: GET http://172.22.22.75/api/config "HTTP/1.1 401 Unauthorized"
+INFO:httpx:HTTP Request: POST http://172.22.22.75/l/a?key=T3-C3-LAN-KEY-2026 "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: POST http://172.22.22.75/l/a?key=T3-C3-LAN-KEY-2026 "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: POST http://172.22.22.75/l/a?key=T3-C3-LAN-KEY-2026 "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: POST http://172.22.22.75/l/a?key=T3-C3-LAN-KEY-2026 "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: POST http://172.22.22.75/l/a?key=T3-C3-LAN-KEY-2026 "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: POST http://172.22.22.75/l/a?key=T3-C3-LAN-KEY-2026 "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: POST http://172.22.22.75/l/a?key=T3-C3-LAN-KEY-2026 "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: POST http://172.22.22.75/l/a?key=T3-C3-LAN-KEY-2026 "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: POST http://172.22.22.75/l/a?key=T3-C3-LAN-KEY-2026 "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: GET http://172.22.22.73/api/status "HTTP/1.1 401 Unauthorized"
+INFO:httpx:HTTP Request: GET http://172.22.22.73/api/config "HTTP/1.1 401 Unauthorized"
+INFO:httpx:HTTP Request: POST http://172.22.22.73/l/a?key=T3-C3-LAN-KEY-2026 "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: POST http://172.22.22.73/l/a?key=T3-C3-LAN-KEY-2026 "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: GET http://172.22.22.75/api/status "HTTP/1.1 401 Unauthorized"
+INFO:httpx:HTTP Request: GET http://172.22.22.75/api/config "HTTP/1.1 401 Unauthorized"
+INFO:httpx:HTTP Request: POST http://172.22.22.75/l/a?key=T3-C3-LAN-KEY-2026 "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: GET http://172.22.22.75/api/status "HTTP/1.1 401 Unauthorized"
+INFO:httpx:HTTP Request: GET http://172.22.22.75/api/config "HTTP/1.1 401 Unauthorized"
+INFO:httpx:HTTP Request: POST http://172.22.22.75/l/a?key=T3-C3-LAN-KEY-2026 "HTTP/1.1 500 Internal Server Error"
+INFO:httpx:HTTP Request: POST http://172.22.22.75/l/a?key=T3-C3-LAN-KEY-2026 "HTTP/1.1 500 Internal Server Error"
+INFO:httpx:HTTP Request: GET http://172.22.22.75/api/status "HTTP/1.1 401 Unauthorized"
+INFO:httpx:HTTP Request: GET http://172.22.22.73/api/status "HTTP/1.1 401 Unauthorized"
+INFO:httpx:HTTP Request: GET http://172.22.22.75/api/config "HTTP/1.1 401 Unauthorized"
+INFO:httpx:HTTP Request: GET http://172.22.22.73/api/config "HTTP/1.1 401 Unauthorized"
+INFO:httpx:HTTP Request: GET http://172.22.22.73/api/status "HTTP/1.1 401 Unauthorized"
+INFO:httpx:HTTP Request: GET http://172.22.22.73/api/config "HTTP/1.1 401 Unauthorized"
+INFO:httpx:HTTP Request: POST http://172.22.22.73/l/a?key=T3-C3-LAN-KEY-2026 "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: GET http://172.22.22.75/api/status "HTTP/1.1 401 Unauthorized"
+INFO:httpx:HTTP Request: GET http://172.22.22.75/api/config "HTTP/1.1 401 Unauthorized"
+INFO:httpx:HTTP Request: POST http://172.22.22.75/l/a?key=T3-C3-LAN-KEY-2026 "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: POST http://172.22.22.75/l/a?key=T3-C3-LAN-KEY-2026 "HTTP/1.1 500 Internal Server Error"
+INFO:httpx:HTTP Request: GET http://172.22.22.75/api/status "HTTP/1.1 401 Unauthorized"
+INFO:httpx:HTTP Request: GET http://172.22.22.75/api/config "HTTP/1.1 401 Unauthorized"
+INFO:httpx:HTTP Request: POST http://172.22.22.75/l/a?key=T3-C3-LAN-KEY-2026 "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: POST http://172.22.22.75/l/a?key=T3-C3-LAN-KEY-2026 "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: GET http://172.22.22.73/api/status "HTTP/1.1 401 Unauthorized"
+INFO:httpx:HTTP Request: GET http://172.22.22.73/api/config "HTTP/1.1 401 Unauthorized"
+INFO:httpx:HTTP Request: POST http://172.22.22.73/l/a?key=T3-C3-LAN-KEY-2026 "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: GET http://172.22.22.75/api/status "HTTP/1.1 401 Unauthorized"
+INFO:httpx:HTTP Request: GET http://172.22.22.75/api/config "HTTP/1.1 401 Unauthorized"
+INFO:httpx:HTTP Request: POST http://172.22.22.75/l/a?key=T3-C3-LAN-KEY-2026 "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: GET http://172.22.22.73/api/status "HTTP/1.1 401 Unauthorized"
+INFO:httpx:HTTP Request: GET http://172.22.22.73/api/config "HTTP/1.1 401 Unauthorized"
+INFO:httpx:HTTP Request: POST http://172.22.22.73/l/a?key=T3-C3-LAN-KEY-2026 "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: POST http://172.22.22.73/l/a?key=T3-C3-LAN-KEY-2026 "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: POST http://172.22.22.73/l/a?key=T3-C3-LAN-KEY-2026 "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: POST http://172.22.22.73/l/a?key=T3-C3-LAN-KEY-2026 "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: GET http://172.22.22.75/api/status "HTTP/1.1 401 Unauthorized"
+INFO:httpx:HTTP Request: GET http://172.22.22.75/api/config "HTTP/1.1 401 Unauthorized"
+INFO:httpx:HTTP Request: GET http://172.22.22.75/api/status "HTTP/1.1 401 Unauthorized"
+INFO:httpx:HTTP Request: GET http://172.22.22.75/api/config "HTTP/1.1 401 Unauthorized"
+INFO:httpx:HTTP Request: POST http://172.22.22.75/l/a?key=T3-C3-LAN-KEY-2026 "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: POST http://172.22.22.75/l/a?key=T3-C3-LAN-KEY-2026 "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: GET http://172.22.22.75/api/status "HTTP/1.1 401 Unauthorized"
+INFO:httpx:HTTP Request: GET http://172.22.22.75/api/config "HTTP/1.1 401 Unauthorized"
+INFO:httpx:HTTP Request: GET http://172.22.22.73/api/status "HTTP/1.1 401 Unauthorized"
+INFO:httpx:HTTP Request: GET http://172.22.22.73/api/config "HTTP/1.1 401 Unauthorized"
+INFO:httpx:HTTP Request: GET http://172.22.22.75/api/status "HTTP/1.1 401 Unauthorized"
+INFO:httpx:HTTP Request: GET http://172.22.22.75/api/config "HTTP/1.1 401 Unauthorized"
+INFO:httpx:HTTP Request: GET http://172.22.22.73/api/status "HTTP/1.1 401 Unauthorized"
+INFO:httpx:HTTP Request: GET http://172.22.22.73/api/config "HTTP/1.1 401 Unauthorized"
+WARNING:  WatchFiles detected changes in 'backend\app\routers\serial.py', 'backend\app\routers\devices.py', 'backend\app\device_client.py', 'backend\app\main.py', 'backend\app\serial_manager.py'. Reloading...
+INFO:     Shutting down
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+INFO:     Finished server process [56084]
+WARNING:  WatchFiles detected changes in 'backend\app\routers\devices.py'. Reloading...
+Exception ignored in: <function BaseEventLoop.__del__ at 0x00000248E8A29F80>
+Traceback (most recent call last):
+  File "C:\Program Files\WindowsApps\PythonSoftwareFoundation.Python.3.13_3.13.3824.0_x64__qbz5n2kfra8p0\Lib\asyncio\base_events.py", line 766, in __del__
+    self.close()
+  File "C:\Program Files\WindowsApps\PythonSoftwareFoundation.Python.3.13_3.13.3824.0_x64__qbz5n2kfra8p0\Lib\asyncio\selector_events.py", line 104, in close
+    self._close_self_pipe()
+  File "C:\Program Files\WindowsApps\PythonSoftwareFoundation.Python.3.13_3.13.3824.0_x64__qbz5n2kfra8p0\Lib\asyncio\selector_events.py", line 111, in _close_self_pipe
+    self._remove_reader(self._ssock.fileno())
+AttributeError: '_WindowsSelectorEventLoop' object has no attribute '_ssock'
+C:\Users\feiyu\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.13_qbz5n2kfra8p0\LocalCache\local-packages\Python313\site-packages\uvicorn\_subprocess.py:84: RuntimeWarning: coroutine 'Server.serve' was never awaited
+  pass
+RuntimeWarning: Enable tracemalloc to get the object allocation traceback
+INFO:     Started server process [49756]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+WARNING:  WatchFiles detected changes in 'backend\app\config.py'. Reloading...
+INFO:     Shutting down
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+INFO:     Finished server process [49756]
+INFO:     Started server process [44264]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+WARNING:  WatchFiles detected changes in 'backend\app\device_client.py'. Reloading...
+INFO:     Shutting down
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+INFO:     Finished server process [44264]
+WARNING:  WatchFiles detected changes in 'backend\app\config.py', 'backend\app\device_client.py'. Reloading...
+INFO:     Started server process [18288]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+ERROR:    Traceback (most recent call last):
+  File "C:\Program Files\WindowsApps\PythonSoftwareFoundation.Python.3.13_3.13.3824.0_x64__qbz5n2kfra8p0\Lib\asyncio\runners.py", line 119, in run
+    return self._loop.run_until_complete(task)
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^
+  File "C:\Program Files\WindowsApps\PythonSoftwareFoundation.Python.3.13_3.13.3824.0_x64__qbz5n2kfra8p0\Lib\asyncio\base_events.py", line 725, in run_until_complete
+    return future.result()
+           ~~~~~~~~~~~~~^^
+asyncio.exceptions.CancelledError
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "C:\Program Files\WindowsApps\PythonSoftwareFoundation.Python.3.13_3.13.3824.0_x64__qbz5n2kfra8p0\Lib\asyncio\runners.py", line 196, in run
+    return runner.run(main)
+           ~~~~~~~~~~^^^^^^
+  File "C:\Program Files\WindowsApps\PythonSoftwareFoundation.Python.3.13_3.13.3824.0_x64__qbz5n2kfra8p0\Lib\asyncio\runners.py", line 124, in run
+    raise KeyboardInterrupt()
+KeyboardInterrupt
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "C:\Users\feiyu\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.13_qbz5n2kfra8p0\LocalCache\local-packages\Python313\site-packages\starlette\routing.py", line 700, in lifespan
+    await receive()
+  File "C:\Users\feiyu\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.13_qbz5n2kfra8p0\LocalCache\local-packages\Python313\site-packages\uvicorn\lifespan\on.py", line 137, in receive
+    return await self.receive_queue.get()
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Program Files\WindowsApps\PythonSoftwareFoundation.Python.3.13_3.13.3824.0_x64__qbz5n2kfra8p0\Lib\asyncio\queues.py", line 186, in get
+    await getter
+asyncio.exceptions.CancelledError
+
+INFO:     Started server process [42312]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+INFO:httpx:HTTP Request: GET http://172.22.22.75/api/status?key=T3-C3-LAN-KEY-2026 "HTTP/1.1 401 Unauthorized"
+INFO:httpx:HTTP Request: GET http://172.22.22.75/api/status "HTTP/1.1 401 Unauthorized"
+INFO:httpx:HTTP Request: GET http://172.22.22.75/api/config?key=T3-C3-LAN-KEY-2026 "HTTP/1.1 401 Unauthorized"
+INFO:httpx:HTTP Request: GET http://172.22.22.75/api/config "HTTP/1.1 401 Unauthorized"
+INFO:httpx:HTTP Request: GET http://172.22.22.75/l/d?key=T3-C3-LAN-KEY-2026 "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: POST http://172.22.22.75/l/c?key=T3-C3-LAN-KEY-2026 "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: GET http://172.22.22.75/l/d?key=T3-C3-LAN-KEY-2026 "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: POST http://172.22.22.75/l/c?key=T3-C3-LAN-KEY-2026 "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: GET http://172.22.22.73/api/status?key=T3-C3-LAN-KEY-2026 "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: GET http://172.22.22.73/api/config?key=T3-C3-LAN-KEY-2026 "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: GET http://172.22.22.73/l/d?key=T3-C3-LAN-KEY-2026 "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: POST http://172.22.22.73/l/c?key=T3-C3-LAN-KEY-2026 "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: GET http://172.22.22.73/l/d?key=T3-C3-LAN-KEY-2026 "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: POST http://172.22.22.73/l/c?key=T3-C3-LAN-KEY-2026 "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: POST http://172.22.22.73/api/sim/number?key=T3-C3-LAN-KEY-2026 "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: GET http://172.22.22.73/api/status?key=T3-C3-LAN-KEY-2026 "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: GET http://172.22.22.73/api/config?key=T3-C3-LAN-KEY-2026 "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: POST http://172.22.22.73/l/a?key=T3-C3-LAN-KEY-2026 "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: GET http://172.22.22.75/api/status?key=T3-C3-LAN-KEY-2026 "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: GET http://172.22.22.75/api/config?key=T3-C3-LAN-KEY-2026 "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: POST http://172.22.22.75/l/a?key=T3-C3-LAN-KEY-2026 "HTTP/1.1 200 OK"
+ERROR:    Exception in ASGI application
+Traceback (most recent call last):
+  File "C:\Users\feiyu\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.13_qbz5n2kfra8p0\LocalCache\local-packages\Python313\site-packages\uvicorn\protocols\http\httptools_impl.py", line 409, in run_asgi
+    result = await app(  # type: ignore[func-returns-value]
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        self.scope, self.receive, self.send
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\feiyu\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.13_qbz5n2kfra8p0\LocalCache\local-packages\Python313\site-packages\uvicorn\middleware\proxy_headers.py", line 60, in __call__
+    return await self.app(scope, receive, send)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\feiyu\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.13_qbz5n2kfra8p0\LocalCache\local-packages\Python313\site-packages\fastapi\applications.py", line 1054, in __call__
+    await super().__call__(scope, receive, send)
+  File "C:\Users\feiyu\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.13_qbz5n2kfra8p0\LocalCache\local-packages\Python313\site-packages\starlette\applications.py", line 113, in __call__
+    await self.middleware_stack(scope, receive, send)
+  File "C:\Users\feiyu\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.13_qbz5n2kfra8p0\LocalCache\local-packages\Python313\site-packages\starlette\middleware\errors.py", line 187, in __call__
+    raise exc
+  File "C:\Users\feiyu\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.13_qbz5n2kfra8p0\LocalCache\local-packages\Python313\site-packages\starlette\middleware\errors.py", line 165, in __call__
+    await self.app(scope, receive, _send)
+  File "C:\Users\feiyu\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.13_qbz5n2kfra8p0\LocalCache\local-packages\Python313\site-packages\starlette\middleware\cors.py", line 85, in __call__
+    await self.app(scope, receive, send)
+  File "C:\Users\feiyu\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.13_qbz5n2kfra8p0\LocalCache\local-packages\Python313\site-packages\starlette\middleware\exceptions.py", line 62, in __call__
+    await wrap_app_handling_exceptions(self.app, conn)(scope, receive, send)
+  File "C:\Users\feiyu\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.13_qbz5n2kfra8p0\LocalCache\local-packages\Python313\site-packages\starlette\_exception_handler.py", line 53, in wrapped_app
+    raise exc
+  File "C:\Users\feiyu\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.13_qbz5n2kfra8p0\LocalCache\local-packages\Python313\site-packages\starlette\_exception_handler.py", line 42, in wrapped_app
+    await app(scope, receive, sender)
+  File "C:\Users\feiyu\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.13_qbz5n2kfra8p0\LocalCache\local-packages\Python313\site-packages\starlette\routing.py", line 715, in __call__
+    await self.middleware_stack(scope, receive, send)
+  File "C:\Users\feiyu\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.13_qbz5n2kfra8p0\LocalCache\local-packages\Python313\site-packages\starlette\routing.py", line 735, in app
+    await route.handle(scope, receive, send)
+  File "C:\Users\feiyu\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.13_qbz5n2kfra8p0\LocalCache\local-packages\Python313\site-packages\starlette\routing.py", line 288, in handle
+    await self.app(scope, receive, send)
+  File "C:\Users\feiyu\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.13_qbz5n2kfra8p0\LocalCache\local-packages\Python313\site-packages\starlette\routing.py", line 76, in app
+    await wrap_app_handling_exceptions(app, request)(scope, receive, send)
+  File "C:\Users\feiyu\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.13_qbz5n2kfra8p0\LocalCache\local-packages\Python313\site-packages\starlette\_exception_handler.py", line 53, in wrapped_app
+    raise exc
+  File "C:\Users\feiyu\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.13_qbz5n2kfra8p0\LocalCache\local-packages\Python313\site-packages\starlette\_exception_handler.py", line 42, in wrapped_app
+    await app(scope, receive, sender)
+  File "C:\Users\feiyu\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.13_qbz5n2kfra8p0\LocalCache\local-packages\Python313\site-packages\starlette\routing.py", line 73, in app
+    response = await f(request)
+               ^^^^^^^^^^^^^^^^
+  File "C:\Users\feiyu\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.13_qbz5n2kfra8p0\LocalCache\local-packages\Python313\site-packages\fastapi\routing.py", line 301, in app
+    raw_response = await run_endpoint_function(
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<3 lines>...
+    )
+    ^
+  File "C:\Users\feiyu\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.13_qbz5n2kfra8p0\LocalCache\local-packages\Python313\site-packages\fastapi\routing.py", line 212, in run_endpoint_function
+    return await dependant.call(**values)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "F:\代码开发\T3web\backend\app\routers\messages.py", line 43, in ingest_message
+    body = await request.json()
+           ^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\feiyu\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.13_qbz5n2kfra8p0\LocalCache\local-packages\Python313\site-packages\starlette\requests.py", line 249, in json
+    self._json = json.loads(body)
+                 ~~~~~~~~~~^^^^^^
+  File "C:\Program Files\WindowsApps\PythonSoftwareFoundation.Python.3.13_3.13.3824.0_x64__qbz5n2kfra8p0\Lib\json\__init__.py", line 352, in loads
+    return _default_decoder.decode(s)
+           ~~~~~~~~~~~~~~~~~~~~~~~^^^
+  File "C:\Program Files\WindowsApps\PythonSoftwareFoundation.Python.3.13_3.13.3824.0_x64__qbz5n2kfra8p0\Lib\json\decoder.py", line 345, in decode
+    obj, end = self.raw_decode(s, idx=_w(s, 0).end())
+               ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Program Files\WindowsApps\PythonSoftwareFoundation.Python.3.13_3.13.3824.0_x64__qbz5n2kfra8p0\Lib\json\decoder.py", line 361, in raw_decode
+    obj, end = self.scan_once(s, idx)
+               ~~~~~~~~~~~~~~^^^^^^^^
+json.decoder.JSONDecodeError: Invalid control character at: line 1 column 29 (char 28)
+ERROR:    Exception in ASGI application
+Traceback (most recent call last):
+  File "C:\Users\feiyu\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.13_qbz5n2kfra8p0\LocalCache\local-packages\Python313\site-packages\uvicorn\protocols\http\httptools_impl.py", line 409, in run_asgi
+    result = await app(  # type: ignore[func-returns-value]
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        self.scope, self.receive, self.send
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\feiyu\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.13_qbz5n2kfra8p0\LocalCache\local-packages\Python313\site-packages\uvicorn\middleware\proxy_headers.py", line 60, in __call__
+    return await self.app(scope, receive, send)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\feiyu\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.13_qbz5n2kfra8p0\LocalCache\local-packages\Python313\site-packages\fastapi\applications.py", line 1054, in __call__
+    await super().__call__(scope, receive, send)
+  File "C:\Users\feiyu\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.13_qbz5n2kfra8p0\LocalCache\local-packages\Python313\site-packages\starlette\applications.py", line 113, in __call__
+    await self.middleware_stack(scope, receive, send)
+  File "C:\Users\feiyu\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.13_qbz5n2kfra8p0\LocalCache\local-packages\Python313\site-packages\starlette\middleware\errors.py", line 187, in __call__
+    raise exc
+  File "C:\Users\feiyu\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.13_qbz5n2kfra8p0\LocalCache\local-packages\Python313\site-packages\starlette\middleware\errors.py", line 165, in __call__
+    await self.app(scope, receive, _send)
+  File "C:\Users\feiyu\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.13_qbz5n2kfra8p0\LocalCache\local-packages\Python313\site-packages\starlette\middleware\cors.py", line 85, in __call__
+    await self.app(scope, receive, send)
+  File "C:\Users\feiyu\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.13_qbz5n2kfra8p0\LocalCache\local-packages\Python313\site-packages\starlette\middleware\exceptions.py", line 62, in __call__
+    await wrap_app_handling_exceptions(self.app, conn)(scope, receive, send)
+  File "C:\Users\feiyu\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.13_qbz5n2kfra8p0\LocalCache\local-packages\Python313\site-packages\starlette\_exception_handler.py", line 53, in wrapped_app
+    raise exc
+  File "C:\Users\feiyu\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.13_qbz5n2kfra8p0\LocalCache\local-packages\Python313\site-packages\starlette\_exception_handler.py", line 42, in wrapped_app
+    await app(scope, receive, sender)
+  File "C:\Users\feiyu\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.13_qbz5n2kfra8p0\LocalCache\local-packages\Python313\site-packages\starlette\routing.py", line 715, in __call__
+    await self.middleware_stack(scope, receive, send)
+  File "C:\Users\feiyu\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.13_qbz5n2kfra8p0\LocalCache\local-packages\Python313\site-packages\starlette\routing.py", line 735, in app
+    await route.handle(scope, receive, send)
+  File "C:\Users\feiyu\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.13_qbz5n2kfra8p0\LocalCache\local-packages\Python313\site-packages\starlette\routing.py", line 288, in handle
+    await self.app(scope, receive, send)
+  File "C:\Users\feiyu\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.13_qbz5n2kfra8p0\LocalCache\local-packages\Python313\site-packages\starlette\routing.py", line 76, in app
+    await wrap_app_handling_exceptions(app, request)(scope, receive, send)
+  File "C:\Users\feiyu\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.13_qbz5n2kfra8p0\LocalCache\local-packages\Python313\site-packages\starlette\_exception_handler.py", line 53, in wrapped_app
+    raise exc
+  File "C:\Users\feiyu\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.13_qbz5n2kfra8p0\LocalCache\local-packages\Python313\site-packages\starlette\_exception_handler.py", line 42, in wrapped_app
+    await app(scope, receive, sender)
+  File "C:\Users\feiyu\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.13_qbz5n2kfra8p0\LocalCache\local-packages\Python313\site-packages\starlette\routing.py", line 73, in app
+    response = await f(request)
+               ^^^^^^^^^^^^^^^^
+  File "C:\Users\feiyu\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.13_qbz5n2kfra8p0\LocalCache\local-packages\Python313\site-packages\fastapi\routing.py", line 301, in app
+    raw_response = await run_endpoint_function(
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<3 lines>...
+    )
+    ^
+  File "C:\Users\feiyu\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.13_qbz5n2kfra8p0\LocalCache\local-packages\Python313\site-packages\fastapi\routing.py", line 212, in run_endpoint_function
+    return await dependant.call(**values)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "F:\代码开发\T3web\backend\app\routers\messages.py", line 43, in ingest_message
+    body = await request.json()
+           ^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\feiyu\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.13_qbz5n2kfra8p0\LocalCache\local-packages\Python313\site-packages\starlette\requests.py", line 249, in json
+    self._json = json.loads(body)
+                 ~~~~~~~~~~^^^^^^
+  File "C:\Program Files\WindowsApps\PythonSoftwareFoundation.Python.3.13_3.13.3824.0_x64__qbz5n2kfra8p0\Lib\json\__init__.py", line 352, in loads
+    return _default_decoder.decode(s)
+           ~~~~~~~~~~~~~~~~~~~~~~~^^^
+  File "C:\Program Files\WindowsApps\PythonSoftwareFoundation.Python.3.13_3.13.3824.0_x64__qbz5n2kfra8p0\Lib\json\decoder.py", line 345, in decode
+    obj, end = self.raw_decode(s, idx=_w(s, 0).end())
+               ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Program Files\WindowsApps\PythonSoftwareFoundation.Python.3.13_3.13.3824.0_x64__qbz5n2kfra8p0\Lib\json\decoder.py", line 361, in raw_decode
+    obj, end = self.scan_once(s, idx)
+               ~~~~~~~~~~~~~~^^^^^^^^
+json.decoder.JSONDecodeError: Invalid control character at: line 1 column 29 (char 28)
+ERROR:    Exception in ASGI application
+Traceback (most recent call last):
+  File "C:\Users\feiyu\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.13_qbz5n2kfra8p0\LocalCache\local-packages\Python313\site-packages\uvicorn\protocols\http\httptools_impl.py", line 409, in run_asgi
+    result = await app(  # type: ignore[func-returns-value]
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        self.scope, self.receive, self.send
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\feiyu\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.13_qbz5n2kfra8p0\LocalCache\local-packages\Python313\site-packages\uvicorn\middleware\proxy_headers.py", line 60, in __call__
+    return await self.app(scope, receive, send)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\feiyu\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.13_qbz5n2kfra8p0\LocalCache\local-packages\Python313\site-packages\fastapi\applications.py", line 1054, in __call__
+    await super().__call__(scope, receive, send)
+  File "C:\Users\feiyu\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.13_qbz5n2kfra8p0\LocalCache\local-packages\Python313\site-packages\starlette\applications.py", line 113, in __call__
+    await self.middleware_stack(scope, receive, send)
+  File "C:\Users\feiyu\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.13_qbz5n2kfra8p0\LocalCache\local-packages\Python313\site-packages\starlette\middleware\errors.py", line 187, in __call__
+    raise exc
+  File "C:\Users\feiyu\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.13_qbz5n2kfra8p0\LocalCache\local-packages\Python313\site-packages\starlette\middleware\errors.py", line 165, in __call__
+    await self.app(scope, receive, _send)
+  File "C:\Users\feiyu\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.13_qbz5n2kfra8p0\LocalCache\local-packages\Python313\site-packages\starlette\middleware\cors.py", line 85, in __call__
+    await self.app(scope, receive, send)
+  File "C:\Users\feiyu\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.13_qbz5n2kfra8p0\LocalCache\local-packages\Python313\site-packages\starlette\middleware\exceptions.py", line 62, in __call__
+    await wrap_app_handling_exceptions(self.app, conn)(scope, receive, send)
+  File "C:\Users\feiyu\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.13_qbz5n2kfra8p0\LocalCache\local-packages\Python313\site-packages\starlette\_exception_handler.py", line 53, in wrapped_app
+    raise exc
+  File "C:\Users\feiyu\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.13_qbz5n2kfra8p0\LocalCache\local-packages\Python313\site-packages\starlette\_exception_handler.py", line 42, in wrapped_app
+    await app(scope, receive, sender)
+  File "C:\Users\feiyu\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.13_qbz5n2kfra8p0\LocalCache\local-packages\Python313\site-packages\starlette\routing.py", line 715, in __call__
+    await self.middleware_stack(scope, receive, send)
+  File "C:\Users\feiyu\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.13_qbz5n2kfra8p0\LocalCache\local-packages\Python313\site-packages\starlette\routing.py", line 735, in app
+    await route.handle(scope, receive, send)
+  File "C:\Users\feiyu\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.13_qbz5n2kfra8p0\LocalCache\local-packages\Python313\site-packages\starlette\routing.py", line 288, in handle
+    await self.app(scope, receive, send)
+  File "C:\Users\feiyu\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.13_qbz5n2kfra8p0\LocalCache\local-packages\Python313\site-packages\starlette\routing.py", line 76, in app
+    await wrap_app_handling_exceptions(app, request)(scope, receive, send)
+  File "C:\Users\feiyu\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.13_qbz5n2kfra8p0\LocalCache\local-packages\Python313\site-packages\starlette\_exception_handler.py", line 53, in wrapped_app
+    raise exc
+  File "C:\Users\feiyu\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.13_qbz5n2kfra8p0\LocalCache\local-packages\Python313\site-packages\starlette\_exception_handler.py", line 42, in wrapped_app
+    await app(scope, receive, sender)
+  File "C:\Users\feiyu\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.13_qbz5n2kfra8p0\LocalCache\local-packages\Python313\site-packages\starlette\routing.py", line 73, in app
+    response = await f(request)
+               ^^^^^^^^^^^^^^^^
+  File "C:\Users\feiyu\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.13_qbz5n2kfra8p0\LocalCache\local-packages\Python313\site-packages\fastapi\routing.py", line 301, in app
+    raw_response = await run_endpoint_function(
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<3 lines>...
+    )
+    ^
+  File "C:\Users\feiyu\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.13_qbz5n2kfra8p0\LocalCache\local-packages\Python313\site-packages\fastapi\routing.py", line 212, in run_endpoint_function
+    return await dependant.call(**values)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "F:\代码开发\T3web\backend\app\routers\messages.py", line 43, in ingest_message
+    body = await request.json()
+           ^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\feiyu\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.13_qbz5n2kfra8p0\LocalCache\local-packages\Python313\site-packages\starlette\requests.py", line 249, in json
+    self._json = json.loads(body)
+                 ~~~~~~~~~~^^^^^^
+  File "C:\Program Files\WindowsApps\PythonSoftwareFoundation.Python.3.13_3.13.3824.0_x64__qbz5n2kfra8p0\Lib\json\__init__.py", line 352, in loads
+    return _default_decoder.decode(s)
+           ~~~~~~~~~~~~~~~~~~~~~~~^^^
+  File "C:\Program Files\WindowsApps\PythonSoftwareFoundation.Python.3.13_3.13.3824.0_x64__qbz5n2kfra8p0\Lib\json\decoder.py", line 345, in decode
+    obj, end = self.raw_decode(s, idx=_w(s, 0).end())
+               ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Program Files\WindowsApps\PythonSoftwareFoundation.Python.3.13_3.13.3824.0_x64__qbz5n2kfra8p0\Lib\json\decoder.py", line 361, in raw_decode
+    obj, end = self.scan_once(s, idx)
+               ~~~~~~~~~~~~~~^^^^^^^^
+json.decoder.JSONDecodeError: Invalid control character at: line 1 column 28 (char 27)
+INFO:httpx:HTTP Request: POST http://172.22.22.75/l/a?key=T3-C3-LAN-KEY-2026 "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: POST http://172.22.22.75/l/a?key=T3-C3-LAN-KEY-2026 "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: POST http://172.22.22.75/l/a?key=T3-C3-LAN-KEY-2026 "HTTP/1.1 200 OK"

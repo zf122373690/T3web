@@ -27,6 +27,11 @@ async function request<T>(path: string, init: RequestInit = {}): Promise<T> {
     } catch {
       message = await response.text();
     }
+    if (response.status === 401 && path !== '/login') {
+      localStorage.removeItem('token');
+      localStorage.removeItem('username');
+      window.location.replace('/login');
+    }
     throw new ApiError(response.status, message);
   }
   return response.json() as Promise<T>;

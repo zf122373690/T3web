@@ -14,6 +14,7 @@ from .routers.auth import router as auth_router
 from .routers.devices import router as devices_router
 from .routers.messages import router as messages_router
 from .routers.scan import router as scan_router
+from .routers.serial import router as serial_router
 from .routers.system import router as system_router
 
 logging.basicConfig(level=logging.INFO)
@@ -35,6 +36,7 @@ app.include_router(auth_router)
 app.include_router(devices_router)
 app.include_router(messages_router)
 app.include_router(scan_router)
+app.include_router(serial_router)
 app.include_router(system_router)
 
 STATIC_DIR.mkdir(parents=True, exist_ok=True)

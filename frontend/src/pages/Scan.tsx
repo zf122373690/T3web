@@ -5,7 +5,7 @@ import {addDevice, getScanStatus, startScan, type ScanStatus} from '../api/devic
 export default function Scan() {
   const [cidr, setCidr] = useState('');
   const [user, setUser] = useState('admin');
-  const [password, setPassword] = useState('admin');
+  const [password, setPassword] = useState('admin123');
   const [status, setStatus] = useState<ScanStatus | null>(null);
   const [autoDetected, setAutoDetected] = useState(false);
   const [running, setRunning] = useState(false);
@@ -81,10 +81,11 @@ export default function Scan() {
 
   return (
     <section className="page">
-      <div className="page-header">
+      <div className="page-hero">
         <div>
-          <h1>局域网扫描</h1>
-          <p>只识别带 LAN 密钥发现接口的 ESP32-C3 短信转发设备，识别成功后自动加入设备管理。</p>
+          <span className="eyebrow">Sector Scan</span>
+          <h1>星域扫描</h1>
+          <p>只识别带 LAN 密钥发现接口的 ESP32-C3 短信转发节点，识别成功后自动加入节点舰队。</p>
         </div>
       </div>
 

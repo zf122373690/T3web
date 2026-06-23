@@ -18,11 +18,12 @@ export interface MessageStats {
   failed: number;
 }
 
-export function listMessages(params: {page?: number; pageSize?: number; search?: string} = {}) {
+export function listMessages(params: {page?: number; pageSize?: number; search?: string; direction?: string} = {}) {
   const query = new URLSearchParams({
     page: String(params.page ?? 1),
     page_size: String(params.pageSize ?? 50),
     search: params.search ?? '',
+    direction: params.direction ?? '',
   });
   return api.get<{items: MessageItem[]; total: number; page: number; pageSize: number}>(`/messages?${query}`);
 }
@@ -35,6 +36,7 @@ export function deleteMessage(id: number) {
   return api.delete<{success: boolean}>(`/messages/${id}`);
 }
 
-export function clearMessages() {
-  return api.delete<{success: boolean}>('/messages');
+export function clearMessages(direction = '') {
+  const query = direction ? `?direction=${encodeURIComponent(direction)}` : '';
+  return api.delete<{success: boolean}>(`/messages${query}`);
 }
