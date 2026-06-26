@@ -30,7 +30,7 @@ export default function Login() {
     <div className="login-page">
       <div className="login-shell">
         <div className="login-copy">
-          <div className="brand-mark large">T3</div>
+          <div className="sidebar-brand-mark large">T3</div>
           <span className="eyebrow">Orbital Access</span>
           <h1>T3 ORBITAL LINK</h1>
           <p>进入深空通信控制台，统一管理局域网设备、本地串口读取、短信中继和通话记录归档。</p>

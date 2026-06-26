@@ -144,6 +144,7 @@ def _normalize_lan_status(payload: dict[str, Any]) -> dict[str, Any]:
 
 
 def lan_discover_device(ip: str, key: str = LAN_DEVICE_KEY) -> dict[str, Any] | None:
+    """设备发现协议，唯一保留的 /l/* 接口（无认证）"""
     ensure_private_ip(ip)
     try:
         with httpx.Client(timeout=HTTP_TIMEOUT) as client:
@@ -206,6 +207,12 @@ def _request_device(
     json_body: dict[str, Any] | None = None,
     timeout: float | None = None,
 ) -> dict[str, Any]:
+    """
+    统一设备请求函数：
+      1. 优先用 LAN Key 认证（query 参数 key + header X-T3-LAN-Key）
+      2. 失败回退 Digest Auth
+    固件 /api/* 接口同时支持这两种认证方式
+    """
     ensure_private_ip(ip)
     request_params = dict(params or {})
     request_params.setdefault("key", LAN_DEVICE_KEY)
@@ -221,6 +228,7 @@ def _request_device(
             result = _parse_device_response(resp)
             if result.get("ok") or result.get("statusCode") not in (401, 403):
                 return result
+            # LAN Key 失败，回退 Digest Auth
             legacy_resp = client.request(
                 method,
                 f"http://{ip}{path}",
@@ -230,85 +238,26 @@ def _request_device(
             )
         legacy_result = _parse_device_response(legacy_resp)
         if not legacy_result.get("ok") and legacy_result.get("statusCode") in (401, 403):
-            legacy_result["message"] = f"{legacy_result.get('message')}，设备固件可能尚未支持 LAN 密钥接管，请升级固件"
+            legacy_result["message"] = f"{legacy_result.get('message')}，设备认证失败"
         return legacy_result
     except Exception as exc:
         return {"ok": False, "message": str(exc), "data": {}}
 
 
-def _request_lan_device(
-    ip: str,
-    method: str,
-    path: str,
-    *,
-    params: dict[str, Any] | None = None,
-    json_body: dict[str, Any] | None = None,
-    timeout: float | None = None,
-    key: str = LAN_DEVICE_KEY,
-) -> dict[str, Any]:
-    params = dict(params or {})
-    params["key"] = key
-    try:
-        with httpx.Client(timeout=timeout or HTTP_TIMEOUT) as client:
-            resp = client.request(method, f"http://{ensure_private_ip(ip)}{path}", params=params, json=json_body)
-        if resp.status_code < 200 or resp.status_code >= 300:
-            return {"ok": False, "message": f"HTTP {resp.status_code}", "statusCode": resp.status_code, "data": {}}
-        try:
-            data = resp.json()
-        except ValueError:
-            data = {"text": resp.text}
-        if isinstance(data, dict):
-            success = data.get("success")
-            ok = bool(success) if success is not None else True
-            return {"ok": ok, "message": str(data.get("message") or data.get("msg") or "OK"), "data": data}
-        return {"ok": True, "message": "OK", "data": data}
-    except Exception as exc:
-        return {"ok": False, "message": str(exc), "data": {}}
-
-
 def configure_local_report(ip: str) -> dict[str, Any]:
-    return _request_lan_device(
+    """配置本地上报地址，通过 /api/config 接口写入 localUrl/localToken"""
+    return _request_device(
         ip,
+        DEVICE_USER,
+        DEVICE_PASS,
         "POST",
-        "/l/c",
-        json_body={"u": f"{local_base_url_for_device(ip)}/api/messages/ingest", "k": MESSAGE_INGEST_TOKEN},
+        "/api/config",
+        json_body={
+            "localUrl": f"{local_base_url_for_device(ip)}/api/messages/ingest",
+            "localToken": MESSAGE_INGEST_TOKEN,
+        },
         timeout=HTTP_TIMEOUT,
     )
-
-
-def _request_openapi_sms(
-    ip: str,
-    user: str,
-    password: str,
-    phone: str,
-    content: str,
-    sim_slot: int,
-) -> dict[str, Any]:
-    ensure_private_ip(ip)
-    body = {"phone": phone, "msg": content, "slot": sim_slot}
-    auth_modes: list[Any] = [None, httpx.BasicAuth(user, password), httpx.DigestAuth(user, password)]
-    last: dict[str, Any] = {"ok": False, "message": "短信发送失败", "data": {}}
-    for auth in auth_modes:
-        try:
-            with httpx.Client(timeout=HTTP_TIMEOUT + 10) as client:
-                resp = client.post(f"http://{ip}/api/sms/send", json=body, auth=auth)
-            try:
-                data = resp.json()
-            except ValueError:
-                data = {"text": resp.text}
-            ok = resp.status_code == 200 and isinstance(data, dict) and bool(data.get("success", True))
-            last = {
-                "ok": ok,
-                "message": str(data.get("message") if isinstance(data, dict) else "") or f"HTTP {resp.status_code}",
-                "statusCode": resp.status_code,
-                "data": data,
-                "endpoint": "/api/sms/send",
-            }
-            if ok or resp.status_code not in (401, 403):
-                return last
-        except Exception as exc:
-            last = {"ok": False, "message": str(exc), "data": {}, "endpoint": "/api/sms/send"}
-    return last
 
 
 def send_sms_to_device(
@@ -319,17 +268,17 @@ def send_sms_to_device(
     content: str = "",
     sim_slot: int = 1,
 ) -> dict[str, Any]:
-    lan_result = _request_lan_device(
+    result = _request_device(
         ip,
+        user,
+        password,
         "POST",
-        "/l/s",
+        "/api/sms/send",
         json_body={"phone": phone, "msg": content, "slot": sim_slot},
         timeout=HTTP_TIMEOUT + 10,
     )
-    if lan_result.get("ok") or lan_result.get("statusCode") not in (404, 405):
-        lan_result["endpoint"] = "/l/s"
-        return lan_result
-    return _request_openapi_sms(ip, user, password, phone, content, sim_slot)
+    result["endpoint"] = "/api/sms/send"
+    return result
 
 
 def set_device_flymode(
@@ -338,59 +287,37 @@ def set_device_flymode(
     password: str = DEVICE_PASS,
     enabled: bool = False,
 ) -> dict[str, Any]:
-    if enabled:
-        at = "AT+CFUN=0"
-        lan_result = _request_lan_device(ip, "POST", "/l/a", json_body={"cmd": at, "timeout": 8000})
-    else:
-        lan_result = _request_lan_device(ip, "POST", "/l/a", json_body={"cmd": "AT+CFUN=1", "timeout": 12000})
-        if lan_result.get("ok"):
-            check = _request_lan_device(ip, "POST", "/l/a", json_body={"cmd": "AT+CFUN?", "timeout": 3000})
-            response = str((check.get("data") or {}).get("response", ""))
-            if "+CFUN: 1" in response or "+CFUN:1" in response:
-                check["endpoint"] = "/l/a"
-                return {"ok": True, "message": "网络已恢复", "endpoint": "/l/a", "data": check.get("data", {})}
-            lan_result = _request_lan_device(ip, "POST", "/l/a", json_body={"cmd": "AT+CFUN=1,1", "timeout": 15000})
-    if lan_result.get("ok") or lan_result.get("statusCode") not in (404, 405):
-        lan_result["endpoint"] = "/l/a"
-        return lan_result
-    candidates = [
-        ("POST", "/api/device/flymode", None, {"enabled": enabled}),
-        ("POST", "/api/serial/flymode", None, {"enabled": enabled}),
-        ("POST", "/api/flymode", {"enabled": str(enabled).lower()}, None),
-    ]
-    last: dict[str, Any] = {"ok": False, "message": "未找到可用的飞行模式接口", "data": {}}
-    for method, path, params, body in candidates:
-        result = _request_device(ip, user, password, method, path, params=params, json_body=body)
-        if result.get("ok"):
-            result["endpoint"] = path
-            return result
-        last = result | {"endpoint": path}
-        if result.get("statusCode") not in (404, 405):
-            break
-    return last
+    """飞行模式通过 AT 指令实现"""
+    at_cmd = "AT+CFUN=0" if enabled else "AT+CFUN=1"
+    result = _request_device(
+        ip, user, password, "POST", "/api/at",
+        json_body={"cmd": at_cmd, "timeout": 12000},
+        timeout=HTTP_TIMEOUT + 5,
+    )
+    result["endpoint"] = "/api/at"
+
+    # 关闭飞行模式后验证
+    if not enabled and result.get("ok"):
+        check = _request_device(
+            ip, user, password, "POST", "/api/at",
+            json_body={"cmd": "AT+CFUN?", "timeout": 3000},
+        )
+        response = str((check.get("data") or {}).get("response", ""))
+        if "+CFUN: 1" in response or "+CFUN:1" in response:
+            return {"ok": True, "message": "网络已恢复", "endpoint": "/api/at", "data": check.get("data", {})}
+        # 再试一次完整重启
+        result = _request_device(
+            ip, user, password, "POST", "/api/at",
+            json_body={"cmd": "AT+CFUN=1,1", "timeout": 15000},
+        )
+        result["endpoint"] = "/api/at"
+    return result
 
 
 def reboot_device(ip: str, user: str = DEVICE_USER, password: str = DEVICE_PASS) -> dict[str, Any]:
-    lan_result = _request_lan_device(ip, "POST", "/l/r")
-    if lan_result.get("ok") or lan_result.get("statusCode") not in (404, 405):
-        lan_result["endpoint"] = "/l/r"
-        return lan_result
-    candidates = [
-        ("POST", "/api/device/reboot"),
-        ("POST", "/api/serial/reboot"),
-        ("POST", "/api/reboot"),
-        ("GET", "/api/reboot"),
-    ]
-    last: dict[str, Any] = {"ok": False, "message": "未找到可用的重启接口", "data": {}}
-    for method, path in candidates:
-        result = _request_device(ip, user, password, method, path)
-        if result.get("ok"):
-            result["endpoint"] = path
-            return result
-        last = result | {"endpoint": path}
-        if result.get("statusCode") not in (404, 405):
-            break
-    return last
+    result = _request_device(ip, user, password, "POST", "/api/reboot")
+    result["endpoint"] = "/api/reboot"
+    return result
 
 
 def get_t3_status(ip: str, user: str = DEVICE_USER, password: str = DEVICE_PASS) -> dict[str, Any]:
@@ -434,12 +361,12 @@ def set_t3_sim_number(ip: str, slot: int, number: str, user: str = DEVICE_USER, 
 
 
 def send_t3_at(ip: str, command: str, timeout_ms: int = 1000, user: str = DEVICE_USER, password: str = DEVICE_PASS) -> dict[str, Any]:
-    lan_result = _request_lan_device(ip, "POST", "/l/a", json_body={"cmd": command, "timeout": timeout_ms}, timeout=max(HTTP_TIMEOUT, timeout_ms / 1000 + 2))
-    if lan_result.get("ok") or lan_result.get("statusCode") not in (404, 405):
-        lan_result["endpoint"] = "/l/a"
-        return lan_result
-    result = _request_device(ip, user, password, "POST", "/api/openclaw/control", json_body={"command": "at", "cmd": command, "timeout": timeout_ms}, timeout=max(HTTP_TIMEOUT, timeout_ms / 1000 + 2))
-    result["endpoint"] = "/api/openclaw/control"
+    result = _request_device(
+        ip, user, password, "POST", "/api/at",
+        json_body={"cmd": command, "timeout": timeout_ms},
+        timeout=max(HTTP_TIMEOUT, timeout_ms / 1000 + 2),
+    )
+    result["endpoint"] = "/api/at"
     return result
 
 

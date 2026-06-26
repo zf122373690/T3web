@@ -1,17 +1,23 @@
 import {useEffect, useMemo, useState} from 'react';
 import {Link, Outlet, useLocation, useNavigate} from 'react-router-dom';
-import {Cable, LogOut, MessageSquare, Moon, Radar, Router, Smartphone, Sun} from 'lucide-react';
+import {Cable, LogOut, MessageSquare, Monitor, Moon, Radar, Router, Smartphone, Sun, Wifi, Usb} from 'lucide-react';
 import {logout} from '../api/auth';
 
 type WorkMode = 'serial' | 'lan';
 type ThemeMode = 'light' | 'dark';
-type NavItem = {to: string; label: string; icon: typeof Cable; modes?: WorkMode[]};
 
-const nav: NavItem[] = [
-  {to: '/', label: '模式选择', icon: Cable},
+type NavItem = {
+  to: string;
+  label: string;
+  icon: typeof Cable;
+  modes?: WorkMode[];
+};
+
+const navItems: NavItem[] = [
+  {to: '/', label: '模式选择', icon: Monitor},
   {to: '/serial', label: '串口配置', icon: Smartphone, modes: ['serial']},
   {to: '/devices', label: '局域网设备', icon: Router, modes: ['lan']},
-  {to: '/messages', label: '短信/通话记录', icon: MessageSquare, modes: ['lan']},
+  {to: '/messages', label: '短信/通话', icon: MessageSquare, modes: ['lan']},
   {to: '/scan', label: '局域网扫描', icon: Radar, modes: ['lan']},
 ];
 
@@ -29,7 +35,7 @@ export default function Layout() {
     location.pathname.startsWith('/devices') || location.pathname.startsWith('/scan') || location.pathname.startsWith('/messages') ? 'lan' :
     readMode();
 
-  const visibleNav = useMemo(() => nav.filter((item) => !item.modes || item.modes.includes(currentMode)), [currentMode]);
+  const visibleNav = useMemo(() => navItems.filter((item) => !item.modes || item.modes.includes(currentMode)), [currentMode]);
 
   useEffect(() => {
     document.documentElement.dataset.theme = theme;
@@ -41,66 +47,90 @@ export default function Layout() {
     navigate(mode === 'serial' ? '/serial' : '/devices', {replace: true});
   };
 
-  const toggleTheme = () => setTheme((value) => value === 'dark' ? 'light' : 'dark');
-
+  const toggleTheme = () => setTheme((v) => v === 'dark' ? 'light' : 'dark');
   const handleLogout = async () => {
-    try {
-      await logout();
-    } finally {
+    try { await logout(); } finally {
       localStorage.removeItem('token');
       localStorage.removeItem('username');
       navigate('/login', {replace: true});
     }
   };
 
+  const active = (path: string) => path === '/' ? location.pathname === '/' : location.pathname.startsWith(path);
+
   return (
     <div className="app-shell">
       <aside className="sidebar">
-        <div className="brand">
-          <div className="brand-mark">T3</div>
-          <div>
+        {/* Brand */}
+        <Link to="/" className="sidebar-brand">
+          <div className="sidebar-brand-mark">T3</div>
+          <div className="sidebar-brand-text">
             <strong>T3 控制台</strong>
-            <span>串口离线 / 局域网接管</span>
+            <span>SMS Forwarder</span>
           </div>
+        </Link>
+
+        {/* Mode switch */}
+        <div className="sidebar-mode">
+          <button
+            type="button"
+            className={'sidebar-mode-btn' + (currentMode === 'serial' ? ' active' : '')}
+            onClick={() => switchMode('serial')}
+          >
+            <Usb size={15} />
+            <span>串口</span>
+          </button>
+          <button
+            type="button"
+            className={'sidebar-mode-btn' + (currentMode === 'lan' ? ' active' : '')}
+            onClick={() => switchMode('lan')}
+          >
+            <Wifi size={15} />
+            <span>局域网</span>
+          </button>
         </div>
-        <nav className="nav">
+
+        {/* Navigation */}
+        <nav className="sidebar-nav">
           {visibleNav.map((item) => {
             const Icon = item.icon;
-            const active = item.to === '/' ? location.pathname === '/' : location.pathname.startsWith(item.to);
+            const isActive = active(item.to);
             return (
-              <Link key={item.to} to={item.to} className={active ? 'nav-link active' : 'nav-link'}>
+              <Link
+                key={item.to}
+                to={item.to}
+                className={'sidebar-nav-item' + (isActive ? ' active' : '')}
+              >
                 <Icon size={18} />
-                {item.label}
+                <span>{item.label}</span>
+                {isActive && <span className="sidebar-nav-indicator" />}
               </Link>
             );
           })}
         </nav>
+
+        {/* Footer */}
         <div className="sidebar-footer">
-          <div>
-            <span>当前账号</span>
-            <strong>{localStorage.getItem('username') || 'admin'}</strong>
+          <div className="sidebar-user">
+            <div className="sidebar-user-avatar">{(localStorage.getItem('username') || 'admin').slice(0, 1).toUpperCase()}</div>
+            <div className="sidebar-user-info">
+              <span className="sidebar-user-name">{localStorage.getItem('username') || 'admin'}</span>
+              <span className="sidebar-user-status">已登录</span>
+            </div>
           </div>
-          <button className="logout-button" onClick={handleLogout}>
-            <LogOut size={18} />
-            退出登录
-          </button>
+          <div className="sidebar-footer-actions">
+            <button className="sidebar-icon-btn" onClick={toggleTheme} title={theme === 'dark' ? '白天模式' : '暗黑模式'}>
+              {theme === 'dark' ? <Sun size={16} /> : <Moon size={16} />}
+            </button>
+            <button className="sidebar-logout" onClick={handleLogout}>
+              <LogOut size={16} />
+              <span>退出登录</span>
+            </button>
+          </div>
         </div>
       </aside>
+
       <main className="content">
-        <div className="top-mode-switch">
-          <div className="top-mode-copy">
-            <span>当前功能模式</span>
-            <strong>{currentMode === 'serial' ? '串口模式：设备需插入电脑' : '局域网模式：设备需提前连好 WiFi'}</strong>
-          </div>
-          <div className="mode-switch-buttons">
-            <button className={currentMode === 'serial' ? 'active' : ''} onClick={() => switchMode('serial')}><Smartphone size={15} /> 串口</button>
-            <button className={currentMode === 'lan' ? 'active' : ''} onClick={() => switchMode('lan')}><Router size={15} /> 局域网</button>
-          </div>
-          <button className="theme-toggle-button" onClick={toggleTheme} aria-label="切换主题">
-            {theme === 'dark' ? <Sun size={16} /> : <Moon size={16} />}
-            {theme === 'dark' ? '白天' : '暗黑'}
-          </button>
-        </div>
         <Outlet />
       </main>
     </div>
