@@ -39,7 +39,7 @@ if exist frontend\package.json (
 )
 
 echo [3/3] Starting server...
-echo URL: http://127.0.0.1:8080
+echo URL: http://127.0.0.1:8081
 echo User: admin
 echo Pass: admin123
 echo.
