@@ -141,7 +141,7 @@ class SerialManager:
         self._stop.clear()
         self._thread = threading.Thread(target=self._read_loop, daemon=True)
         self._thread.start()
-        mode_label = "ESP32-C3 USB CDC" if cdc_mode else ("安全模式" if safe_mode else "标准模式")
+        mode_label = "USB CDC" if cdc_mode else ("安全模式" if safe_mode else "标准模式")
         self._add_log("system", f"已连接 {port} @ {baudrate}（{mode_label}）")
         self._add_log("system", f"串口参数：8 data bits / parity none / 1 stop bit / flow control none / DTR={int(requested_dtr)} RTS={int(requested_rts)}")
         self._add_log("system", f"控制线状态：CTS={int(line_state['cts'])} DSR={int(line_state['dsr'])} CD={int(line_state['cd'])}")
@@ -149,7 +149,7 @@ class SerialManager:
         if pending_bytes:
             self._add_log("system", f"连接时检测到输入缓冲 {pending_bytes} 字节，将继续读取而不清空")
         if cdc_mode:
-            self._add_log("system", "ESP32-C3 USB CDC 模式已启用：保持 DTR=1 表示终端在线，RTS=0 避免进入下载/复位异常状态")
+            self._add_log("system", "USB CDC 模式已启用：保持 DTR=1 表示终端在线，RTS=0 避免进入下载/复位异常状态")
         elif safe_mode:
             self._add_log("system", "已禁用 DTR/RTS，避免常见 ESP32/Arduino 串口复位")
         else:
@@ -293,7 +293,7 @@ class SerialManager:
         with self._lock:
             total = self._bytes_received
         if total == 0:
-            self._add_log("system", "诊断完成：读取线程正常，但 3 秒内仍未收到任何字节；T3 固件日志只从 ESP32 USB CDC 输出，请确认插的是 ESP32-C3 USB 口而不是 EC200M 模块 UART，且线缆支持数据传输")
+            self._add_log("system", "诊断完成：读取线程正常，但 3 秒内仍未收到任何字节；请确认插入的是设备 USB 数据口，且线缆支持数据传输")
         else:
             self._add_log("system", f"诊断完成：累计收到 {total} 字节")
         return {"success": True, "message": "诊断完成", "samples": samples, "bytesReceived": total}

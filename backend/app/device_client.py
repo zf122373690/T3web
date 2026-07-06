@@ -10,7 +10,7 @@ from typing import Any
 import httpx
 from fastapi import HTTPException
 
-from .config import DEVICE_PASS, DEVICE_USER, HTTP_TIMEOUT, LAN_DEVICE_KEY, MESSAGE_INGEST_TOKEN, PUBLIC_BASE_URL, WEB_PORT
+from .config import DEVICE_PASS, DEVICE_USER, HTTP_TIMEOUT, LAN_DEVICE_KEY
 
 
 def ensure_private_ip(ip: str) -> str:
@@ -163,24 +163,6 @@ def lan_discover_device(ip: str, key: str = LAN_DEVICE_KEY) -> dict[str, Any] | 
         return None
 
 
-def local_base_url_for_device(ip: str) -> str:
-    if PUBLIC_BASE_URL:
-        return PUBLIC_BASE_URL
-    ensure_private_ip(ip)
-    host = ""
-    try:
-        with socket.socket(socket.AF_INET, socket.SOCK_DGRAM) as sock:
-            sock.connect((ip, 80))
-            host = sock.getsockname()[0]
-    except OSError:
-        pass
-    if not host or host.startswith("127."):
-        host = guess_ipv4_cidr().split("/")[0]
-    parts = host.split(".")
-    if len(parts) == 4 and parts[-1] == "0":
-        host = ".".join(parts[:3] + ["1"])
-    return f"http://{host}:{WEB_PORT}"
-
 
 def _parse_device_response(resp: httpx.Response) -> dict[str, Any]:
     if resp.status_code < 200 or resp.status_code >= 300:
@@ -243,21 +225,6 @@ def _request_device(
     except Exception as exc:
         return {"ok": False, "message": str(exc), "data": {}}
 
-
-def configure_local_report(ip: str) -> dict[str, Any]:
-    """配置本地上报地址，通过 /api/config 接口写入 localUrl/localToken"""
-    return _request_device(
-        ip,
-        DEVICE_USER,
-        DEVICE_PASS,
-        "POST",
-        "/api/config",
-        json_body={
-            "localUrl": f"{local_base_url_for_device(ip)}/api/messages/ingest",
-            "localToken": MESSAGE_INGEST_TOKEN,
-        },
-        timeout=HTTP_TIMEOUT,
-    )
 
 
 def send_sms_to_device(
@@ -326,9 +293,24 @@ def get_t3_status(ip: str, user: str = DEVICE_USER, password: str = DEVICE_PASS)
     return result
 
 
+def _unwrap_config_payload(data: Any) -> dict[str, Any]:
+    if not isinstance(data, dict):
+        return {}
+    nested = data.get("data")
+    if isinstance(nested, dict):
+        if isinstance(nested.get("config"), dict):
+            return nested["config"]
+        return nested
+    if isinstance(data.get("config"), dict):
+        return data["config"]
+    return data
+
+
 def get_t3_config(ip: str, user: str = DEVICE_USER, password: str = DEVICE_PASS) -> dict[str, Any]:
     result = _request_device(ip, user, password, "GET", "/api/config")
     result["endpoint"] = "/api/config"
+    if result.get("ok"):
+        result["data"] = _unwrap_config_payload(result.get("data"))
     return result
 
 

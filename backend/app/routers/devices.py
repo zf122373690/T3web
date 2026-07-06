@@ -9,7 +9,6 @@ from ..config import DEVICE_PASS, DEVICE_USER
 from ..db import connect, now_ts
 from ..device_client import (
     check_t3_ota,
-    configure_local_report,
     factory_reset_t3,
     get_device_data,
     get_t3_config,
@@ -105,9 +104,7 @@ async def add_device(request: Request) -> dict:
     password = str(body.get("password") or DEVICE_PASS)
     raw = lan_discover_device(ip) or get_device_data(ip, user, password)
     if not raw:
-        raise HTTPException(status_code=400, detail="未识别到 ESP32-C3 短信转发设备")
-    if raw.get("LAN_KEY"):
-        configure_local_report(ip)
+        raise HTTPException(status_code=400, detail="未识别到短信转发设备")
     return upsert_device(ip, str(body.get("mac", "")).strip(), raw, str(body.get("group", "auto")).strip())
 
 
@@ -134,8 +131,6 @@ def refresh_device(device_id: int, request: Request) -> dict:
     raw = lan_discover_device(row["ip"]) or get_device_data(row["ip"])
     if not raw:
         raise HTTPException(status_code=400, detail="设备信息读取失败")
-    if raw.get("LAN_KEY"):
-        configure_local_report(row["ip"])
     return upsert_device(row["ip"], row["mac"], raw, row["group_name"])
 
 

@@ -85,7 +85,7 @@ export default function Scan() {
         <div>
           <span className="eyebrow">Sector Scan</span>
           <h1>星域扫描</h1>
-          <p>只识别带 LAN 密钥发现接口的 ESP32-C3 短信转发节点，识别成功后自动加入节点舰队。</p>
+          <p>只识别带 LAN 密钥发现接口的短信转发节点，识别成功后自动加入节点列表。</p>
         </div>
       </div>
 
@@ -134,7 +134,7 @@ export default function Scan() {
             ) : status.results.map((result) => (
               <tr key={result.ip}>
                 <td><code>{result.ip}</code></td>
-                <td>{result.success ? '已识别 C3 设备' : result.httpOpen ? '非 C3 或未升级固件' : '未开放 HTTP'}</td>
+                <td>{result.success ? '已识别设备' : result.httpOpen ? '未识别或未升级固件' : '未开放 HTTP'}</td>
                 <td>
                   {result.device ? (
                     <span className="saved"><Save size={14} /> 已自动加入：{result.device.name}</span>

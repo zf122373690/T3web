@@ -6,6 +6,7 @@ import Scan from './pages/Scan';
 import Serial from './pages/Serial';
 import ModeSelect from './pages/ModeSelect';
 import Messages from './pages/Messages';
+import Calls from './pages/Calls';
 
 function Protected({children}: {children: React.ReactNode}) {
   return localStorage.getItem('token') ? children : <Navigate to="/login" replace />;
@@ -35,6 +36,7 @@ export default function App() {
         <Route path="messages" element={<ModeGuard mode="lan"><Messages /></ModeGuard>} />
         <Route path="devices" element={<ModeGuard mode="lan"><Devices /></ModeGuard>} />
         <Route path="scan" element={<ModeGuard mode="lan"><Scan /></ModeGuard>} />
+        <Route path="calls" element={<ModeGuard mode="lan"><Calls /></ModeGuard>} />
       </Route>
     </Routes>
   );

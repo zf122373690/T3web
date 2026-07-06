@@ -23,26 +23,11 @@ http://127.0.0.1:8080
 
 ## 本地短信/来电记录
 
-局域网扫描或手动添加 ESP32-C3 设备成功后，Web 会自动通过固件 LAN 密钥写入本地上报地址：
+局域网扫描或手动添加设备成功后，可在设备详情中配置上报方式：
 
-```text
-http://电脑局域网IP:8080/api/messages/ingest
-```
+设备上报已改为 MQTT。请在设备详情里的“MQTT 上报”区域配置 Broker、端口、主题、账号和密码。
 
-设备收到短信或来电后会独立回传到 Web 的“短信记录”，不会占用固件里的 Cloud API。Cloud API 保留给后期对接龙虾/OpenClaw 使用。
-
-如电脑有多个网卡，可手动指定 Web 对设备公开的地址：
-
-```powershell
-$env:T3_PUBLIC_BASE_URL="http://192.168.1.10:8080"
-.\start.bat
-```
-
-本地回传 Token 默认与 LAN 密钥一致：
-
-```text
-T3-C3-LAN-KEY-2026
-```
+旧版 HTTP 本地回传接口 `/api/messages/ingest` 仅作为历史兼容入口保留，Web 不再主动把该地址写入固件配置。
 
 需要修改时：
 

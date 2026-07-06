@@ -9,7 +9,7 @@ from fastapi import APIRouter, HTTPException, Request
 
 from ..auth import require_user
 from ..config import DEVICE_PASS, DEVICE_USER, SCAN_CONCURRENCY, SCAN_TTL_SECONDS
-from ..device_client import configure_local_report, guess_ipv4_cidr, lan_discover_device, tcp_open
+from ..device_client import guess_ipv4_cidr, lan_discover_device, tcp_open
 from .devices import upsert_device
 
 router = APIRouter(prefix="/api/scan", tags=["scan"])
@@ -43,9 +43,8 @@ def _scan_ip(ip: str, user: str, password: str) -> dict:
     data = lan_discover_device(ip)
     if not data:
         return {"ip": ip, "success": False, "candidate": False, "httpOpen": True}
-    report = configure_local_report(ip)
     device = upsert_device(ip, str(data.get("MAC", "")), data)
-    return {"ip": ip, "success": True, "candidate": True, "autoSaved": True, "reportConfigured": bool(report.get("ok")), "data": data, "device": device}
+    return {"ip": ip, "success": True, "candidate": True, "autoSaved": True, "data": data, "device": device}
 
 
 def _run_scan(scan_id: str, ips: list[str], user: str, password: str) -> None:

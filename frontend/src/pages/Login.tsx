@@ -33,7 +33,7 @@ export default function Login() {
           <div className="sidebar-brand-mark large">T3</div>
           <span className="eyebrow">Orbital Access</span>
           <h1>T3 ORBITAL LINK</h1>
-          <p>进入深空通信控制台，统一管理局域网设备、本地串口读取、短信中继和通话记录归档。</p>
+          <p>进入深空通信控制台，统一管理局域网设备、MQTT 上报、本地串口配置、短信对话和通话归档。</p>
           <div className="login-feature-list">
             <div><ShieldCheck size={17} /> 会话令牌保护</div>
             <div><Waves size={17} /> 串口与网络设备统一接入</div>

@@ -48,7 +48,7 @@ export default function Dashboard() {
         <div className="metric-card accent-green">
           <span><CalendarDays size={16} /> 今日记录</span>
           <strong>{stats.today}</strong>
-          <small>今天新增的短信/通话记录</small>
+          <small>今天新增的短信与通话记录</small>
         </div>
         <div className="metric-card accent-amber">
           <span><Database size={16} /> 记录总数</span>
@@ -67,7 +67,7 @@ export default function Dashboard() {
           <div className="panel-title compact">
             <div>
               <h2>运行概览</h2>
-              <p>系统会把串口识别结果、设备发送记录统一沉淀到短信/通话记录页面。</p>
+              <p>系统会把 MQTT 上报、历史兼容入口和串口识别结果沉淀到短信对话与通话记录页面。</p>
             </div>
           </div>
           <div className="insight-list">

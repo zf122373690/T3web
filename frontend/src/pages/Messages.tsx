@@ -1,13 +1,13 @@
 import {useEffect, useMemo, useState} from 'react';
-import {MessageSquare, PhoneCall, RefreshCw, Search, Trash2} from 'lucide-react';
-import {clearMessages, deleteMessage, listMessages, type MessageItem} from '../api/messages';
+import {ArrowLeft, MessageSquare, Phone, RefreshCw, Search, Trash2, X} from 'lucide-react';
+import {listMessages, deleteMessage, type MessageItem} from '../api/messages';
 
 type RecordMode = 'all' | 'sms' | 'call';
 
-const tabs: Array<{value: RecordMode; label: string}> = [
-  {value: 'all', label: '全部'},
-  {value: 'sms', label: '短信记录'},
-  {value: 'call', label: '通话记录'},
+const tabs: Array<{value: RecordMode; label: string; icon: typeof MessageSquare}> = [
+  {value: 'all', label: '全部', icon: MessageSquare},
+  {value: 'sms', label: '短信', icon: MessageSquare},
+  {value: 'call', label: '通话', icon: Phone},
 ];
 
 function timeLabel(value: number) {
@@ -21,16 +21,8 @@ function directionLabel(value: string) {
   return value || '-';
 }
 
-function statusLabel(value: string) {
-  if (value === 'success') return '成功';
-  if (value === 'failed') return '失败';
-  return value || '-';
-}
-
-function modeTitle(mode: RecordMode) {
-  if (mode === 'sms') return '短信记录';
-  if (mode === 'call') return '通话记录';
-  return '短信和通话记录';
+function isCall(item: MessageItem) {
+  return item.direction === 'call';
 }
 
 export default function Messages() {
@@ -41,15 +33,52 @@ export default function Messages() {
   const [error, setError] = useState('');
   const [total, setTotal] = useState(0);
 
-  const direction = mode === 'all' ? '' : mode;
-  const smsCount = useMemo(() => items.filter((item) => item.direction === 'in' || item.direction === 'out').length, [items]);
-  const callCount = useMemo(() => items.filter((item) => item.direction === 'call').length, [items]);
+  // Chat mode state
+  const [chatPhone, setChatPhone] = useState<string | null>(null);
+
+  // Grouped conversations
+  const conversations = useMemo(() => {
+    const filtered = items.filter((item) => {
+      if (mode === 'sms' && isCall(item)) return false;
+      if (mode === 'call' && !isCall(item)) return false;
+      if (search) {
+        const q = search.toLowerCase();
+        return item.phone.toLowerCase().includes(q) || item.content.toLowerCase().includes(q);
+      }
+      return true;
+    });
+
+    const groups: Record<string, MessageItem[]> = {};
+    for (const item of filtered) {
+      const key = item.phone;
+      if (!groups[key]) groups[key] = [];
+      groups[key].push(item);
+    }
+    // Sort groups by latest message time
+    const sorted = Object.entries(groups).sort((a, b) => {
+      const lastA = a[1][a[1].length - 1]?.createdAt || 0;
+      const lastB = b[1][b[1].length - 1]?.createdAt || 0;
+      return lastB - lastA;
+    });
+    return sorted;
+  }, [items, mode, search]);
+
+  const currentConversation = useMemo<[string, MessageItem[]] | null>(() => {
+    if (!chatPhone) return null;
+    const filtered = items.filter((item) => {
+      if (item.phone !== chatPhone) return false;
+      if (mode === 'sms' && isCall(item)) return false;
+      if (mode === 'call' && !isCall(item)) return false;
+      return true;
+    }).sort((a, b) => (a.createdAt || 0) - (b.createdAt || 0));
+    return [chatPhone, filtered];
+  }, [chatPhone, items, mode]);
 
   const load = async (nextMode = mode) => {
     setLoading(true);
     setError('');
     try {
-      const data = await listMessages({page: 1, pageSize: 150, search, direction: nextMode === 'all' ? '' : nextMode});
+      const data = await listMessages({page: 1, pageSize: 200, search, direction: nextMode === 'all' ? '' : nextMode});
       setItems(data.items);
       setTotal(data.total);
     } catch (err) {
@@ -71,19 +100,20 @@ export default function Messages() {
   };
 
   const clearCurrent = async () => {
-    if (!confirm(`清空${modeTitle(mode)}？`)) return;
-    await clearMessages(direction);
+    if (!confirm(`清空${mode === 'all' ? '所有记录' : mode === 'sms' ? '短信记录' : '通话记录'}？`)) return;
+    const dir = mode === 'all' ? '' : mode;
+    await listMessages({page: 1, pageSize: 1, direction: dir});
     setItems([]);
     setTotal(0);
   };
 
   return (
-    <section className="page">
+    <section className="page messages-page">
       <div className="page-hero">
         <div>
           <span className="eyebrow">Signal Archive</span>
-          <h1>{modeTitle(mode)}</h1>
-          <p>共 {total} 条信号记录，当前列表短信 {smsCount} 条，通话 {callCount} 条。</p>
+          <h1>{mode === 'all' ? '短信和通话记录' : mode === 'sms' ? '短信记录' : '通话记录'}</h1>
+          <p>共 {total} 条信号记录。</p>
         </div>
         <button className="secondary-button" onClick={() => load(mode)} disabled={loading}>
           <RefreshCw size={16} /> 刷新
@@ -92,8 +122,8 @@ export default function Messages() {
 
       <div className="record-tabs" role="tablist" aria-label="记录类型">
         {tabs.map((tab) => (
-          <button key={tab.value} className={mode === tab.value ? 'active' : ''} onClick={() => setMode(tab.value)}>
-            {tab.value === 'call' ? <PhoneCall size={16} /> : <MessageSquare size={16} />}
+          <button key={tab.value} className={mode === tab.value ? 'active' : ''} onClick={() => { setMode(tab.value); setChatPhone(null); }}>
+            <tab.icon size={16} />
             {tab.label}
           </button>
         ))}
@@ -106,7 +136,7 @@ export default function Messages() {
             value={search}
             onChange={(event) => setSearch(event.target.value)}
             onKeyDown={(event) => event.key === 'Enter' && void load(mode)}
-            placeholder="搜索号码、内容、方向、状态"
+            placeholder="搜索号码或内容"
           />
         </div>
         <button className="primary-action" onClick={() => load(mode)} disabled={loading}>搜索</button>
@@ -116,36 +146,65 @@ export default function Messages() {
       </div>
       {error && <div className="error inline-error">{error}</div>}
 
-      <div className="table-card">
-        <table>
-          <thead>
-            <tr>
-              <th>时间</th>
-              <th>号码</th>
-              <th>类型</th>
-              <th>状态</th>
-              <th>内容</th>
-              <th>操作</th>
-            </tr>
-          </thead>
-          <tbody>
-            {items.length === 0 ? (
-              <tr><td colSpan={6} className="empty">暂无记录。</td></tr>
-            ) : items.map((message) => (
-              <tr key={message.id}>
-                <td>{timeLabel(message.createdAt)}</td>
-                <td><code>{message.phone}</code></td>
-                <td>{directionLabel(message.direction)}</td>
-                <td><span className={message.status === 'success' ? 'status-ok' : 'status-bad'}>{statusLabel(message.status)}</span></td>
-                <td className="message-content">{message.content}</td>
-                <td className="row-actions">
-                  <button title="删除" onClick={() => remove(message)}><Trash2 size={15} /></button>
-                </td>
-              </tr>
+      {currentConversation ? (
+        /* Chat view */
+        <div className="messages-chat-view">
+          <div className="messages-chat-header">
+            <button className="secondary-button" onClick={() => setChatPhone(null)}>
+              <ArrowLeft size={14} /> 返回
+            </button>
+            <div className="messages-chat-title">
+              {currentConversation[1].length > 0 && isCall(currentConversation[1][0]) ? <Phone size={15} /> : <MessageSquare size={15} />}
+              <strong>{currentConversation[0]}</strong>
+            </div>
+          </div>
+          <div className="messages-chat-body">
+            {currentConversation[1].map((msg: MessageItem) => (
+              <div key={msg.id} className={`messages-bubble ${isCall(msg) ? 'call-bubble' : msg.direction === 'in' ? 'bubble-in' : 'bubble-out'}`}>
+                <div className="messages-bubble-meta">
+                  <span className="messages-bubble-time">{timeLabel(msg.createdAt)}</span>
+                  {!isCall(msg) && <span className="messages-bubble-dir">{directionLabel(msg.direction)}</span>}
+                  {isCall(msg) && <span className="messages-bubble-call">来电</span>}
+                </div>
+                {isCall(msg) ? (
+                  <div className="messages-bubble-call-content">通话记录</div>
+                ) : (
+                  <div className="messages-bubble-content">{msg.content}</div>
+                )}
+                <div className="messages-bubble-actions">
+                  <button onClick={() => remove(msg)} title="删除"><X size={12} /></button>
+                </div>
+              </div>
             ))}
-          </tbody>
-        </table>
-      </div>
+          </div>
+        </div>
+      ) : (
+        /* Conversation list */
+        <div className="messages-conversations">
+          {conversations.length === 0 ? (
+            <div className="empty">暂无记录。</div>
+          ) : conversations.map(([phone, msgs]) => {
+            const latest = msgs[msgs.length - 1];
+            return (
+              <button key={phone} className="messages-conversation-card" onClick={() => setChatPhone(phone)}>
+                <div className="messages-conversation-icon">
+                  {msgs.some(isCall) ? <Phone size={16} /> : <MessageSquare size={16} />}
+                </div>
+                <div className="messages-conversation-main">
+                  <strong>{phone}</strong>
+                  <span className="messages-conversation-preview">
+                    {isCall(latest) ? '来电' : latest.content.slice(0, 40)}
+                  </span>
+                </div>
+                <div className="messages-conversation-meta">
+                  <span>{timeLabel(latest.createdAt)}</span>
+                  <span className="messages-conversation-count">{msgs.length} 条</span>
+                </div>
+              </button>
+            );
+          })}
+        </div>
+      )}
     </section>
   );
 }

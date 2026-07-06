@@ -32,7 +32,7 @@ export default function ModeSelect() {
           <div className="mode-choice-icon"><Cable size={30} /></div>
           <span className="eyebrow">USB / 首次配置</span>
           <h2>串口模式</h2>
-          <p>需要把 T3 / ESP32-C3 设备通过 USB 插入当前电脑。适合首次开箱、设备未联网、需要离线写入 WiFi、设备名称和通道配置的场景。</p>
+          <p>需要把 T3 设备通过 USB 插入当前电脑。适合首次开箱、设备未联网、需要离线写入 WiFi、设备名称和通道配置的场景。</p>
           <div className="mode-check-list">
             <span>设备需要插入电脑</span>
             <span>可读取本机串口日志</span>
@@ -49,7 +49,7 @@ export default function ModeSelect() {
           <div className="mode-check-list">
             <span>设备需提前已连好 WiFi</span>
             <span>适合批量管理局域网设备</span>
-            <span>可执行 EC200M AT 与固件接管</span>
+            <span>可执行模块 AT 与固件接管</span>
           </div>
           <button className="mode-enter-button" onClick={(event) => { event.stopPropagation(); selectMode('lan', navigate); }}>进入局域网模式</button>
         </div>

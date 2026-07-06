@@ -1,6 +1,6 @@
 import {useEffect, useMemo, useState} from 'react';
 import {Link, Outlet, useLocation, useNavigate} from 'react-router-dom';
-import {Cable, LogOut, MessageSquare, Monitor, Moon, Radar, Router, Smartphone, Sun, Wifi, Usb} from 'lucide-react';
+import {Cable, LogOut, MessageSquare, Moon, Phone, Radar, Router, Smartphone, Sun, Usb, Wifi} from 'lucide-react';
 import {logout} from '../api/auth';
 
 type WorkMode = 'serial' | 'lan';
@@ -14,10 +14,11 @@ type NavItem = {
 };
 
 const navItems: NavItem[] = [
-  {to: '/', label: '模式选择', icon: Monitor},
+  {to: '/', label: '模式选择', icon: Cable},
   {to: '/serial', label: '串口配置', icon: Smartphone, modes: ['serial']},
   {to: '/devices', label: '局域网设备', icon: Router, modes: ['lan']},
-  {to: '/messages', label: '短信/通话', icon: MessageSquare, modes: ['lan']},
+  {to: '/calls', label: '通话记录', icon: Phone, modes: ['lan']},
+  {to: '/messages', label: '短信记录', icon: MessageSquare, modes: ['lan']},
   {to: '/scan', label: '局域网扫描', icon: Radar, modes: ['lan']},
 ];
 

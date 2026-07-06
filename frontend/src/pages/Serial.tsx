@@ -349,7 +349,7 @@ export default function Serial() {
         <div>
           <span className="eyebrow">Serial Desk</span>
           <h1>串口工作台</h1>
-          <p>轻量管理多个串口，读取配置、复刻配置、导入导出文件。</p>
+          <p>集中处理多串口连接、设备配置读写、配置复刻、导入导出、诊断、DTR/RTS 控制与底部实时日志。</p>
         </div>
         <div className="serial-hero-actions">
           <button className="secondary-button" onClick={() => void refreshAll(activePort)} disabled={loading}><RefreshCw size={16} />刷新</button>
@@ -416,19 +416,20 @@ export default function Serial() {
           </div>
         </main>
 
-        <aside className="serial-panel compact-log-panel">
-          <div className="panel-title compact-title"><div><h2><RadioReceiver size={17} /> 日志</h2><p>{streamMode === 'ws' ? '实时' : '轮询'} · RX {rxCount} / TX {txCount}</p></div><span className="log-count">{logs.length}</span></div>
-          <div className="terminal-surface compact-terminal">
-            {visibleLogs.length === 0 ? <div className="empty terminal-empty">连接后显示日志</div> : visibleLogs.map((item, index) => (
-              <div className={`terminal-row terminal-row-${item.level}`} key={`${item.id || item.time}-${index}`}>
-                <span className="terminal-level">{logLabel(item.level)}</span>
-                <code>{item.content}</code>
-                <span className="terminal-time">{timeLabel(item.time)}</span>
-              </div>
-            ))}
-          </div>
-        </aside>
       </div>
+
+      <section className="serial-panel compact-log-panel serial-log-bottom">
+        <div className="panel-title compact-title"><div><h2><RadioReceiver size={17} /> 串口日志</h2><p>{activePort || '未选择串口'} · {streamMode === 'ws' ? '实时流' : '轮询'} · RX {rxCount} / TX {txCount}</p></div><span className="log-count">{logs.length}</span></div>
+        <div className="terminal-surface compact-terminal bottom-terminal">
+          {visibleLogs.length === 0 ? <div className="empty terminal-empty">连接后显示日志</div> : visibleLogs.map((item, index) => (
+            <div className={`terminal-row terminal-row-${item.level}`} key={`${item.id || item.time}-${index}`}>
+              <span className="terminal-level">{logLabel(item.level)}</span>
+              <code>{item.content}</code>
+              <span className="terminal-time">{timeLabel(item.time)}</span>
+            </div>
+          ))}
+        </div>
+      </section>
     </section>
   );
 }

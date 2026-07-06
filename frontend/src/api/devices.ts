@@ -33,6 +33,23 @@ export interface T3PushChannel {
   customBody?: string;
 }
 
+export interface T3MqttConfig {
+  enabled?: boolean;
+  broker?: string;
+  server?: string;
+  host?: string;
+  port?: number;
+  topicPrefix?: string;
+  topic?: string;
+  username?: string;
+  user?: string;
+  password?: string;
+  pass?: string;
+  clientId?: string;
+  keepAlive?: number;
+  statusInterval?: number;
+}
+
 export interface T3Config {
   deviceName?: string;
   smtpServer?: string;
@@ -49,12 +66,14 @@ export interface T3Config {
   recordUploadUrl?: string;
   recordUploadKey1?: string;
   recordUploadKey2?: string;
-  cloudEnabled?: boolean;
-  cloudReportEnabled?: boolean;
-  cloudUrl?: string;
-  cloudToken?: string;
-  localUrl?: string;
-  localToken?: string;
+  mqttEnabled?: boolean;
+  mqttServer?: string;
+  mqttPort?: number;
+  mqttTopic?: string;
+  mqttUser?: string;
+  mqttPass?: string;
+  mqttClientId?: string;
+  mqtt?: T3MqttConfig;
   networkMode?: number;
   webUser?: string;
   webPass?: string;

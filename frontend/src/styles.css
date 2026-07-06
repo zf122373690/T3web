@@ -313,8 +313,9 @@ td code { color: var(--text-secondary); }
 .compact-hero { padding: 12px 14px; }
 .compact-hero h1 { font-size: 16px; }
 .compact-hero p { font-size: 11px; }
-.multi-serial-layout { display: grid; grid-template-columns: 180px minmax(0, 1fr) minmax(240px, 28vw); gap: 8px; align-items: stretch; }
-.multi-port-panel, .compact-config-panel, .compact-log-panel { min-height: calc(100vh - 140px); border: 1px solid var(--border); border-radius: var(--radius-lg); background: var(--surface); overflow: hidden; }
+.multi-serial-layout { display: grid; grid-template-columns: 200px minmax(0, 1fr); gap: 10px; align-items: stretch; }
+.multi-port-panel, .compact-config-panel, .compact-log-panel { border: 1px solid var(--border); border-radius: var(--radius-lg); background: var(--surface); overflow: hidden; }
+.multi-port-panel, .compact-config-panel { min-height: 440px; }
 .multi-port-panel, .compact-config-panel { padding: 8px; }
 .compact-title { margin-bottom: 8px; align-items: center; }
 .compact-title h2 { font-size: 13px; }
@@ -342,9 +343,11 @@ td code { color: var(--text-secondary); }
 .compact-footer-actions { margin-top: 8px; padding-top: 8px; border-top: 1px solid var(--border); }
 .compact-log-panel { display: flex; flex-direction: column; }
 .compact-log-panel .panel-title { margin: 0; padding: 10px 12px; border-bottom: 1px solid var(--border); }
+.serial-log-bottom { min-height: 260px; max-height: 42vh; }
 .compact-terminal { flex: 1; max-height: none; min-height: 0; padding: 4px; }
-.compact-terminal .terminal-row { grid-template-columns: 32px minmax(0, 1fr) 50px; gap: 6px; align-items: center; padding: 3px 6px; font-size: 11px; }
-.compact-terminal .terminal-level { min-width: 28px; padding: 1px 4px; font-size: 9px; }
+.bottom-terminal { min-height: 210px; }
+.compact-terminal .terminal-row { grid-template-columns: 46px minmax(0, 1fr) 78px; gap: 8px; align-items: center; padding: 4px 8px; font-size: 11px; }
+.compact-terminal .terminal-level { min-width: 34px; padding: 1px 4px; font-size: 9px; }
 .compact-terminal .terminal-time { text-align: right; font-size: 10px; opacity: .8; }
 
 /* ── Profile / LAN ─────────────────────────── */
@@ -390,6 +393,38 @@ td code { color: var(--text-secondary); }
 .channel-tabs button { height: 26px; padding: 0 10px; border: 1px solid var(--border); border-radius: var(--radius); color: var(--text-secondary); background: var(--surface); font-size: 12px; font-weight: 500; }
 .channel-tabs button.active { color: var(--primary-fg); background: var(--primary); border-color: var(--primary); }
 .at-response { margin: 0; max-height: 120px; overflow: auto; padding: 8px 10px; border: 1px solid var(--border); border-radius: var(--radius); color: #4ade80; background: #09090b; font-family: "JetBrains Mono", "Cascadia Mono", Consolas, monospace; font-size: 11px; white-space: pre-wrap; }
+
+/* ── Messages chat mode ────────────────────── */
+.messages-page { display: grid; gap: 12px; }
+.messages-chat-view { display: grid; gap: 0; border: 1px solid var(--border); border-radius: var(--radius-lg); background: var(--surface); overflow: hidden; }
+.messages-chat-header { display: flex; align-items: center; gap: 8px; padding: 10px 14px; border-bottom: 1px solid var(--border); background: var(--bg-subtle); }
+.messages-chat-title { display: flex; align-items: center; gap: 8px; font-size: 14px; font-weight: 600; color: var(--text); }
+.messages-chat-title svg { color: var(--accent); }
+.messages-chat-body { display: flex; flex-direction: column; gap: 6px; padding: 10px 14px; max-height: 60vh; overflow-y: auto; background: var(--bg); }
+.messages-bubble { display: grid; gap: 4px; padding: 8px 12px; border-radius: var(--radius); max-width: 75%; font-size: 13px; line-height: 1.45; }
+.messages-bubble.bubble-in { align-self: flex-start; border: 1px solid var(--border); background: var(--surface); }
+.messages-bubble.bubble-out { align-self: flex-end; border: 1px solid var(--border); background: var(--bg-muted); }
+.messages-bubble.call-bubble { align-self: center; max-width: 100%; border: 1px solid var(--border); background: var(--bg-muted); text-align: center; color: var(--muted); font-size: 12px; }
+.messages-bubble-meta { display: flex; align-items: center; gap: 6px; font-size: 10px; color: var(--muted-soft); }
+.messages-bubble-time { font-family: "JetBrains Mono", "Cascadia Mono", Consolas, monospace; }
+.messages-bubble-dir { padding: 1px 5px; border-radius: 999px; background: var(--bg-muted); color: var(--text-secondary); font-size: 9px; font-weight: 600; }
+.messages-bubble-call { padding: 1px 5px; border-radius: 999px; background: var(--accent-soft); color: var(--accent); font-size: 9px; font-weight: 600; }
+.messages-bubble-content { color: var(--text); word-break: break-word; }
+.messages-bubble-call-content { color: var(--muted); font-style: italic; }
+.messages-bubble-actions { display: flex; justify-content: flex-end; }
+.messages-bubble-actions button { width: 18px; height: 18px; display: grid; place-items: center; border: 0; border-radius: var(--radius-sm); color: var(--muted-soft); background: transparent; }
+.messages-bubble-actions button:hover { color: var(--danger); background: var(--danger-soft); }
+.messages-conversations { display: grid; gap: 4px; }
+.messages-conversation-card { display: flex; align-items: center; gap: 12px; width: 100%; padding: 12px 14px; border: 1px solid var(--border); border-radius: var(--radius); background: var(--surface); text-align: left; cursor: pointer; transition: background .12s, border-color .12s; }
+.messages-conversation-card:hover { background: var(--bg-muted); border-color: var(--border-strong); }
+.messages-conversation-icon { width: 36px; height: 36px; display: grid; place-items: center; border-radius: var(--radius); background: var(--bg-muted); color: var(--text-secondary); flex-shrink: 0; }
+.messages-conversation-icon svg { width: 16px; height: 16px; }
+.messages-conversation-main { flex: 1; min-width: 0; display: grid; gap: 2px; }
+.messages-conversation-main strong { font-size: 13px; font-weight: 600; color: var(--text); }
+.messages-conversation-preview { font-size: 11px; color: var(--muted); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.messages-conversation-meta { display: flex; flex-direction: column; align-items: flex-end; gap: 2px; flex-shrink: 0; }
+.messages-conversation-meta span:first-child { font-size: 10px; color: var(--muted-soft); font-family: "JetBrains Mono", "Cascadia Mono", Consolas, monospace; }
+.messages-conversation-count { font-size: 10px; color: var(--muted); background: var(--bg-muted); padding: 1px 6px; border-radius: 999px; }
 
 /* ── Responsive ────────────────────────────── */
 @media (max-width: 1180px) {

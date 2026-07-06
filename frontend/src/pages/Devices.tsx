@@ -23,6 +23,7 @@ import {
   type DeviceItem,
   type FirmwareOtaResult,
   type T3Config,
+  type T3MqttConfig,
   type T3Takeover,
 } from '../api/devices';
 
@@ -39,7 +40,23 @@ function uptimeLabel(value?: number) {
   return `${Math.floor(value / 3600)} 时 ${Math.floor((value % 3600) / 60)} 分`;
 }
 
+function normalizedMqtt(config?: T3Config): T3MqttConfig {
+  const mqtt = config?.mqtt || {};
+  return {
+    enabled: config?.mqttEnabled ?? mqtt.enabled ?? false,
+    broker: config?.mqttServer || mqtt.broker || mqtt.server || mqtt.host || '',
+    port: config?.mqttPort || mqtt.port || 1883,
+    topicPrefix: config?.mqttTopic || mqtt.topicPrefix || mqtt.topic || 't3/events',
+    username: config?.mqttUser || mqtt.username || mqtt.user || '',
+    password: config?.mqttPass || mqtt.password || mqtt.pass || '',
+    clientId: config?.mqttClientId || mqtt.clientId || '',
+    keepAlive: mqtt.keepAlive || 60,
+    statusInterval: mqtt.statusInterval || 60,
+  };
+}
+
 function defaultConfig(config?: T3Config): T3Config {
+  const mqtt = normalizedMqtt(config);
   return {
     deviceName: config?.deviceName || '',
     callRecordEnabled: Boolean(config?.callRecordEnabled),
@@ -51,12 +68,14 @@ function defaultConfig(config?: T3Config): T3Config {
     recordUploadUrl: config?.recordUploadUrl || '',
     recordUploadKey1: config?.recordUploadKey1 || '',
     recordUploadKey2: config?.recordUploadKey2 || '',
-    cloudEnabled: Boolean(config?.cloudEnabled),
-    cloudReportEnabled: config?.cloudReportEnabled !== false,
-    cloudUrl: config?.cloudUrl || '',
-    cloudToken: config?.cloudToken || '',
-    localUrl: config?.localUrl || '',
-    localToken: config?.localToken || '',
+    mqttEnabled: Boolean(mqtt.enabled),
+    mqttServer: mqtt.broker || '',
+    mqttPort: mqtt.port || 1883,
+    mqttTopic: mqtt.topicPrefix || 't3/events',
+    mqttUser: mqtt.username || '',
+    mqttPass: mqtt.password || '',
+    mqttClientId: mqtt.clientId || '',
+    mqtt,
     networkMode: config?.networkMode || 0,
     webUser: config?.webUser || '',
     webPass: config?.webPass || '',
@@ -76,6 +95,20 @@ function defaultConfig(config?: T3Config): T3Config {
       customBody: config?.pushChannels?.[index]?.customBody || '',
     })),
   };
+}
+
+function configPayload(config: T3Config): T3Config {
+  const mqtt = {
+    ...(config.mqtt || {}),
+    enabled: Boolean(config.mqttEnabled),
+    broker: config.mqttServer || '',
+    port: config.mqttPort || 1883,
+    topicPrefix: config.mqttTopic || 't3/events',
+    username: config.mqttUser || '',
+    password: config.mqttPass || '',
+    clientId: config.mqttClientId || '',
+  };
+  return {...config, mqtt};
 }
 
 export default function Devices() {
@@ -249,7 +282,7 @@ export default function Devices() {
 
   const saveConfig = async () => {
     if (!takeoverDevice || !configReady) return;
-    await runAction(takeoverDevice, async () => updateDeviceConfig(takeoverDevice.id, config), '配置保存失败');
+    await runAction(takeoverDevice, async () => updateDeviceConfig(takeoverDevice.id, configPayload(config)), '配置保存失败');
     await selectDevice(takeoverDevice);
   };
 
@@ -421,7 +454,7 @@ export default function Devices() {
                 <section className="takeover-card accent-amber"><h3><Signal size={17} /> SIM 与网络</h3><label>SIM1 号码<input value={String(takeover?.status.modem?.sim1_number || takeoverDevice.sim1.number || '')} onChange={() => undefined} onBlur={(event) => saveSimNumber(1, event.currentTarget.value)} /></label><label>SIM1 PIN 码<input type="password" value={config.sim1Pin || ''} onChange={(event) => patchConfig({sim1Pin: event.target.value})} placeholder={config.sim1PinSet ? '已设置，留空不修改' : '未设置'} /></label><label>SIM2 号码<input value={String(takeover?.status.modem?.sim2_number || takeoverDevice.sim2.number || '')} onChange={() => undefined} onBlur={(event) => saveSimNumber(2, event.currentTarget.value)} /></label><label>SIM2 PIN 码<input type="password" value={config.sim2Pin || ''} onChange={(event) => patchConfig({sim2Pin: event.target.value})} placeholder={config.sim2PinSet ? '已设置，留空不修改' : '未设置'} /></label><label>网络模式<select value={config.networkMode || 0} onChange={(event) => patchConfig({networkMode: Number(event.target.value)})}><option value={0}>自动</option><option value={1}>WiFi only</option><option value={2}>4G only</option></select></label></section>
                 <section className="takeover-card"><h3><Settings2 size={17} /> 通话/录音</h3><label>来电处理<select value={config.callRecordEnabled ? (config.callRecordAutoAnswer ? 1 : 2) : 0} onChange={(event) => patchConfig({callRecordEnabled: event.target.value !== '0', callRecordAutoAnswer: event.target.value === '1'})}><option value={0}>关闭</option><option value={1}>自动接听录音</option><option value={2}>仅记录</option></select></label><label>挂断秒数<input type="number" value={config.callHangupSeconds || 10} onChange={(event) => patchConfig({callHangupSeconds: Number(event.target.value)})} /></label><label>TTS 内容<input value={config.callPlayFile || ''} onChange={(event) => patchConfig({callPlayFile: event.target.value})} /></label></section>
                 <section className="takeover-card wide"><h3><Send size={17} /> 转发通道</h3><div className="channel-tabs">{[0, 1, 2, 3, 4].map((item) => <button key={item} className={activeChannel === item ? 'active' : ''} onClick={() => setActiveChannel(item)}>通道 {item + 1}</button>)}</div><div className="takeover-two"><label>名称<input value={activeChannelData.name || ''} onChange={(event) => patchChannel({name: event.target.value})} /></label><label>类型<select value={activeChannelData.type || 0} onChange={(event) => patchChannel({type: Number(event.target.value)})}>{channelTypes.map((name, index) => <option key={name} value={index}>{name}</option>)}</select></label></div><label>URL<textarea value={activeChannelData.url || ''} onChange={(event) => patchChannel({url: event.target.value})} /></label><div className="takeover-two"><label>参数1<input value={activeChannelData.key1 || ''} onChange={(event) => patchChannel({key1: event.target.value})} /></label><label>参数2<input value={activeChannelData.key2 || ''} onChange={(event) => patchChannel({key2: event.target.value})} /></label></div><label>模板<textarea value={activeChannelData.customBody || ''} onChange={(event) => patchChannel({customBody: event.target.value})} /></label></section>
-                <section className="takeover-card wide"><h3><DownloadCloud size={17} /> 云端 / 本地上报</h3><div className="takeover-two"><label>云端控制<select value={config.cloudEnabled ? 1 : 0} onChange={(event) => patchConfig({cloudEnabled: event.target.value === '1'})}><option value={0}>关闭</option><option value={1}>开启</option></select></label><label>状态上报<select value={config.cloudReportEnabled === false ? 0 : 1} onChange={(event) => patchConfig({cloudReportEnabled: event.target.value === '1'})}><option value={1}>开启</option><option value={0}>关闭</option></select></label></div><label>云端地址<textarea value={config.cloudUrl || ''} onChange={(event) => patchConfig({cloudUrl: event.target.value})} /></label><label>云端 Token<input type="password" value={config.cloudToken || ''} onChange={(event) => patchConfig({cloudToken: event.target.value})} /></label><label>本地上报地址<textarea value={config.localUrl || ''} onChange={(event) => patchConfig({localUrl: event.target.value})} /></label></section>
+                <section className="takeover-card wide"><h3><DownloadCloud size={17} /> MQTT 上报</h3><div className="takeover-two"><label>MQTT 开关<select value={config.mqttEnabled ? 1 : 0} onChange={(event) => patchConfig({mqttEnabled: event.target.value === '1'})}><option value={0}>关闭</option><option value={1}>开启</option></select></label><label>Broker 地址<input value={config.mqttServer || ''} onChange={(event) => patchConfig({mqttServer: event.target.value})} placeholder="mqtt.example.com" /></label></div><div className="takeover-two"><label>端口<input type="number" value={config.mqttPort || 1883} onChange={(event) => patchConfig({mqttPort: Number(event.target.value)})} /></label><label>主题前缀<input value={config.mqttTopic || ''} onChange={(event) => patchConfig({mqttTopic: event.target.value})} placeholder="sms" /></label></div><div className="takeover-two"><label>用户名<input value={config.mqttUser || ''} onChange={(event) => patchConfig({mqttUser: event.target.value})} /></label><label>密码<input type="password" value={config.mqttPass || ''} onChange={(event) => patchConfig({mqttPass: event.target.value})} /></label></div><div className="takeover-two"><label>心跳(秒)<input type="number" value={config.mqtt?.keepAlive || 60} onChange={(event) => patchConfig({mqtt: {...config.mqtt, keepAlive: Number(event.target.value)}})} /></label><label>状态间隔(秒)<input type="number" value={config.mqtt?.statusInterval || 60} onChange={(event) => patchConfig({mqtt: {...config.mqtt, statusInterval: Number(event.target.value)}})} /></label></div><label>Client ID<input value={config.mqttClientId || ''} onChange={(event) => patchConfig({mqttClientId: event.target.value})} placeholder="留空自动生成" /></label></section>
                 <section className="takeover-card wide"><h3><TerminalSquare size={17} /> AT / OTA / 系统</h3><div className="serial-command refined"><input value={atCommand} onChange={(event) => setAtCommand(event.target.value)} /><button className="secondary-button" onClick={runAt}>执行 AT</button></div>{atResponse && <pre className="at-response">{atResponse}</pre>}<div className="serial-command refined"><input value={otaUrl} onChange={(event) => setOtaUrl(event.target.value)} placeholder="OTA 固件 URL" /><button className="secondary-button" onClick={checkOta}>检查 OTA</button><button className="secondary-button" onClick={() => takeoverDevice && startDeviceOta(takeoverDevice.id, otaUrl)} disabled={!otaUrl.trim()}>升级</button></div><div className="modal-actions"><button className="secondary-button danger-button" onClick={() => confirm('确认恢复出厂？') && runAction(takeoverDevice, () => factoryResetDevice(takeoverDevice.id), '恢复出厂失败')}><RotateCcw size={16} /> 恢复出厂</button><button className="secondary-button danger-button" onClick={() => runAction(takeoverDevice, () => rebootManagedDevice(takeoverDevice.id), '重启失败')}><Power size={16} /> 重启</button><button className="primary-action" onClick={saveConfig} disabled={!configReady}><Save size={16} /> 保存固件配置</button></div></section>
               </div>
             </>
