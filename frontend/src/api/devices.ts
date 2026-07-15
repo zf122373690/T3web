@@ -123,6 +123,10 @@ export function listDevices() {
   return api.get<{items: DeviceItem[]; total: number}>('/devices');
 }
 
+export function refreshAllDevices() {
+  return api.post<{items: DeviceItem[]; total: number}>('/devices/refresh-all');
+}
+
 export function addDevice(payload: {ip: string; user?: string; password?: string}) {
   return api.post<DeviceItem>('/devices', payload);
 }

@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+from concurrent.futures import ThreadPoolExecutor, as_completed
 
 from fastapi import APIRouter, HTTPException, Request
 
@@ -46,8 +47,8 @@ def normalize_device(row) -> dict:
         "status": row["status"] or "unknown",
         "lastSeen": row["last_seen"],
         "version": raw.get("DEV_VER", "") or raw.get("FW_VER", "") or raw.get("VERSION", ""),
-        "sim1": {"number": raw.get("SIM1_PHNUM", ""), "operator": raw.get("SIM1_OP", ""), "signal": raw.get("SIM1_SIGNAL", ""), "iccid": modem.get("sim1_iccid", ""), "registered": modem.get("sim1_cs_registered", False), "present": modem.get("sim1_present", False)},
-        "sim2": {"number": raw.get("SIM2_PHNUM", ""), "operator": raw.get("SIM2_OP", ""), "signal": raw.get("SIM2_SIGNAL", ""), "iccid": modem.get("sim2_iccid", ""), "registered": modem.get("sim2_cs_registered", False), "present": modem.get("sim2_present", False)},
+        "sim1": {"number": raw.get("SIM1_PHNUM", ""), "operator": raw.get("SIM1_OP", ""), "signal": raw.get("SIM1_SIGNAL", ""), "iccid": modem.get("sim1_iccid", ""), "registered": bool(raw.get("SIM1_REGISTERED") or modem.get("sim1_cs_registered") or modem.get("sim1_ps_registered") or modem.get("sim1_eps_registered")), "present": bool(raw.get("SIM1_PRESENT") or modem.get("sim1_present", False))},
+        "sim2": {"number": raw.get("SIM2_PHNUM", ""), "operator": raw.get("SIM2_OP", ""), "signal": raw.get("SIM2_SIGNAL", ""), "iccid": modem.get("sim2_iccid", ""), "registered": bool(raw.get("SIM2_REGISTERED") or modem.get("sim2_cs_registered") or modem.get("sim2_ps_registered") or modem.get("sim2_eps_registered")), "present": bool(raw.get("SIM2_PRESENT") or modem.get("sim2_present", False))},
         "wifi": {"name": raw.get("WIFI_NAME", ""), "dbm": raw.get("WIFI_DBM", ""), "ip": wifi.get("ip", ""), "connected": wifi.get("connected", False)},
     }
 
@@ -90,7 +91,68 @@ def list_devices(request: Request) -> dict:
     require_user(request)
     with connect() as conn:
         rows = conn.execute("SELECT * FROM devices ORDER BY updated_at DESC, id DESC").fetchall()
-    devices = [normalize_device(row) for row in rows]
+    return {"items": [normalize_device(row) for row in rows], "total": len(rows)}
+
+
+def _refresh_one(row) -> dict | None:
+    ip = row["ip"]
+    device_id = row["id"]
+    discovered = lan_discover_device(ip)
+    is_online = discovered is not None
+    status = "online" if is_online else "offline"
+    if not is_online:
+        with connect() as conn:
+            conn.execute("UPDATE devices SET status = ? WHERE id = ?", (status, device_id))
+        return normalize_device({**row, "status": status})
+    status_result = get_t3_status(ip)
+    if status_result.get("ok") and isinstance(status_result.get("data"), dict):
+        data = status_result["data"]
+        modem = data.get("modem") if isinstance(data.get("modem"), dict) else {}
+        wifi = data.get("wifi") if isinstance(data.get("wifi"), dict) else {}
+        raw = {
+            "DEV_ID": data.get("deviceName") or row["name"],
+            "DEV_VER": data.get("version", ""),
+            "MAC": data.get("mac") or row["mac"],
+            "SIM1_PHNUM": modem.get("sim1_number", ""),
+            "SIM2_PHNUM": modem.get("sim2_number", ""),
+            "SIM1_OP": modem.get("sim1_operator", ""),
+            "SIM2_OP": modem.get("sim2_operator", ""),
+            "SIM1_SIGNAL": str(modem.get("signal_dbm", "")),
+            "SIM2_SIGNAL": str(modem.get("signal_dbm", "")),
+            "SIM1_PRESENT": modem.get("sim1_present", False),
+            "SIM2_PRESENT": modem.get("sim2_present", False),
+            "SIM1_REGISTERED": bool(modem.get("sim1_cs_registered") or modem.get("sim1_ps_registered") or modem.get("sim1_eps_registered")),
+            "SIM2_REGISTERED": bool(modem.get("sim2_cs_registered") or modem.get("sim2_ps_registered") or modem.get("sim2_eps_registered")),
+            "WIFI_NAME": wifi.get("ssid", ""),
+            "WIFI_DBM": str(wifi.get("rssi", "")),
+            "raw": data,
+        }
+        with connect() as conn:
+            conn.execute("UPDATE devices SET status = ?, raw_json = ?, updated_at = ? WHERE id = ?", (status, json.dumps(raw, ensure_ascii=False), now_ts(), device_id))
+        return normalize_device({**row, "status": status, "raw_json": json.dumps(raw, ensure_ascii=False)})
+    with connect() as conn:
+        conn.execute("UPDATE devices SET status = ? WHERE id = ?", (status, device_id))
+    return normalize_device({**row, "status": status})
+
+
+@router.post("/refresh-all")
+def refresh_all_devices(request: Request) -> dict:
+    require_user(request)
+    with connect() as conn:
+        rows = conn.execute("SELECT * FROM devices ORDER BY id").fetchall()
+    if not rows:
+        return {"items": [], "total": 0}
+    devices = []
+    with ThreadPoolExecutor(max_workers=min(len(rows), 10)) as pool:
+        futures = {pool.submit(_refresh_one, dict(row)): row["id"] for row in rows}
+        for future in as_completed(futures):
+            try:
+                result = future.result(timeout=15)
+                if result:
+                    devices.append(result)
+            except Exception:
+                pass
+    devices.sort(key=lambda d: d.get("id", 0))
     return {"items": devices, "total": len(devices)}
 
 

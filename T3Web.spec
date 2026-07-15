@@ -2,7 +2,7 @@
 from PyInstaller.utils.hooks import collect_all
 
 datas = [('backend\\static', 'static'), ('backend\\app', 'backend\\app')]
-binaries = [('C:\\Program Files\\WindowsApps\\PythonSoftwareFoundation.Python.3.13_3.13.3824.0_x64__qbz5n2kfra8p0\\python3.dll', '.'), ('C:\\Program Files\\WindowsApps\\PythonSoftwareFoundation.Python.3.13_3.13.3824.0_x64__qbz5n2kfra8p0\\python313.dll', '.')]
+binaries = [('C:\\Users\\feiyu\\.workbuddy\\binaries\\python\\versions\\3.13.12\\python3.dll', '.'), ('C:\\Users\\feiyu\\.workbuddy\\binaries\\python\\versions\\3.13.12\\python313.dll', '.')]
 hiddenimports = ['backend.app.main', 'backend.app.routers.auth', 'backend.app.routers.devices', 'backend.app.routers.messages', 'backend.app.routers.scan', 'backend.app.routers.serial', 'backend.app.routers.system']
 tmp_ret = collect_all('uvicorn')
 datas += tmp_ret[0]; binaries += tmp_ret[1]; hiddenimports += tmp_ret[2]
