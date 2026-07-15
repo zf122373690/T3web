@@ -1,7 +1,26 @@
 services:
   t3web:
     build: .
-    ports:
-      - "8080:8080"
+    container_name: t3web
+    restart: unless-stopped
+    # 登录数据库持久化到宿主机 ./data
     volumes:
       - ./data:/app/data
+    environment:
+      - T3_UI_USER=admin
+      - T3_UI_PASS=admin123
+
+    # ---------------------------------------------------------
+    # 【默认：端口映射模式】
+    # 只用于打开 Web 界面。此模式下容器在 docker 网桥内，
+    # 局域网扫描无法发现真实设备（需手动指定网段且能路由到该网段）。
+    ports:
+      - "8080:8080"
+
+    # ---------------------------------------------------------
+    # 【推荐：主机网络模式（仅 Linux 宿主机）】
+    # 局域网扫描/设备管理需要与设备处于同一网段，请启用下面一行，
+    # 并删除上方的 ports 段（host 模式下端口直通宿主机）。
+    # Docker Desktop（Windows/macOS）不支持 host 模式，
+    # 这类平台建议直接用 EXE 或源码方式运行，而非 Docker。
+    # network_mode: host

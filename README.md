@@ -54,7 +54,7 @@ start.sh                 Linux/macOS 本地启动脚本
 当前 `start.bat` 启动端口为：
 
 ```text
-http://127.0.0.1:8081
+http://127.0.0.1:8080
 ```
 
 ### Linux / macOS

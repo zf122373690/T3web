@@ -27,16 +27,10 @@ def app_root() -> Path:
 
 
 def free_port(preferred: int) -> int:
-    for port in [preferred, 8081, 8082, 18080, 28080]:
-        with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
-            try:
-                sock.bind(("127.0.0.1", port))
-                return port
-            except OSError:
-                continue
+    # 统一使用固定端口（默认 8080）。如需更换端口可设置环境变量 T3_WEB_PORT。
     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
-        sock.bind(("127.0.0.1", 0))
-        return int(sock.getsockname()[1])
+        sock.bind(("127.0.0.1", preferred))
+        return preferred
 
 
 class Launcher:
