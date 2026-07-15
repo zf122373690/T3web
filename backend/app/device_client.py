@@ -358,6 +358,12 @@ def factory_reset_t3(ip: str, user: str = DEVICE_USER, password: str = DEVICE_PA
     return result
 
 
+def clear_device_messages(ip: str, user: str = DEVICE_USER, password: str = DEVICE_PASS) -> dict[str, Any]:
+    result = _request_device(ip, user, password, "POST", "/api/messages/clear")
+    result["endpoint"] = "/api/messages/clear"
+    return result
+
+
 def check_t3_ota(ip: str, user: str = DEVICE_USER, password: str = DEVICE_PASS) -> dict[str, Any]:
     result = _request_device(ip, user, password, "GET", "/api/ota/check")
     result["endpoint"] = "/api/ota/check"

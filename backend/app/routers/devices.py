@@ -9,6 +9,7 @@ from ..config import DEVICE_PASS, DEVICE_USER
 from ..db import connect, now_ts
 from ..device_client import (
     check_t3_ota,
+    clear_device_messages,
     factory_reset_t3,
     get_device_data,
     get_t3_config,
@@ -315,6 +316,20 @@ async def factory_reset(device_id: int, request: Request) -> dict:
     if not result.get("ok"):
         raise HTTPException(status_code=502, detail=result.get("message") or "恢复出厂失败")
     return {"success": True, "message": result.get("message") or "已恢复出厂，设备将重启", "endpoint": result.get("endpoint")}
+
+
+@router.post("/{device_id}/clear-messages")
+async def clear_device_messages_route(device_id: int, request: Request) -> dict:
+    require_user(request)
+    row = get_device_row(device_id)
+    try:
+        body = await request.json()
+    except Exception:
+        body = {}
+    result = clear_device_messages(row["ip"], str(body.get("user") or DEVICE_USER), str(body.get("password") or DEVICE_PASS))
+    if not result.get("ok"):
+        raise HTTPException(status_code=502, detail=result.get("message") or "清空设备消息日志失败")
+    return {"success": True, "message": result.get("message") or "设备消息日志已清空", "endpoint": result.get("endpoint")}
 
 
 @router.get("/{device_id}/ota/version")

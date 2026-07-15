@@ -175,6 +175,10 @@ export function factoryResetDevice(id: number) {
   return api.post<{success: boolean; message: string; endpoint?: string}>(`/devices/${id}/factory-reset`);
 }
 
+export function clearDeviceMessages(id: number) {
+  return api.post<{success: boolean; message: string; endpoint?: string}>(`/devices/${id}/clear-messages`);
+}
+
 export function checkDeviceOta(id: number) {
   return api.get<{success: boolean; message: string; endpoint?: string; data: {update?: boolean; version?: string; url?: string; error?: string}}>(`/devices/${id}/ota`);
 }

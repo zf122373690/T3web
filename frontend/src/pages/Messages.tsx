@@ -102,9 +102,13 @@ export default function Messages() {
   const clearCurrent = async () => {
     if (!confirm(`清空${mode === 'all' ? '所有记录' : mode === 'sms' ? '短信记录' : '通话记录'}？`)) return;
     const dir = mode === 'all' ? '' : mode;
-    await listMessages({page: 1, pageSize: 1, direction: dir});
-    setItems([]);
-    setTotal(0);
+    try {
+      await clearMessages(dir);
+      setItems([]);
+      setTotal(0);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : '清空失败');
+    }
   };
 
   return (

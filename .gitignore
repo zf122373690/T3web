@@ -7,3 +7,8 @@ backend/static/assets/
 backend/static/index.html
 data/*.db
 data/*.db-*
+build/
+legacy_current_code/
+*.tsbuildinfo
+dist/data/
+dist/*.log
