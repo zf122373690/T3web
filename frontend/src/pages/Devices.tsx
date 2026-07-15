@@ -7,6 +7,7 @@ import {
   batchStartDeviceOta,
   checkDeviceFirmwareVersion,
   checkDeviceOta,
+  clearDeviceMessages,
   deleteDevice,
   factoryResetDevice,
   getDeviceTakeover,

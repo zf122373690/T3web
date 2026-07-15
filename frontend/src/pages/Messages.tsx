@@ -1,6 +1,6 @@
 import {useEffect, useMemo, useState} from 'react';
 import {ArrowLeft, MessageSquare, Phone, RefreshCw, Search, Trash2, X} from 'lucide-react';
-import {listMessages, deleteMessage, type MessageItem} from '../api/messages';
+import {listMessages, deleteMessage, clearMessages, type MessageItem} from '../api/messages';
 
 type RecordMode = 'all' | 'sms' | 'call';
 
