@@ -38,6 +38,8 @@ def _new_scan(cidr: str, total: int) -> dict:
 
 
 def _scan_ip(ip: str, user: str, password: str) -> dict:
+    """扫描安全约束：仅 TCP 探活 + GET /l/d，禁止 /api/status、/mgr、写号、切卡。"""
+    _ = user, password
     if not tcp_open(ip):
         return {"ip": ip, "success": False, "candidate": False}
     data = lan_discover_device(ip)
@@ -79,7 +81,19 @@ async def start_scan(request: Request) -> dict:
         network = ipaddress.ip_network(cidr, strict=False)
     except ValueError:
         raise HTTPException(status_code=400, detail="CIDR 格式无效")
-    ips = [str(ip) for ip in network.hosts()]
+    hosts = list(network.hosts())
+    start_ip = body.get("startIp")
+    end_ip = body.get("endIp")
+    if start_ip is not None or end_ip is not None:
+        try:
+            start = int(start_ip if start_ip is not None else 1)
+            end = int(end_ip if end_ip is not None else 254)
+        except (TypeError, ValueError):
+            raise HTTPException(status_code=400, detail="起始 IP 和结束 IP 必须是数字")
+        if start < 1 or end > 254 or start > end:
+            raise HTTPException(status_code=400, detail="IP 范围必须为 1-254，且起始 IP 不大于结束 IP")
+        hosts = [ip for ip in hosts if start <= int(str(ip).rsplit(".", 1)[1]) <= end]
+    ips = [str(ip) for ip in hosts]
     if len(ips) > 1024:
         raise HTTPException(status_code=400, detail="扫描范围过大，最多 1024 个地址")
     state = _new_scan(str(network), len(ips))

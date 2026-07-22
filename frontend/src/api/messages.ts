@@ -9,6 +9,10 @@ export interface MessageItem {
   status: string;
   createdAt: number;
   time: number;
+  deviceId: string;
+  deviceName: string;
+  simSlot: string;
+  simNumber: string;
 }
 
 export interface CallItem {
@@ -16,6 +20,10 @@ export interface CallItem {
   phone: string;
   createdAt: number;
   duration?: number;
+  deviceId: string;
+  deviceName: string;
+  simSlot: string;
+  simNumber: string;
 }
 
 export interface MessageStats {
@@ -23,6 +31,17 @@ export interface MessageStats {
   today: number;
   week: number;
   failed: number;
+}
+
+export interface SyncDeviceRecordsResult {
+  success: boolean;
+  devices: number;
+  syncedDevices: number;
+  failedDevices: number;
+  imported: number;
+  skipped: number;
+  message: string;
+  errors: string[];
 }
 
 export function listMessages(params: {page?: number; pageSize?: number; search?: string; direction?: string} = {}) {
@@ -39,6 +58,10 @@ export function getMessageStats() {
   return api.get<MessageStats>('/messages/stats');
 }
 
+export function syncDeviceRecords() {
+  return api.post<SyncDeviceRecordsResult>('/messages/sync');
+}
+
 export function deleteMessage(id: number) {
   return api.delete<{success: boolean}>(`/messages/${id}`);
 }
@@ -48,16 +71,17 @@ export function clearMessages(direction = '') {
   return api.delete<{success: boolean}>(`/messages${query}`);
 }
 
-export function listCalls(params: {page?: number; pageSize?: number; clear?: boolean} = {}) {
-  if (params.clear) {
-    return api.delete<{success: boolean}>('/messages?direction=call');
-  }
+export function listCalls(params: {page?: number; pageSize?: number} = {}) {
   const query = new URLSearchParams({
     page: String(params.page ?? 1),
     page_size: String(params.pageSize ?? 50),
     direction: 'call',
   });
   return api.get<{items: CallItem[]; total: number; page: number; pageSize: number}>(`/messages?${query}`);
+}
+
+export function clearCalls() {
+  return api.delete<{success: boolean}>('/messages?direction=call');
 }
 
 export function deleteCall(id: number) {

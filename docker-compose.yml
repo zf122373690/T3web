@@ -8,7 +8,7 @@ services:
       - ./data:/app/data
     environment:
       - T3_UI_USER=admin
-      - T3_UI_PASS=admin123
+      - T3_UI_PASS=admin
 
     # ---------------------------------------------------------
     # 【默认：端口映射模式】

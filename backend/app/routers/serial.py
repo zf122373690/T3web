@@ -76,7 +76,7 @@ async def connect_serial(request: Request) -> dict:
 
 
 @router.post("/disconnect")
-def disconnect_serial(request: Request) -> dict:
+async def disconnect_serial(request: Request) -> dict:
     require_user(request)
     port = request.query_params.get("port", "").strip() or None
     return serial_manager.disconnect_port(port)
@@ -125,57 +125,174 @@ def read_serial_config(request: Request) -> dict:
         return {"success": False, "message": f"配置 JSON 解析失败：{exc}", "config": {}, "raw": all_lines, "jsonHead": full_json[:200]}
 
 
-@router.post("/offline-config")
-async def send_offline_config(request: Request) -> dict:
-    require_user(request)
-    body = await request.json()
-    target_port = str(body.get("port") or "").strip() or None
+def _build_offline_config(body: dict) -> tuple[dict, str, str]:
     config: dict = {}
     device_name = str(body.get("deviceName", "")).strip()
     if device_name:
         config["deviceName"] = device_name
     if body.get("networkMode") is not None and str(body.get("networkMode", "")).strip() != "":
         config["networkMode"] = int(body.get("networkMode") or 0)
-    # 只发送有实际配置的通道（type!=0 或有 url/key1/key2/customBody），避免空通道覆盖设备已有配置
     if isinstance(body.get("pushChannels"), list):
-        meaningful_channels = []
-        for ch in body.get("pushChannels"):
-            if not isinstance(ch, dict):
-                continue
-            if ch.get("type") or ch.get("url") or ch.get("key1") or ch.get("key2") or ch.get("customBody"):
-                meaningful_channels.append(ch)
-        if meaningful_channels:
-            config["pushChannels"] = meaningful_channels
-    # PIN 码：只在非空时发送，留空不修改设备已有 PIN
+        channels = []
+        for channel in body.get("pushChannels")[:5]:
+            channels.append(channel if isinstance(channel, dict) else {})
+        while len(channels) < 5:
+            channels.append({})
+        config["pushChannels"] = channels
     sim1_pin = str(body.get("sim1Pin", "")).strip()
     sim2_pin = str(body.get("sim2Pin", "")).strip()
     if sim1_pin:
         config["sim1Pin"] = sim1_pin
     if sim2_pin:
         config["sim2Pin"] = sim2_pin
-    wifi_ssid = str(body.get("wifiSsid", "")).strip()
-    wifi_password = str(body.get("wifiPassword") or "")
-    if not config and not wifi_ssid:
-        raise HTTPException(status_code=400, detail="请至少填写设备名称、WiFi 或通道配置")
+    return config, str(body.get("wifiSsid", "")).strip(), str(body.get("wifiPassword") or "")
+
+
+def _send_offline_config_to_port(port: str | None, config: dict, wifi_ssid: str, wifi_password: str) -> dict:
     messages: list[str] = []
     config_response: list[str] = []
-    # 写入配置，UTF-8 直送（不转义中文），固件 ArduinoJson 可正常解析
+    success = True
     if config:
         config_json = json.dumps(config, ensure_ascii=False, separators=(",", ":"))
-        result = serial_manager.send_and_wait(f"::T3CFG {config_json}", "::T3CFG", timeout=5.0, port=target_port)
+        result = serial_manager.send_and_wait(f"::T3CFG {config_json}", "::T3CFG", timeout=5.0, port=port)
         config_response = result.get("response", [])
-        if result.get("success"):
-            # 检查是否包含 ERR
-            has_err = any("ERR" in r for r in config_response)
-            messages.append("配置写入失败（JSON 解析错误）" if has_err else "配置已写入")
+        has_error = any("ERR" in response for response in config_response)
+        if result.get("success") and not has_error:
+            messages.append("配置已写入")
         else:
-            messages.append("配置命令已发送（未收到确认，请查看日志）")
-    # 配置写入完成后再发送 WiFi（避免两条命令在固件串口缓冲中冲突）
+            success = False
+            messages.append("配置写入失败（JSON 解析错误）" if has_error else result.get("message", "配置写入失败"))
     if wifi_ssid:
-        wifi_cmd = f"::T3WIFI {wifi_ssid},{wifi_password}"
-        serial_manager.send_line(wifi_cmd, target_port)
-        messages.append("WiFi 凭证已发送，设备将重新连接 WiFi")
-    return {"success": True, "message": "；".join(messages), "configResponse": config_response}
+        wifi_result = serial_manager.send_line(f"::T3WIFI {wifi_ssid},{wifi_password}", port)
+        if wifi_result.get("success"):
+            messages.append("WiFi 凭证已发送，设备将重新连接 WiFi")
+        else:
+            success = False
+            messages.append(wifi_result.get("message", "WiFi 凭证发送失败"))
+    return {"success": success, "message": "；".join(messages), "configResponse": config_response}
+
+
+@router.post("/offline-config")
+async def send_offline_config(request: Request) -> dict:
+    require_user(request)
+    body = await request.json()
+    config, wifi_ssid, wifi_password = _build_offline_config(body)
+    if not config and not wifi_ssid:
+        raise HTTPException(status_code=400, detail="请至少填写设备名称、WiFi 或通道配置")
+    target_port = str(body.get("port") or request.query_params.get("port") or "").strip() or None
+    return _send_offline_config_to_port(target_port, config, wifi_ssid, wifi_password)
+
+
+@router.post("/offline-config/batch")
+async def send_batch_offline_config(request: Request) -> dict:
+    require_user(request)
+    body = await request.json()
+    config, wifi_ssid, wifi_password = _build_offline_config(body)
+    if not config and not wifi_ssid:
+        raise HTTPException(status_code=400, detail="请至少填写设备名称、WiFi 或通道配置")
+    raw_ports = body.get("ports", body.get("targetPorts", body.get("port", [])))
+    if isinstance(raw_ports, str):
+        raw_ports = [raw_ports]
+    if not isinstance(raw_ports, list):
+        raise HTTPException(status_code=400, detail="ports 参数必须为串口名称数组")
+    ports = list(dict.fromkeys(str(port).strip() for port in raw_ports if str(port).strip()))
+    if not ports:
+        query_port = request.query_params.get("port", "").strip()
+        if query_port:
+            ports = [query_port]
+    if not ports:
+        raise HTTPException(status_code=400, detail="请至少选择一个串口")
+    results = await asyncio.gather(*(
+        asyncio.to_thread(_send_offline_config_to_port, port, config, wifi_ssid, wifi_password)
+        for port in ports
+    ))
+    items = [{"port": port, **result} for port, result in zip(ports, results)]
+    succeeded = sum(1 for item in items if item["success"])
+    return {
+        "success": succeeded == len(items),
+        "message": f"批量配置完成：成功 {succeeded} 个，失败 {len(items) - succeeded} 个",
+        "items": items,
+        "total": len(items),
+        "succeeded": succeeded,
+        "failed": len(items) - succeeded,
+    }
+
+def _serial_batch_ports(body: dict, request: Request) -> list[str]:
+    raw_ports = body.get("ports", body.get("targetPorts", []))
+    if isinstance(raw_ports, str):
+        raw_ports = [raw_ports]
+    if not isinstance(raw_ports, list):
+        raise HTTPException(status_code=400, detail="ports 参数必须为串口名称数组")
+    ports = list(dict.fromkeys(str(port).strip() for port in raw_ports if str(port).strip()))
+    if not ports:
+        query_port = request.query_params.get("port", "").strip()
+        if query_port:
+            ports = [query_port]
+    if not ports:
+        raise HTTPException(status_code=400, detail="请至少选择一个串口")
+    return ports
+
+
+def _serial_batch_result(ports: list[str], results: list[dict]) -> dict:
+    items = [{"port": port, **result} for port, result in zip(ports, results)]
+    succeeded = sum(1 for item in items if item["success"])
+    return {"success": succeeded == len(items), "message": f"批量操作完成：成功 {succeeded} 个，失败 {len(items) - succeeded} 个", "items": items, "total": len(items), "succeeded": succeeded, "failed": len(items) - succeeded}
+
+
+@router.post("/wifi/batch")
+async def save_serial_wifi_batch(request: Request) -> dict:
+    require_user(request)
+    body = await request.json()
+    ports = _serial_batch_ports(body, request)
+    ssid = str(body.get("wifiSsid") or "").strip()
+    password = str(body.get("wifiPassword") or "")
+    if not ssid:
+        raise HTTPException(status_code=400, detail="WiFi 名称不能为空")
+    results = await asyncio.gather(*(
+        asyncio.to_thread(serial_manager.send_line, f"::T3WIFI {ssid},{password}", port)
+        for port in ports
+    ))
+    normalized = [{"success": bool(result.get("success")), "message": result.get("message", "WiFi 凭证发送失败")} for result in results]
+    return _serial_batch_result(ports, normalized)
+
+
+@router.post("/version/batch")
+async def check_serial_versions(request: Request) -> dict:
+    require_user(request)
+    body = await request.json()
+    ports = _serial_batch_ports(body, request)
+    results = await asyncio.gather(*(
+        asyncio.to_thread(serial_manager.send_and_wait, "::T3VER?", "::T3VER", 3.0, port)
+        for port in ports
+    ))
+    normalized = []
+    for result in results:
+        lines = result.get("response", [])
+        version = next((line.split(" ", 1)[1].strip() for line in lines if line.startswith("::T3VER ") and line.split(" ", 1)[1].strip()), "")
+        has_error = any("ERR" in line or "unknown" in line.lower() for line in lines)
+        normalized.append({"success": bool(version), "message": version or ("串口设备不支持版本查询协议" if has_error or not result.get("success") else "未收到版本响应"), "version": version})
+    return _serial_batch_result(ports, normalized)
+
+
+@router.post("/ota/batch")
+async def start_serial_ota_batch(request: Request) -> dict:
+    require_user(request)
+    body = await request.json()
+    ports = _serial_batch_ports(body, request)
+    url = str(body.get("url") or "").strip()
+    if not url or not (url.startswith("http://") or url.startswith("https://")):
+        raise HTTPException(status_code=400, detail="OTA 地址必须是 HTTP(S) URL")
+    results = await asyncio.gather(*(
+        asyncio.to_thread(serial_manager.send_and_wait, f"::T3OTA {url}", "::T3OTA", 5.0, port)
+        for port in ports
+    ))
+    normalized = []
+    for result in results:
+        lines = result.get("response", [])
+        has_error = any("ERR" in line or "unknown" in line.lower() for line in lines)
+        accepted = bool(result.get("success")) and not has_error
+        normalized.append({"success": accepted, "message": "串口 OTA 已触发" if accepted else "串口设备不支持 OTA 命令或未返回确认"})
+    return _serial_batch_result(ports, normalized)
 
 
 @router.post("/reset")

@@ -1,5 +1,75 @@
 import {api} from './client';
 
+export interface SelfUpdateState {
+  status: string;
+  message: string;
+  localVersion: string;
+  remoteVersion: string;
+  hasUpdate: boolean;
+  packageName: string;
+  packagePath: string;
+  packageSize: number;
+  packageModified: string;
+  packageNotes: string;
+  packageSource: string;
+  packageSignature: string;
+  downloadUrl: string;
+  downloadedPath: string;
+  progress: number;
+  checkedAt: number;
+  error: string;
+  restartRequired: boolean;
+  cloudBase: string;
+  cloudDir: string;
+  appliedSignature: string;
+  isFrozen?: boolean;
+  exePath?: string;
+}
+
+export interface SystemVersionInfo {
+  localVersion: string;
+  otaServerVersion: string;
+  otaServerAvailable: boolean;
+  otaServerMessage: string;
+  cloudBase?: string;
+  cloudDir?: string;
+  selfUpdate?: SelfUpdateState;
+}
+
+export function getSystemVersion() {
+  return api.get<SystemVersionInfo>('/version');
+}
+
+export function getSelfUpdateStatus() {
+  return api.get<SelfUpdateState>('/self-update/status');
+}
+
+export function checkSelfUpdate() {
+  return api.post<SelfUpdateState>('/self-update/check');
+}
+
+export function downloadSelfUpdate(force = false) {
+  return api.post<SelfUpdateState>('/self-update/download', {force});
+}
+
+export function applySelfUpdate(restart = true) {
+  return api.post<SelfUpdateState>('/self-update/apply', {restart});
+}
+
+export function runSelfUpdate(force = false, restart = true) {
+  return api.post<SelfUpdateState>('/self-update/run', {force, restart});
+}
+
+export interface LanCidrInfo {
+  cidr: string;
+  prefix: string;
+  network: string;
+}
+
+export function detectLanCidr() {
+  return api.get<LanCidrInfo>('/lan-cidr');
+}
+
 export interface FirmwareOtaResult {
   id: number;
   ip: string;
@@ -31,6 +101,8 @@ export interface T3PushChannel {
   key1?: string;
   key2?: string;
   customBody?: string;
+  recordUploadEnabled?: boolean;
+  recordUrl?: string;
 }
 
 export interface T3MqttConfig {
@@ -74,6 +146,7 @@ export interface T3Config {
   mqttPass?: string;
   mqttClientId?: string;
   mqtt?: T3MqttConfig;
+  wifi?: {configured?: boolean; ssid?: string; password?: string};
   networkMode?: number;
   webUser?: string;
   webPass?: string;
@@ -84,6 +157,20 @@ export interface T3Config {
   sim1PinSet?: boolean;
   sim2PinSet?: boolean;
   pushChannels?: T3PushChannel[];
+  rebootEnabled?: boolean;
+  rebootHour?: number;
+  rebootMinute?: number;
+  smsControlEnabled?: boolean;
+  adminPhones?: string;
+  smsCleanEnabled?: boolean;
+  smsCleanCheckInterval?: number;
+  smsCleanThreshold?: number;
+  smsCleanKeepCount?: number;
+  ddnsEnabled?: boolean;
+  ddnsApiToken?: string;
+  ddnsSubDomain?: string;
+  ddnsInterval?: number;
+  webPort?: number;
 }
 
 export interface T3Status {
@@ -98,6 +185,7 @@ export interface T3Status {
 
 export interface T3Takeover {
   success: boolean;
+  device?: DeviceItem;
   status: T3Status;
   config: T3Config;
   statusReady?: boolean;
@@ -168,7 +256,7 @@ export function updateDeviceWifi(id: number, payload: {ssid: string; password?: 
 }
 
 export function updateDeviceSimNumber(id: number, payload: {slot: number; number: string}) {
-  return api.post<{success: boolean; message: string; endpoint?: string; data?: unknown}>(`/devices/${id}/sim-number`, payload);
+  return api.post<{success: boolean; message: string; endpoint?: string; data?: unknown; device?: DeviceItem}>(`/devices/${id}/sim-number`, payload);
 }
 
 export function sendDeviceAt(id: number, payload: {command: string; timeout?: number}) {
@@ -203,7 +291,7 @@ export function startDeviceOta(id: number, url: string) {
   return api.post<{success: boolean; message: string; endpoint?: string; data?: unknown}>(`/devices/${id}/ota`, {url});
 }
 
-export function startScan(payload: {cidr?: string; user?: string; password?: string}) {
+export function startScan(payload: {cidr?: string; startIp?: number; endIp?: number; user?: string; password?: string}) {
   return api.post<{scanId: string; cidr: string; total: number; autoDetected: boolean}>('/scan', payload);
 }
 

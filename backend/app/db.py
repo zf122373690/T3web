@@ -50,9 +50,32 @@ def init_db() -> None:
                 content TEXT NOT NULL,
                 direction TEXT NOT NULL,
                 status TEXT NOT NULL,
-                created_at INTEGER NOT NULL
+                created_at INTEGER NOT NULL,
+                source_key TEXT,
+                device_id TEXT DEFAULT '',
+                device_name TEXT DEFAULT '',
+                device_ip TEXT DEFAULT '',
+                sim_slot INTEGER,
+                sim_number TEXT DEFAULT '',
+                sim_type TEXT DEFAULT ''
             )
             """
+        )
+        columns = {row[1] for row in conn.execute("PRAGMA table_info(messages)").fetchall()}
+        migrations = {
+            "source_key": "TEXT",
+            "device_id": "TEXT",
+            "device_name": "TEXT DEFAULT ''",
+            "device_ip": "TEXT DEFAULT ''",
+            "sim_slot": "INTEGER",
+            "sim_number": "TEXT DEFAULT ''",
+            "sim_type": "TEXT DEFAULT ''",
+        }
+        for column, definition in migrations.items():
+            if column not in columns:
+                conn.execute(f"ALTER TABLE messages ADD COLUMN {column} {definition}")
+        conn.execute(
+            "CREATE UNIQUE INDEX IF NOT EXISTS idx_messages_source_key ON messages(source_key) WHERE source_key IS NOT NULL"
         )
         conn.commit()
 

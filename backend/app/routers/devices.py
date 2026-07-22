@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import json
-from concurrent.futures import ThreadPoolExecutor, as_completed
 
 from fastapi import APIRouter, HTTPException, Request
 
@@ -23,20 +22,238 @@ from ..device_client import (
     set_t3_sim_number,
     set_t3_wifi,
     start_t3_ota,
+    status_payload_to_raw,
     update_t3_config,
 )
 
 router = APIRouter(prefix="/api/devices", tags=["devices"])
 
 
-def normalize_device(row) -> dict:
-    raw = {}
+def _as_text(*values: object) -> str:
+    for value in values:
+        if value is None:
+            continue
+        text = str(value).strip()
+        if text and text.lower() not in {"none", "null", "undefined"}:
+            return text
+    return ""
+
+
+def _as_bool(value: object, default: bool = False) -> bool:
+    if value is None:
+        return default
+    if isinstance(value, bool):
+        return value
+    if isinstance(value, (int, float)):
+        return value != 0
+    text = str(value).strip().lower()
+    if text in {"1", "true", "yes", "y", "on", "ok", "ready"}:
+        return True
+    if text in {"0", "false", "no", "n", "off", "na", "none", "null", ""}:
+        return False
+    return default
+
+
+def _sim_slot(raw: dict, slot: int) -> dict:
+    """对齐 lvyou：从 raw_json 提取 SIM 槽位号码/运营商/信号/在位/注册。"""
+    prefix = f"SIM{slot}"
+    nested = raw.get("raw") if isinstance(raw.get("raw"), dict) else {}
+    modem = nested.get("modem") if isinstance(nested.get("modem"), dict) else {}
+    if not modem and isinstance(raw.get("modem"), dict):
+        modem = raw["modem"]
+
+    number = _as_text(
+        raw.get(f"{prefix}_PHNUM"),
+        nested.get(f"n{slot}"),
+        modem.get(f"sim{slot}_number"),
+    )
+    operator = _as_text(
+        raw.get(f"{prefix}_OP"),
+        raw.get(f"{prefix}_STA"),
+        nested.get(f"o{slot}"),
+        modem.get(f"sim{slot}_operator"),
+    )
+    signal = _as_text(
+        raw.get(f"{prefix}_SIGNAL"),
+        nested.get("s"),
+        modem.get("signal_dbm"),
+    )
+    iccid = _as_text(raw.get(f"{prefix}_ICCID"), modem.get(f"sim{slot}_iccid"))
+
+    present_raw = raw.get(f"{prefix}_PRESENT")
+    if present_raw is None and f"p{slot}" in nested:
+        present_raw = nested.get(f"p{slot}")
+    if present_raw is None:
+        present_raw = modem.get(f"sim{slot}_present")
+    present = _as_bool(present_raw, default=bool(number or operator or iccid))
+
+    registered_raw = raw.get(f"{prefix}_REGISTERED")
+    if registered_raw is None and f"r{slot}" in nested:
+        registered_raw = nested.get(f"r{slot}")
+    if registered_raw is None:
+        registered_raw = (
+            modem.get(f"sim{slot}_cs_registered")
+            or modem.get(f"sim{slot}_ps_registered")
+            or modem.get(f"sim{slot}_eps_registered")
+        )
+    registered = _as_bool(registered_raw, default=False)
+
+    return {
+        "number": number,
+        "operator": operator,
+        "signal": signal,
+        "iccid": iccid,
+        "present": present,
+        "registered": registered,
+    }
+
+
+def _load_raw_json(row) -> dict:
     try:
         raw = json.loads(row["raw_json"] or "{}")
+        return raw if isinstance(raw, dict) else {}
+    except Exception:
+        return {}
+
+
+def merge_device_raw(old: dict | None, new: dict | None) -> dict:
+    """合并设备缓存：新非空覆盖；号码/运营商/ICCID 空值不覆盖旧值。
+
+    对齐 lvyou 思路 + 适配 T3：/l/d 开机早期 n1/n2 常为空，
+    若整包覆盖会把已识别/已手填的号码清掉。
+    """
+    old_raw = dict(old or {})
+    new_raw = dict(new or {})
+    if not old_raw:
+        return new_raw
+    if not new_raw:
+        return old_raw
+
+    out = dict(old_raw)
+    out.update(new_raw)
+
+    sticky = (
+        "SIM1_PHNUM", "SIM2_PHNUM",
+        "SIM1_OP", "SIM2_OP",
+        "SIM1_ICCID", "SIM2_ICCID",
+        "DEV_ID", "MAC",
+    )
+    for key in sticky:
+        new_val = _as_text(new_raw.get(key))
+        old_val = _as_text(old_raw.get(key))
+        if not new_val and old_val:
+            out[key] = old_val
+
+    # 信号：新值有则用新值
+    for key in ("SIM1_SIGNAL", "SIM2_SIGNAL", "WIFI_NAME", "WIFI_DBM", "DEV_VER"):
+        new_val = _as_text(new_raw.get(key))
+        if new_val:
+            out[key] = new_val
+        elif key not in out:
+            out[key] = _as_text(old_raw.get(key))
+
+    for slot in (1, 2):
+        number = _as_text(out.get(f"SIM{slot}_PHNUM"))
+        operator = _as_text(out.get(f"SIM{slot}_OP"))
+        iccid = _as_text(out.get(f"SIM{slot}_ICCID"))
+        if number or iccid:
+            out[f"SIM{slot}_PRESENT"] = True
+        elif f"SIM{slot}_PRESENT" not in new_raw and (operator or old_raw.get(f"SIM{slot}_PRESENT")):
+            out[f"SIM{slot}_PRESENT"] = _as_bool(
+                new_raw.get(f"SIM{slot}_PRESENT"),
+                default=_as_bool(old_raw.get(f"SIM{slot}_PRESENT"), default=bool(operator)),
+            )
+        if f"SIM{slot}_REGISTERED" in new_raw:
+            out[f"SIM{slot}_REGISTERED"] = _as_bool(new_raw.get(f"SIM{slot}_REGISTERED"), default=False)
+
+    # 嵌套 raw/modem：合并而非整段替换，避免丢 ICCID
+    old_nested = old_raw.get("raw") if isinstance(old_raw.get("raw"), dict) else {}
+    new_nested = new_raw.get("raw") if isinstance(new_raw.get("raw"), dict) else {}
+    if old_nested or new_nested:
+        nested = dict(old_nested)
+        nested.update(new_nested)
+        old_modem = old_nested.get("modem") if isinstance(old_nested.get("modem"), dict) else {}
+        new_modem = new_nested.get("modem") if isinstance(new_nested.get("modem"), dict) else {}
+        if old_modem or new_modem:
+            modem = dict(old_modem)
+            modem.update(new_modem)
+            for slot in (1, 2):
+                for field in ("number", "operator", "iccid"):
+                    key = f"sim{slot}_{field}"
+                    if not _as_text(modem.get(key)) and _as_text(old_modem.get(key)):
+                        modem[key] = old_modem.get(key)
+            nested["modem"] = modem
+        out["raw"] = nested
+
+    return out
+
+
+def collect_device_raw(
+    ip: str,
+    *,
+    user: str = DEVICE_USER,
+    password: str = DEVICE_PASS,
+    fallback_name: str = "",
+    fallback_mac: str = "",
+    deep: bool = False,
+) -> dict:
+    """只读收集设备状态。
+
+    deep=False（默认/扫描安全）：仅 GET /l/d，绝不访问 /api/status、/mgr。
+    deep=True（用户主动刷新/添加/接管）：/l/d 缺号时再补 /api/status，必要时 /mgr。
+    所有路径只读缓存字段，不发切卡/写号指令。
+    """
+    raw: dict = {}
+    try:
+        discovered = lan_discover_device(ip)
+        if isinstance(discovered, dict) and discovered:
+            raw = discovered
     except Exception:
         raw = {}
+
+    if not deep:
+        return raw if isinstance(raw, dict) else {}
+
+    need_numbers = (
+        not _as_text(raw.get("SIM1_PHNUM"))
+        or not _as_text(raw.get("SIM2_PHNUM"))
+        or not raw
+    )
+    if need_numbers:
+        try:
+            status_result = get_t3_status(ip, user, password)
+            status_data = status_result.get("data") if isinstance(status_result, dict) else None
+            if status_result.get("ok") and isinstance(status_data, dict) and status_data:
+                status_raw = status_payload_to_raw(
+                    status_data,
+                    fallback_name=fallback_name or _as_text(raw.get("DEV_ID")),
+                    fallback_mac=fallback_mac or _as_text(raw.get("MAC")),
+                )
+                raw = merge_device_raw(raw, status_raw)
+        except Exception:
+            pass
+
+    if not raw:
+        try:
+            board = get_device_data(ip, user, password)
+            if isinstance(board, dict) and board:
+                raw = board
+        except Exception:
+            raw = {}
+    elif not (_as_text(raw.get("SIM1_PHNUM")) or _as_text(raw.get("SIM2_PHNUM"))):
+        try:
+            board = get_device_data(ip, user, password)
+            if isinstance(board, dict) and board:
+                raw = merge_device_raw(raw, board)
+        except Exception:
+            pass
+
+    return raw if isinstance(raw, dict) else {}
+
+
+def normalize_device(row) -> dict:
+    raw = _load_raw_json(row)
     raw_status = raw.get("raw") if isinstance(raw.get("raw"), dict) else {}
-    modem = raw_status.get("modem") if isinstance(raw_status.get("modem"), dict) else {}
     wifi = raw_status.get("wifi") if isinstance(raw_status.get("wifi"), dict) else {}
     return {
         "id": row["id"],
@@ -47,32 +264,56 @@ def normalize_device(row) -> dict:
         "status": row["status"] or "unknown",
         "lastSeen": row["last_seen"],
         "version": raw.get("DEV_VER", "") or raw.get("FW_VER", "") or raw.get("VERSION", ""),
-        "sim1": {"number": raw.get("SIM1_PHNUM", ""), "operator": raw.get("SIM1_OP", ""), "signal": raw.get("SIM1_SIGNAL", ""), "iccid": modem.get("sim1_iccid", ""), "registered": bool(raw.get("SIM1_REGISTERED") or modem.get("sim1_cs_registered") or modem.get("sim1_ps_registered") or modem.get("sim1_eps_registered")), "present": bool(raw.get("SIM1_PRESENT") or modem.get("sim1_present", False))},
-        "sim2": {"number": raw.get("SIM2_PHNUM", ""), "operator": raw.get("SIM2_OP", ""), "signal": raw.get("SIM2_SIGNAL", ""), "iccid": modem.get("sim2_iccid", ""), "registered": bool(raw.get("SIM2_REGISTERED") or modem.get("sim2_cs_registered") or modem.get("sim2_ps_registered") or modem.get("sim2_eps_registered")), "present": bool(raw.get("SIM2_PRESENT") or modem.get("sim2_present", False))},
-        "wifi": {"name": raw.get("WIFI_NAME", ""), "dbm": raw.get("WIFI_DBM", ""), "ip": wifi.get("ip", ""), "connected": wifi.get("connected", False)},
+        "sim1": _sim_slot(raw, 1),
+        "sim2": _sim_slot(raw, 2),
+        "wifi": {
+            "name": _as_text(raw.get("WIFI_NAME"), wifi.get("ssid")),
+            "dbm": _as_text(raw.get("WIFI_DBM"), wifi.get("rssi")),
+            "ip": wifi.get("ip", ""),
+            "connected": wifi.get("connected", False),
+        },
     }
 
 
 def upsert_device(ip: str, mac: str = "", raw: dict | None = None, group: str = "auto") -> dict:
-    raw = raw or {}
+    incoming = dict(raw or {})
     now = now_ts()
-    name = str(raw.get("DEV_ID") or ip)
-    mac = mac or str(raw.get("MAC") or "")
     with connect() as conn:
+        existing = conn.execute("SELECT * FROM devices WHERE ip = ?", (ip,)).fetchone()
+        if existing:
+            old_raw = _load_raw_json(existing)
+            merged = merge_device_raw(old_raw, incoming)
+            mac_val = (mac or "").strip() or _as_text(merged.get("MAC")) or (existing["mac"] or "")
+            name = _as_text(merged.get("DEV_ID")) or (existing["name"] or "") or ip
+            group_val = (group or "").strip()
+            if not group_val or group_val == "auto":
+                group_val = existing["group_name"] or "auto"
+            conn.execute(
+                """
+                UPDATE devices SET
+                  mac = ?,
+                  name = ?,
+                  group_name = ?,
+                  status = 'online',
+                  last_seen = ?,
+                  raw_json = ?,
+                  updated_at = ?
+                WHERE ip = ?
+                """,
+                (mac_val, name, group_val, now, json.dumps(merged, ensure_ascii=False), now, ip),
+            )
+            row = conn.execute("SELECT * FROM devices WHERE ip = ?", (ip,)).fetchone()
+            return normalize_device(row)
+
+        mac_val = (mac or "").strip() or _as_text(incoming.get("MAC"))
+        name = _as_text(incoming.get("DEV_ID")) or ip
+        group_val = (group or "").strip() or "auto"
         conn.execute(
             """
             INSERT INTO devices(ip, mac, name, group_name, status, last_seen, raw_json, created_at, updated_at)
             VALUES(?, ?, ?, ?, 'online', ?, ?, ?, ?)
-            ON CONFLICT(ip) DO UPDATE SET
-              mac = excluded.mac,
-              name = excluded.name,
-              group_name = excluded.group_name,
-              status = 'online',
-              last_seen = excluded.last_seen,
-              raw_json = excluded.raw_json,
-              updated_at = excluded.updated_at
             """,
-            (ip, mac, name, group or "auto", now, json.dumps(raw, ensure_ascii=False), now, now),
+            (ip, mac_val, name, group_val, now, json.dumps(incoming, ensure_ascii=False), now, now),
         )
         row = conn.execute("SELECT * FROM devices WHERE ip = ?", (ip,)).fetchone()
     return normalize_device(row)
@@ -94,66 +335,10 @@ def list_devices(request: Request) -> dict:
     return {"items": [normalize_device(row) for row in rows], "total": len(rows)}
 
 
-def _refresh_one(row) -> dict | None:
-    ip = row["ip"]
-    device_id = row["id"]
-    discovered = lan_discover_device(ip)
-    is_online = discovered is not None
-    status = "online" if is_online else "offline"
-    if not is_online:
-        with connect() as conn:
-            conn.execute("UPDATE devices SET status = ? WHERE id = ?", (status, device_id))
-        return normalize_device({**row, "status": status})
-    status_result = get_t3_status(ip)
-    if status_result.get("ok") and isinstance(status_result.get("data"), dict):
-        data = status_result["data"]
-        modem = data.get("modem") if isinstance(data.get("modem"), dict) else {}
-        wifi = data.get("wifi") if isinstance(data.get("wifi"), dict) else {}
-        raw = {
-            "DEV_ID": data.get("deviceName") or row["name"],
-            "DEV_VER": data.get("version", ""),
-            "MAC": data.get("mac") or row["mac"],
-            "SIM1_PHNUM": modem.get("sim1_number", ""),
-            "SIM2_PHNUM": modem.get("sim2_number", ""),
-            "SIM1_OP": modem.get("sim1_operator", ""),
-            "SIM2_OP": modem.get("sim2_operator", ""),
-            "SIM1_SIGNAL": str(modem.get("signal_dbm", "")),
-            "SIM2_SIGNAL": str(modem.get("signal_dbm", "")),
-            "SIM1_PRESENT": modem.get("sim1_present", False),
-            "SIM2_PRESENT": modem.get("sim2_present", False),
-            "SIM1_REGISTERED": bool(modem.get("sim1_cs_registered") or modem.get("sim1_ps_registered") or modem.get("sim1_eps_registered")),
-            "SIM2_REGISTERED": bool(modem.get("sim2_cs_registered") or modem.get("sim2_ps_registered") or modem.get("sim2_eps_registered")),
-            "WIFI_NAME": wifi.get("ssid", ""),
-            "WIFI_DBM": str(wifi.get("rssi", "")),
-            "raw": data,
-        }
-        with connect() as conn:
-            conn.execute("UPDATE devices SET status = ?, raw_json = ?, updated_at = ? WHERE id = ?", (status, json.dumps(raw, ensure_ascii=False), now_ts(), device_id))
-        return normalize_device({**row, "status": status, "raw_json": json.dumps(raw, ensure_ascii=False)})
-    with connect() as conn:
-        conn.execute("UPDATE devices SET status = ? WHERE id = ?", (status, device_id))
-    return normalize_device({**row, "status": status})
-
-
 @router.post("/refresh-all")
 def refresh_all_devices(request: Request) -> dict:
-    require_user(request)
-    with connect() as conn:
-        rows = conn.execute("SELECT * FROM devices ORDER BY id").fetchall()
-    if not rows:
-        return {"items": [], "total": 0}
-    devices = []
-    with ThreadPoolExecutor(max_workers=min(len(rows), 10)) as pool:
-        futures = {pool.submit(_refresh_one, dict(row)): row["id"] for row in rows}
-        for future in as_completed(futures):
-            try:
-                result = future.result(timeout=15)
-                if result:
-                    devices.append(result)
-            except Exception:
-                pass
-    devices.sort(key=lambda d: d.get("id", 0))
-    return {"items": devices, "total": len(devices)}
+    """只读本地数据库缓存，不访问设备，避免打断模组注册。"""
+    return list_devices(request)
 
 
 @router.post("")
@@ -165,7 +350,8 @@ async def add_device(request: Request) -> dict:
         raise HTTPException(status_code=400, detail="IP 不能为空")
     user = str(body.get("user") or DEVICE_USER)
     password = str(body.get("password") or DEVICE_PASS)
-    raw = lan_discover_device(ip) or get_device_data(ip, user, password)
+    # 单设备添加：允许 deep 补读号码（用户主动，非全网扫描）
+    raw = collect_device_raw(ip, user=user, password=password, deep=True)
     if not raw:
         raise HTTPException(status_code=400, detail="未识别到短信转发设备")
     return upsert_device(ip, str(body.get("mac", "")).strip(), raw, str(body.get("group", "auto")).strip())
@@ -189,12 +375,21 @@ async def bulk_delete_devices(request: Request) -> dict:
 
 @router.post("/{device_id}/refresh")
 def refresh_device(device_id: int, request: Request) -> dict:
+    """主动刷新单设备：只读收集状态并合并本地缓存（不切卡、不重注册）。"""
     require_user(request)
     row = get_device_row(device_id)
-    raw = lan_discover_device(row["ip"]) or get_device_data(row["ip"])
-    if not raw:
-        raise HTTPException(status_code=400, detail="设备信息读取失败")
-    return upsert_device(row["ip"], row["mac"], raw, row["group_name"])
+    ip = row["ip"]
+    mac = row["mac"] or ""
+    group = row["group_name"] or "auto"
+    raw = collect_device_raw(
+        ip,
+        fallback_name=row["name"] or "",
+        fallback_mac=mac,
+        deep=True,
+    )
+    if raw:
+        return upsert_device(ip, mac or str(raw.get("MAC") or ""), raw, group)
+    return normalize_device(row)
 
 
 @router.post("/{device_id}/sms")
@@ -212,10 +407,30 @@ async def send_sms(device_id: int, request: Request) -> dict:
     user = str(body.get("user") or DEVICE_USER)
     password = str(body.get("password") or DEVICE_PASS)
     result = send_sms_to_device(row["ip"], user, password, phone, content, sim_slot)
+    try:
+        raw = json.loads(row["raw_json"] or "{}")
+    except (TypeError, ValueError):
+        raw = {}
     with connect() as conn:
         conn.execute(
-            "INSERT INTO messages(phone, content, direction, status, created_at) VALUES(?, ?, 'out', ?, ?)",
-            (phone, content, "success" if result.get("ok") else "failed", now_ts()),
+            """
+            INSERT INTO messages(
+                phone, content, direction, status, created_at,
+                device_id, device_name, device_ip, sim_slot, sim_number, sim_type
+            ) VALUES(?, ?, 'out', ?, ?, ?, ?, ?, ?, ?, ?)
+            """,
+            (
+                phone,
+                content,
+                "success" if result.get("ok") else "failed",
+                now_ts(),
+                str(row["id"]),
+                str(row["name"] or row["ip"]),
+                row["ip"],
+                sim_slot,
+                str(raw.get(f"SIM{sim_slot}_PHNUM") or ""),
+                "",
+            ),
         )
     if not result.get("ok"):
         endpoint = result.get("endpoint") or "unknown"
@@ -253,8 +468,19 @@ async def restart_device(device_id: int, request: Request) -> dict:
 def build_takeover_response(row, user: str = DEVICE_USER, password: str = DEVICE_PASS) -> dict:
     status_result = get_t3_status(row["ip"], user, password)
     config_result = get_t3_config(row["ip"], user, password)
+    device = normalize_device(row)
+    # 打开接管时顺带把 status 里的号码合并进本地缓存（只读，不切卡）
+    if status_result.get("ok") and isinstance(status_result.get("data"), dict):
+        raw = status_payload_to_raw(
+            status_result["data"],
+            fallback_name=row["name"] or "",
+            fallback_mac=row["mac"] or "",
+        )
+        if raw:
+            device = upsert_device(row["ip"], row["mac"] or "", raw, row["group_name"] or "auto")
     return {
         "success": bool(status_result.get("ok") or config_result.get("ok")),
+        "device": device,
         "status": status_result.get("data", {}) if status_result.get("ok") else {},
         "config": config_result.get("data", {}) if config_result.get("ok") else {},
         "statusReady": bool(status_result.get("ok")),
@@ -351,7 +577,33 @@ async def update_sim_number(device_id: int, request: Request) -> dict:
     result = set_t3_sim_number(row["ip"], slot, number, str(body.get("user") or DEVICE_USER), str(body.get("password") or DEVICE_PASS))
     if not result.get("ok"):
         raise HTTPException(status_code=502, detail=result.get("message") or "SIM 号码写入失败")
-    return {"success": True, "message": result.get("message") or "SIM 号码已写入", "endpoint": result.get("endpoint"), "data": result.get("data", {})}
+    # 人工写号：强制覆盖本地缓存（允许清空，不走 sticky 保留）
+    raw = _load_raw_json(row)
+    raw[f"SIM{slot}_PHNUM"] = number
+    if number:
+        raw[f"SIM{slot}_PRESENT"] = True
+    nested = raw.get("raw") if isinstance(raw.get("raw"), dict) else {}
+    modem = nested.get("modem") if isinstance(nested.get("modem"), dict) else {}
+    modem[f"sim{slot}_number"] = number
+    nested["modem"] = modem
+    nested[f"n{slot}"] = number
+    raw["raw"] = nested
+    now = now_ts()
+    with connect() as conn:
+        conn.execute(
+            """
+            UPDATE devices SET raw_json = ?, updated_at = ?, last_seen = ?, status = 'online'
+            WHERE id = ?
+            """,
+            (json.dumps(raw, ensure_ascii=False), now, now, device_id),
+        )
+    return {
+        "success": True,
+        "message": result.get("message") or "SIM 号码已写入",
+        "endpoint": result.get("endpoint"),
+        "data": result.get("data", {}),
+        "device": normalize_device(get_device_row(device_id)),
+    }
 
 
 @router.post("/{device_id}/at")

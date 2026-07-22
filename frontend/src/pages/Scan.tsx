@@ -5,7 +5,7 @@ import {addDevice, getScanStatus, startScan, type ScanStatus} from '../api/devic
 export default function Scan() {
   const [cidr, setCidr] = useState('');
   const [user, setUser] = useState('admin');
-  const [password, setPassword] = useState('admin123');
+  const [password, setPassword] = useState('admin');
   const [status, setStatus] = useState<ScanStatus | null>(null);
   const [autoDetected, setAutoDetected] = useState(false);
   const [running, setRunning] = useState(false);

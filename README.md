@@ -77,7 +77,7 @@ start.sh                 Linux/macOS 本地启动脚本
 
 | 用途 | 用户名 | 密码 |
 | --- | --- | --- |
-| 控制台登录 | `admin` | `admin123` |
+| 控制台登录 | `admin` | `admin` |
 | 设备（局域网）访问 | `admin` | `admin` |
 
 > 首次使用请尽快修改登录密码与设备访问密码。
@@ -192,7 +192,7 @@ powershell -ExecutionPolicy Bypass -File .\build-win.ps1
 | 变量 | 说明 | 默认值 |
 | --- | --- | --- |
 | `T3_UI_USER` | 控制台登录用户名 | `admin` |
-| `T3_UI_PASS` | 控制台登录密码 | `admin123` |
+| `T3_UI_PASS` | 控制台登录密码 | `admin` |
 | `T3_TOKEN_TTL` | 登录令牌有效期（秒） | `604800` |
 | `T3_DEVICE_USER` | 设备访问用户名 | `admin` |
 | `T3_DEVICE_PASS` | 设备访问密码 | `admin` |

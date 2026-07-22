@@ -34,31 +34,35 @@ if (Test-Path build\T3Web) {
   Remove-Item build\T3Web -Recurse -Force
 }
 
-$PythonInfo = python -c "import sys, pathlib; root=pathlib.Path(sys.base_prefix); print(root/'python3.dll'); print(root/'python313.dll')"
+$PythonInfo = python -c "import sys, pathlib; root=pathlib.Path(sys.base_prefix); v=f'{sys.version_info.major}{sys.version_info.minor}'; print(root/'python3.dll'); print(root/f'python{v}.dll')"
 $Python3Dll = $PythonInfo[0]
 $PythonVersionDll = $PythonInfo[1]
 
-python -m PyInstaller `
-  --noconfirm `
-  --clean `
-  --windowed `
-  --onefile `
-  --name T3Web `
-  --add-data "backend\static;static" `
-  --add-data "backend\app;backend\app" `
-  --add-binary "$Python3Dll;." `
-  --add-binary "$PythonVersionDll;." `
-  --collect-all uvicorn `
-  --collect-all fastapi `
-  --collect-all starlette `
-  --hidden-import backend.app.main `
-  --hidden-import backend.app.routers.auth `
-  --hidden-import backend.app.routers.devices `
-  --hidden-import backend.app.routers.messages `
-  --hidden-import backend.app.routers.scan `
-  --hidden-import backend.app.routers.serial `
-  --hidden-import backend.app.routers.system `
-  backend\win_launcher.py
+$PyInstallerArgs = @(
+  '--noconfirm', '--clean', '--windowed', '--onefile', '--name', 'T3Web',
+  '--add-data', 'backend\static;static',
+  '--add-data', 'backend\app;backend\app',
+  '--add-binary', "$Python3Dll;.",
+  '--collect-all', 'uvicorn',
+  '--collect-all', 'fastapi',
+  '--collect-all', 'starlette',
+  '--hidden-import', 'backend.app.main',
+  '--hidden-import', 'backend.app.routers.auth',
+  '--hidden-import', 'backend.app.routers.devices',
+  '--hidden-import', 'backend.app.routers.messages',
+  '--hidden-import', 'backend.app.routers.scan',
+  '--hidden-import', 'backend.app.routers.serial',
+  '--hidden-import', 'backend.app.routers.system',
+  'backend\win_launcher.py'
+)
+
+if (Test-Path $PythonVersionDll) {
+  $PyInstallerArgs = @('--add-binary', "$PythonVersionDll;.") + $PyInstallerArgs
+} else {
+  Write-Host "[WARN] $PythonVersionDll not found, skipping versioned DLL"
+}
+
+python -m PyInstaller @PyInstallerArgs
 
 Write-Host ''
 Write-Host 'Build completed:'

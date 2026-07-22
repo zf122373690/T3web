@@ -1,6 +1,8 @@
 from __future__ import annotations
 
+import asyncio
 import logging
+from contextlib import asynccontextmanager
 from pathlib import Path
 
 from fastapi import FastAPI, HTTPException
@@ -8,11 +10,11 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
 
-from .config import STATIC_DIR
+from .config import MESSAGE_AUTO_SYNC_ENABLED, MESSAGE_AUTO_SYNC_INTERVAL, STATIC_DIR
 from .db import init_db
 from .routers.auth import router as auth_router
 from .routers.devices import router as devices_router
-from .routers.messages import router as messages_router
+from .routers.messages import router as messages_router, sync_all_messages
 from .routers.scan import router as scan_router
 from .routers.serial import router as serial_router
 from .routers.system import router as system_router
@@ -20,7 +22,34 @@ from .routers.system import router as system_router
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger("t3web")
 
-app = FastAPI(title="T3 SMS Forwarder", version="0.1.0")
+async def _auto_sync_messages(stop_event: asyncio.Event) -> None:
+    while not stop_event.is_set():
+        try:
+            result = await asyncio.to_thread(sync_all_messages)
+            if result.get("inserted") or result.get("failed"):
+                logger.info("自动同步消息：%s", result.get("message"))
+        except Exception:
+            logger.exception("自动同步消息失败")
+        try:
+            await asyncio.wait_for(stop_event.wait(), timeout=MESSAGE_AUTO_SYNC_INTERVAL)
+        except TimeoutError:
+            pass
+
+
+@asynccontextmanager
+async def lifespan(_: FastAPI):
+    init_db()
+    stop_event = asyncio.Event()
+    task = asyncio.create_task(_auto_sync_messages(stop_event)) if MESSAGE_AUTO_SYNC_ENABLED else None
+    try:
+        yield
+    finally:
+        stop_event.set()
+        if task:
+            await task
+
+
+app = FastAPI(title="T3服务端", version="0.1.0", lifespan=lifespan)
 
 app.add_middleware(
     CORSMiddleware,
@@ -29,8 +58,6 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
-
-init_db()
 
 app.include_router(auth_router)
 app.include_router(devices_router)

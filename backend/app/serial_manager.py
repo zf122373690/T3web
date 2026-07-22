@@ -20,9 +20,10 @@ PHONE_RE = re.compile(r"(\+?\d{5,20})")
 class SerialManager:
     def __init__(self) -> None:
         self._lock = threading.RLock()
+        self._io_lock = threading.Lock()
         self._serial: Any = None
         self._thread: threading.Thread | None = None
-        self._stop = threading.Event()
+        self._stop: threading.Event | None = None
         self._logs: deque[dict[str, Any]] = deque(maxlen=500)
         self._log_seq = 0
         self._connected = False
@@ -138,9 +139,12 @@ class SerialManager:
             self._bytes_received = 0
             self._read_iterations = 0
             self._last_raw_hex = ""
-        self._stop.clear()
-        self._thread = threading.Thread(target=self._read_loop, daemon=True)
-        self._thread.start()
+        stop_event = threading.Event()
+        thread = threading.Thread(target=self._read_loop, args=(instance, stop_event), daemon=True)
+        with self._lock:
+            self._stop = stop_event
+            self._thread = thread
+        thread.start()
         mode_label = "USB CDC" if cdc_mode else ("安全模式" if safe_mode else "标准模式")
         self._add_log("system", f"已连接 {port} @ {baudrate}（{mode_label}）")
         self._add_log("system", f"串口参数：8 data bits / parity none / 1 stop bit / flow control none / DTR={int(requested_dtr)} RTS={int(requested_rts)}")
@@ -157,20 +161,24 @@ class SerialManager:
         return {"success": True, "message": f"已连接 {port}"}
 
     def disconnect_port(self) -> dict[str, Any]:
-        self._stop.set()
-        current_thread = self._thread
-        if current_thread and current_thread.is_alive() and current_thread is not threading.current_thread():
-            current_thread.join(timeout=2)
         with self._lock:
+            stop_event = self._stop
+            current_thread = self._thread
             instance = self._serial
             self._serial = None
             self._thread = None
+            self._stop = None
             self._connected = False
+        if stop_event:
+            stop_event.set()
         if instance:
             try:
                 instance.close()
             except Exception:
                 pass
+        if current_thread and current_thread.is_alive() and current_thread is not threading.current_thread():
+            current_thread.join(timeout=2)
+        if instance:
             self._add_log("system", "串口已断开")
         return {"success": True, "message": "串口已断开"}
 
@@ -178,58 +186,57 @@ class SerialManager:
         command = command.strip()
         if not command:
             return {"success": False, "message": "命令不能为空"}
-        with self._lock:
-            instance = self._serial
-        if not instance or not self._connected:
-            return {"success": False, "message": "串口未连接"}
-        try:
-            payload = (command + "\r\n").encode("utf-8")
-            instance.write(payload)
-            instance.flush()
-            self._add_log("tx", command)
-            return {"success": True, "message": "命令已发送"}
-        except Exception as exc:
+        with self._io_lock:
             with self._lock:
-                self._last_error = str(exc)
-            return {"success": False, "message": f"命令发送失败：{exc}"}
+                instance = self._serial
+                connected = self._connected
+            if not instance or not connected:
+                return {"success": False, "message": "串口未连接"}
+            try:
+                payload = (command + "\r\n").encode("utf-8")
+                instance.write(payload)
+                instance.flush()
+                self._add_log("tx", command)
+                return {"success": True, "message": "命令已发送"}
+            except Exception as exc:
+                with self._lock:
+                    self._last_error = str(exc)
+                return {"success": False, "message": f"命令发送失败：{exc}"}
 
     def send_and_wait(self, command: str, wait_prefix: str = "::T3CFG", timeout: float = 3.0) -> dict[str, Any]:
-        """发送命令并等待包含指定前缀的响应行"""
         command = command.strip()
         if not command:
             return {"success": False, "message": "命令不能为空"}
-        with self._lock:
-            instance = self._serial
-            baseline_seq = self._log_seq
-        if not instance or not self._connected:
-            return {"success": False, "message": "串口未连接"}
-        try:
-            payload = (command + "\r\n").encode("utf-8")
-            instance.write(payload)
-            instance.flush()
-            self._add_log("tx", command)
-        except Exception as exc:
+        with self._io_lock:
             with self._lock:
-                self._last_error = str(exc)
-            return {"success": False, "message": f"命令发送失败：{exc}"}
-
-        deadline = time.monotonic() + max(0.5, min(timeout, 10.0))
-        while time.monotonic() < deadline:
-            time.sleep(0.1)
+                instance = self._serial
+                connected = self._connected
+                baseline_seq = self._log_seq
+            if not instance or not connected:
+                return {"success": False, "message": "串口未连接"}
+            try:
+                payload = (command + "\r\n").encode("utf-8")
+                instance.write(payload)
+                instance.flush()
+                self._add_log("tx", command)
+            except Exception as exc:
+                with self._lock:
+                    self._last_error = str(exc)
+                return {"success": False, "message": f"命令发送失败：{exc}"}
+            deadline = time.monotonic() + max(0.5, min(timeout, 10.0))
+            while time.monotonic() < deadline:
+                time.sleep(0.1)
+                with self._lock:
+                    if self._serial is not instance or not self._connected:
+                        return {"success": False, "message": "串口连接已断开", "response": []}
+                    recent_logs = [item for item in self._logs if item.get("id", 0) > baseline_seq]
+                all_rx_lines = [item["content"] for item in recent_logs if item.get("level") == "rx"]
+                if any(wait_prefix in line for line in all_rx_lines):
+                    return {"success": True, "message": "命令已发送并收到响应", "response": all_rx_lines}
             with self._lock:
                 recent_logs = [item for item in self._logs if item.get("id", 0) > baseline_seq]
-            all_rx_lines = [item["content"] for item in recent_logs if item.get("level") == "rx"]
-            # 检测是否收到包含等待前缀的行（表示响应已到达）
-            matched = [line for line in all_rx_lines if wait_prefix in line]
-            if matched:
-                # 返回所有 rx 行（不只是匹配行），因为长 JSON 可能被串口缓冲拆成多段
-                return {"success": True, "message": "命令已发送并收到响应", "response": all_rx_lines}
-
-        with self._lock:
-            recent_logs = [item for item in self._logs if item.get("id", 0) > baseline_seq]
-        rx_lines = [item["content"] for item in recent_logs if item.get("level") == "rx"]
-        return {"success": False, "message": "命令已发送但等待响应超时，请确认固件已支持串口配置命令", "response": rx_lines}
-
+            rx_lines = [item["content"] for item in recent_logs if item.get("level") == "rx"]
+            return {"success": False, "message": "命令已发送但等待响应超时，请确认固件已支持串口配置命令", "response": rx_lines}
     def pulse_reset(self) -> dict[str, Any]:
         with self._lock:
             instance = self._serial
@@ -305,15 +312,14 @@ class SerialManager:
             "cd": bool(getattr(instance, "cd", False)),
         }
 
-    def _read_loop(self) -> None:
+    def _read_loop(self, instance: Any, stop_event: threading.Event) -> None:
         buffer = bytearray()
         last_data_at = 0.0
         last_idle_log_at = time.monotonic()
-        while not self._stop.is_set():
+        while not stop_event.is_set():
             with self._lock:
-                instance = self._serial
-            if not instance:
-                break
+                if self._serial is not instance:
+                    break
             try:
                 waiting = max(instance.in_waiting, 1)
                 raw = instance.read(waiting)
@@ -344,16 +350,19 @@ class SerialManager:
                         self._add_log("system", f"串口已连接但暂未收到字节，读循环正常运行 {iterations} 次；请确认设备 TX 接到电脑 RX、共地、波特率正确，或设备是否需要主动发送命令")
                     last_idle_log_at = current
             except Exception as exc:
+                if stop_event.is_set():
+                    break
                 with self._lock:
-                    self._last_error = str(exc)
-                    self._connected = False
+                    if self._serial is instance:
+                        self._last_error = str(exc)
+                        self._connected = False
                 self._add_log("error", str(exc))
                 break
-        if buffer:
+        if buffer and not stop_event.is_set():
             self._consume_raw(bytes(buffer))
         with self._lock:
-            self._connected = False
-
+            if self._serial is instance:
+                self._connected = False
     def _split_buffer(self, buffer: bytearray) -> tuple[bytes, bytearray]:
         positions = [index for index in (buffer.find(b"\n"), buffer.find(b"\r")) if index >= 0]
         index = min(positions)
@@ -498,6 +507,8 @@ class MultiSerialManager:
 
     def connect_port(self, port: str, baudrate: int = 115200, safe_mode: bool = True, dtr: bool | None = None, rts: bool | None = None, cdc_mode: bool = True) -> dict[str, Any]:
         port = port.strip()
+        if not port:
+            return {"success": False, "message": "请选择串口"}
         session = self._ensure_session(port)
         result = session.connect_port(port, baudrate, safe_mode, dtr, rts, cdc_mode)
         if result.get("success"):

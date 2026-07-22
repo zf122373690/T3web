@@ -41,7 +41,7 @@ if exist frontend\package.json (
 echo [3/3] Starting server...
 echo URL: http://127.0.0.1:8080
 echo User: admin
-echo Pass: admin123
+echo Pass: admin
 echo.
 set PYTHONPATH=%CD%
 python -m uvicorn backend.app.main:app --host 0.0.0.0 --port 8080 --reload

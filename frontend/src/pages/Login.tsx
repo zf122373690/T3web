@@ -60,7 +60,7 @@ export default function Login() {
           <button className="primary-button" disabled={loading || !username || !password}>
             {loading ? '登录中...' : '登录'}
           </button>
-          <div className="hint">默认账号：admin / admin123</div>
+          <div className="hint">默认账号：admin / admin</div>
         </form>
       </div>
     </div>

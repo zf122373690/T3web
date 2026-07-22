@@ -84,19 +84,53 @@ export function sendSerialCommand(command: string, port = '') {
 export interface SerialOfflineChannel {
   enabled?: boolean;
   type?: number;
-  name?: string;
   url?: string;
   key1?: string;
   key2?: string;
   customBody?: string;
 }
 
+export interface SerialBatchConfigResult {
+  success: boolean;
+  message: string;
+  items: Array<{port: string; success: boolean; message: string}>;
+  total: number;
+  succeeded: number;
+  failed: number;
+}
+
 export function sendSerialOfflineConfig(payload: {port?: string; deviceName?: string; wifiSsid?: string; wifiPassword?: string; networkMode?: number; pushChannels?: SerialOfflineChannel[]; sim1Pin?: string; sim2Pin?: string}) {
   return api.post<{success: boolean; message: string; payload: string; configResponse?: string[]}>('/serial/offline-config', payload);
 }
 
+export function sendSerialBatchOfflineConfig(payload: {ports: string[]; deviceName?: string; wifiSsid: string; wifiPassword?: string; pushChannels?: SerialOfflineChannel[]; sim1Pin?: string; sim2Pin?: string}) {
+  return api.post<SerialBatchConfigResult>('/serial/offline-config/batch', payload);
+}
+
+export interface SerialBatchActionResult {
+  success: boolean;
+  message: string;
+  items: Array<{port: string; success: boolean; message: string; version?: string}>;
+  total: number;
+  succeeded: number;
+  failed: number;
+}
+
+export function saveSerialWifiBatch(payload: {ports: string[]; wifiSsid: string; wifiPassword?: string}) {
+  return api.post<SerialBatchActionResult>('/serial/wifi/batch', payload);
+}
+
+export function checkSerialVersions(payload: {ports: string[]}) {
+  return api.post<SerialBatchActionResult>('/serial/version/batch', payload);
+}
+
+export function startSerialOta(payload: {ports: string[]; url: string}) {
+  return api.post<SerialBatchActionResult>('/serial/ota/batch', payload);
+}
+
 export interface SerialDeviceConfig {
   deviceName?: string;
+  wifi?: {configured?: boolean; ssid?: string; password?: string};
   networkMode?: number;
   pushChannels?: SerialOfflineChannel[];
   sim1Pin?: string;
