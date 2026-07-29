@@ -12,9 +12,14 @@ import {
   deleteDevice,
   detectLanCidr,
   factoryResetDevice,
+  getDeviceDiag,
+  getDeviceDdns,
+  getDeviceMessages,
+  getDeviceOtaProgress,
   getDeviceTakeover,
   getSystemVersion,
   listDevices,
+  pushTestDevice,
   rebootManagedDevice,
   refreshDevice,
   sendDeviceAt,
@@ -23,9 +28,11 @@ import {
   startScan,
   getScanStatus,
   updateDeviceConfig,
+  updateDeviceDdns,
   updateDeviceSimNumber,
   updateDeviceWifi,
   type DeviceItem,
+  type DeviceMessageItem,
   type FirmwareOtaResult,
   type SystemVersionInfo,
   type T3Config,
@@ -153,6 +160,22 @@ export default function Devices() {
   const [lastAutoRefreshAt, setLastAutoRefreshAt] = useState(0);
   const scanTimer = useRef<number | null>(null);
   const scanningRef = useRef(false);
+
+  // 原始诊断
+  const [diagResponse, setDiagResponse] = useState<Record<string, string> | null>(null);
+  const [diagBusy, setDiagBusy] = useState(false);
+  // 推送测试
+  const [pushChannel, setPushChannel] = useState(0);
+  const [pushResult, setPushResult] = useState('');
+  const [pushBusy, setPushBusy] = useState(false);
+  // DDNS 维护
+  const [ddnsData, setDdnsData] = useState<Record<string, string | number | boolean> | null>(null);
+  const [ddnsBusy, setDdnsBusy] = useState(false);
+  // OTA 进度
+  const [otaProgressData, setOtaProgressData] = useState<{running?: boolean; finished?: boolean; success?: boolean; loaded?: number; total?: number; percent?: number; message?: string} | null>(null);
+  // 设备消息日志
+  const [deviceMessages, setDeviceMessages] = useState<DeviceMessageItem[]>([]);
+  const [messagesBusy, setMessagesBusy] = useState(false);
 
   // Statistics
   const stats = useMemo(() => {
@@ -531,6 +554,87 @@ export default function Devices() {
     }
   };
 
+  // ===== 设备诊断 =====
+  const runDiag = async () => {
+    if (!takeoverDevice) return;
+    setDiagBusy(true);
+    try {
+      const result = await getDeviceDiag(takeoverDevice.id);
+      setDiagResponse(result.data);
+    } catch (err) {
+      setDiagResponse({'error': err instanceof Error ? err.message : '诊断获取失败'});
+    } finally {
+      setDiagBusy(false);
+    }
+  };
+
+  // ===== 推送测试 =====
+  const runPushTest = async () => {
+    if (!takeoverDevice) return;
+    setPushBusy(true);
+    setPushResult('');
+    try {
+      const result = await pushTestDevice(takeoverDevice.id, pushChannel);
+      setPushResult(result.message || (result.success ? '推送测试已发送' : '推送测试失败'));
+    } catch (err) {
+      setPushResult(err instanceof Error ? err.message : '推送测试失败');
+    } finally {
+      setPushBusy(false);
+    }
+  };
+
+  // ===== DDNS 维护 =====
+  const refreshDdns = async () => {
+    if (!takeoverDevice) return;
+    setDdnsBusy(true);
+    try {
+      const result = await getDeviceDdns(takeoverDevice.id);
+      setDdnsData(result.data);
+    } catch (err) {
+      setDdnsData({'error': err instanceof Error ? err.message : 'DDNS 查询失败'});
+    } finally {
+      setDdnsBusy(false);
+    }
+  };
+
+  const runDdnsUpdate = async () => {
+    if (!takeoverDevice) return;
+    setDdnsBusy(true);
+    try {
+      const result = await updateDeviceDdns(takeoverDevice.id);
+      setDdnsData({'message': result.message || (result.success ? 'DDNS 更新已触发' : 'DDNS 更新失败')});
+    } catch (err) {
+      setDdnsData({'error': err instanceof Error ? err.message : 'DDNS 更新失败'});
+    } finally {
+      setDdnsBusy(false);
+    }
+  };
+
+  // ===== OTA 进度 =====
+  const refreshOtaProgress = async () => {
+    if (!takeoverDevice) return;
+    try {
+      const result = await getDeviceOtaProgress(takeoverDevice.id);
+      setOtaProgressData(result.data);
+    } catch (err) {
+      setOtaProgressData({message: err instanceof Error ? err.message : 'OTA 进度获取失败'});
+    }
+  };
+
+  // ===== 设备消息日志 =====
+  const refreshDeviceMessages = async (type = 'all') => {
+    if (!takeoverDevice) return;
+    setMessagesBusy(true);
+    try {
+      const result = await getDeviceMessages(takeoverDevice.id, type);
+      setDeviceMessages(result.data);
+    } catch (err) {
+      setDeviceMessages([{type: 'error', msg: err instanceof Error ? err.message : '消息读取失败'}]);
+    } finally {
+      setMessagesBusy(false);
+    }
+  };
+
   return (
     <section className="page devices-page">
       <div className="version-banner"><span>T3服务端 {versionInfo?.localVersion || '检测中'}</span><span>OTA 服务器 {versionInfo?.otaServerVersion || versionInfo?.otaServerMessage || '检测中'}</span><span>当前设备版本 {items.filter((item) => item.status === 'online').map((item) => `${item.name || item.ip}: ${item.version || '-'}`).join('，') || '暂无在线设备'}</span></div>
@@ -590,8 +694,12 @@ export default function Devices() {
       {error && <div className="error inline-error">{error}</div>}
       {notice && <div className="success inline-error">{notice}</div>}
 
-      {/* Data Table */}
-      <div className="table-card">
+      {/* 顶部功能选项 Tab */}
+
+      {
+        <>
+          {/* Data Table */}
+          <div className="table-card">
         <table>
           <thead>
             <tr>
@@ -833,6 +941,89 @@ export default function Devices() {
                     <button className="btn-secondary btn-danger" onClick={() => runAction(takeoverDevice, () => rebootManagedDevice(takeoverDevice.id), '重启失败')}>⚡ 重启</button>
                   </div>
                 </section>
+
+                <section className="takeover-card accent-slate">
+                  <h3>🩺 设备诊断</h3>
+                  <div className="serial-command refined">
+                    <button className="btn-secondary" onClick={runDiag} disabled={diagBusy}>运行诊断</button>
+                  </div>
+                  {diagResponse && (
+                    <div className="diag-result">
+                      {Object.entries(diagResponse).map(([k, v]) => (
+                        <div className="diag-row" key={k}><span className="diag-key">{k}</span><span className="diag-val">{String(v)}</span></div>
+                      ))}
+                    </div>
+                  )}
+                </section>
+
+                <section className="takeover-card accent-green">
+                  <h3>📨 推送测试</h3>
+                  <label>测试通道
+                    <select value={pushChannel} onChange={(e) => setPushChannel(Number(e.target.value))}>
+                      <option value={0}>通道 1</option>
+                      <option value={1}>通道 2</option>
+                      <option value={2}>通道 3</option>
+                      <option value={3}>通道 4</option>
+                      <option value={4}>通道 5</option>
+                    </select>
+                  </label>
+                  <div className="serial-command refined">
+                    <button className="btn-primary" onClick={runPushTest} disabled={pushBusy}>发送测试推送</button>
+                  </div>
+                  {pushResult && <div className={`inline-error ${pushResult.includes('失败') ? 'error' : 'success'}`}>{pushResult}</div>}
+                </section>
+
+                <section className="takeover-card accent-amber">
+                  <h3>🌐 DDNS 状态</h3>
+                  <div className="serial-command refined">
+                    <button className="btn-secondary" onClick={refreshDdns} disabled={ddnsBusy}>查询状态</button>
+                    <button className="btn-secondary" onClick={runDdnsUpdate} disabled={ddnsBusy}>立即更新</button>
+                  </div>
+                  {ddnsData && (
+                    <div className="diag-result">
+                      {Object.entries(ddnsData).map(([k, v]) => (
+                        <div className="diag-row" key={k}><span className="diag-key">{k}</span><span className="diag-val">{String(v)}</span></div>
+                      ))}
+                    </div>
+                  )}
+                </section>
+
+                <section className="takeover-card accent-red">
+                  <h3>⬆️ OTA 进度</h3>
+                  <div className="serial-command refined">
+                    <button className="btn-secondary" onClick={refreshOtaProgress} disabled={!takeoverDevice}>刷新进度</button>
+                  </div>
+                  {otaProgressData && (
+                    <div className="ota-progress">
+                      {otaProgressData.message && <div className={`inline-error ${otaProgressData.success === false ? 'error' : 'success'}`}>{otaProgressData.message}</div>}
+                      {otaProgressData.running && <div className="text-muted">状态: 升级中...</div>}
+                      {typeof otaProgressData.percent === 'number' && (
+                        <div className="ota-bar"><div className="ota-bar-fill" style={{width: `${otaProgressData.percent}%`}} />{otaProgressData.percent}%</div>
+                      )}
+                      {otaProgressData.finished && <div className={`inline-error ${otaProgressData.success ? 'success' : 'error'}`}>{otaProgressData.success ? 'OTA 升级完成' : 'OTA 升级失败'}</div>}
+                    </div>
+                  )}
+                </section>
+
+                <section className="takeover-card wide accent-blue">
+                  <h3>📜 设备消息日志</h3>
+                  <div className="serial-command refined">
+                    <button className="btn-secondary" onClick={() => refreshDeviceMessages('all')} disabled={messagesBusy}>全部</button>
+                    <button className="btn-secondary" onClick={() => refreshDeviceMessages('sms')} disabled={messagesBusy}>短信</button>
+                    <button className="btn-secondary" onClick={() => refreshDeviceMessages('call')} disabled={messagesBusy}>通话</button>
+                  </div>
+                  <div className="msg-log">
+                    {deviceMessages.length ? deviceMessages.map((m, idx) => (
+                      <div className="msg-row" key={idx}>
+                        {m.ts && <span className="msg-ts">{m.ts}</span>}
+                        {m.sim && <span className="msg-sim">{m.sim}</span>}
+                        {m.from && <span className="msg-from">{m.from}</span>}
+                        {m.num && <span className="msg-from">{m.num}</span>}
+                        <span className="msg-text">{m.msg || m.type || ''}</span>
+                      </div>
+                    )) : <div className="text-muted">暂无消息</div>}
+                  </div>
+                </section>
               </div>
               <div className="save-config-bar">
                 <button className="btn-primary" onClick={saveConfig} disabled={!configReady}>💾 保存固件配置</button>
@@ -841,6 +1032,9 @@ export default function Devices() {
           </div>
         </div>
       )}
+        </>
+      }
+
     </section>
   );
 }

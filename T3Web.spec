@@ -1,8 +1,8 @@
 # -*- mode: python ; coding: utf-8 -*-
 from PyInstaller.utils.hooks import collect_all
 
-datas = [('backend\\static', 'static'), ('backend\\app', 'backend\\app')]
-binaries = [('C:\\Users\\feiyu\\AppData\\Roaming\\TRAE SOLO CN\\ModularData\\ai-agent\\vm\\tools\\python\\python310.dll', '.'), ('C:\\Users\\feiyu\\AppData\\Roaming\\TRAE SOLO CN\\ModularData\\ai-agent\\vm\\tools\\python\\python3.dll', '.')]
+datas = [('backend/static', 'static'), ('backend/app', 'backend/app')]
+binaries = [('C:\\Users\\feiyu\\.workbuddy\\binaries\\python\\versions\\3.13.12\\python3.dll', '.'), ('C:\\Users\\feiyu\\.workbuddy\\binaries\\python\\versions\\3.13.12\\python313.dll', '.')]
 hiddenimports = ['backend.app.main', 'backend.app.routers.auth', 'backend.app.routers.devices', 'backend.app.routers.messages', 'backend.app.routers.scan', 'backend.app.routers.serial', 'backend.app.routers.system']
 tmp_ret = collect_all('uvicorn')
 datas += tmp_ret[0]; binaries += tmp_ret[1]; hiddenimports += tmp_ret[2]

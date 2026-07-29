@@ -630,3 +630,39 @@ def start_t3_ota(ip: str, url: str, user: str = DEVICE_USER, password: str = DEV
     result = _request_device(ip, user, password, "POST", "/api/ota/start", params={"url": url}, timeout=HTTP_TIMEOUT + 20)
     result["endpoint"] = "/api/ota/start"
     return result
+
+
+def diag_t3(ip: str, user: str = DEVICE_USER, password: str = DEVICE_PASS) -> dict[str, Any]:
+    """原始诊断：依次执行 6 条 AT 指令并返回原始响应。"""
+    result = _request_device(ip, user, password, "GET", "/api/diag", timeout=max(HTTP_TIMEOUT, 45))
+    result["endpoint"] = "/api/diag"
+    return result
+
+
+def push_test_t3(ip: str, channel: int | None = None, user: str = DEVICE_USER, password: str = DEVICE_PASS) -> dict[str, Any]:
+    """测试单个推送通道（channel 缺省为 -1，由固件按配置选择）。"""
+    body: dict[str, Any] = {}
+    if channel is not None:
+        body["channel"] = channel
+    result = _request_device(ip, user, password, "POST", "/api/push/test", json_body=body or None, timeout=max(HTTP_TIMEOUT, 20))
+    result["endpoint"] = "/api/push/test"
+    return result
+
+
+def ddns_status_t3(ip: str, user: str = DEVICE_USER, password: str = DEVICE_PASS) -> dict[str, Any]:
+    result = _request_device(ip, user, password, "GET", "/api/ddns/status", timeout=max(HTTP_TIMEOUT, 12))
+    result["endpoint"] = "/api/ddns/status"
+    return result
+
+
+def ddns_update_t3(ip: str, user: str = DEVICE_USER, password: str = DEVICE_PASS) -> dict[str, Any]:
+    result = _request_device(ip, user, password, "POST", "/api/ddns/update", timeout=max(HTTP_TIMEOUT, 35))
+    result["endpoint"] = "/api/ddns/update"
+    return result
+
+
+def ota_progress_t3(ip: str, user: str = DEVICE_USER, password: str = DEVICE_PASS) -> dict[str, Any]:
+    result = _request_device(ip, user, password, "GET", "/api/ota/progress", timeout=max(HTTP_TIMEOUT, 12))
+    result["endpoint"] = "/api/ota/progress"
+    return result
+

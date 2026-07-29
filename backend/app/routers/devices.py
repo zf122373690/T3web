@@ -10,11 +10,17 @@ from ..db import connect, now_ts
 from ..device_client import (
     check_t3_ota,
     clear_device_messages,
+    ddns_status_t3,
+    ddns_update_t3,
+    diag_t3,
     factory_reset_t3,
     get_device_data,
     get_t3_config,
+    get_t3_messages,
     get_t3_status,
     lan_discover_device,
+    ota_progress_t3,
+    push_test_t3,
     reboot_device,
     send_sms_to_device,
     send_t3_at,
@@ -723,6 +729,72 @@ async def start_ota(device_id: int, request: Request) -> dict:
     if not result.get("ok"):
         raise HTTPException(status_code=502, detail=result.get("message") or "OTA 启动失败")
     return {"success": True, "message": result.get("message") or "OTA 已启动", "endpoint": result.get("endpoint"), "data": result.get("data", {})}
+
+
+@router.get("/{device_id}/diag")
+def get_diag(device_id: int, request: Request) -> dict:
+    require_user(request)
+    row = get_device_row(device_id)
+    result = diag_t3(row["ip"], DEVICE_USER, DEVICE_PASS)
+    if not result.get("ok"):
+        raise HTTPException(status_code=502, detail=result.get("message") or "设备诊断失败")
+    return {"success": True, "message": result.get("message") or "诊断完成", "endpoint": result.get("endpoint"), "data": result.get("data", {})}
+
+
+@router.post("/{device_id}/push-test")
+async def push_test(device_id: int, request: Request) -> dict:
+    require_user(request)
+    row = get_device_row(device_id)
+    try:
+        body = await request.json()
+    except Exception:
+        body = {}
+    channel = body.get("channel")
+    result = push_test_t3(row["ip"], int(channel) if isinstance(channel, int) else None, DEVICE_USER, DEVICE_PASS)
+    if not result.get("ok"):
+        raise HTTPException(status_code=502, detail=result.get("message") or "推送测试失败")
+    return {"success": True, "message": result.get("message") or "推送测试完成", "endpoint": result.get("endpoint"), "data": result.get("data", {})}
+
+
+@router.get("/{device_id}/ddns")
+def ddns_status(device_id: int, request: Request) -> dict:
+    require_user(request)
+    row = get_device_row(device_id)
+    result = ddns_status_t3(row["ip"], DEVICE_USER, DEVICE_PASS)
+    if not result.get("ok"):
+        raise HTTPException(status_code=502, detail=result.get("message") or "DDNS 状态获取失败")
+    return {"success": True, "message": result.get("message") or "DDNS 状态获取完成", "endpoint": result.get("endpoint"), "data": result.get("data", {})}
+
+
+@router.post("/{device_id}/ddns/update")
+async def ddns_update(device_id: int, request: Request) -> dict:
+    require_user(request)
+    row = get_device_row(device_id)
+    result = ddns_update_t3(row["ip"], DEVICE_USER, DEVICE_PASS)
+    if not result.get("ok"):
+        raise HTTPException(status_code=502, detail=result.get("message") or "DDNS 更新失败")
+    return {"success": True, "message": result.get("message") or "DDNS 已更新", "endpoint": result.get("endpoint"), "data": result.get("data", {})}
+
+
+@router.get("/{device_id}/ota/progress")
+def ota_progress(device_id: int, request: Request) -> dict:
+    require_user(request)
+    row = get_device_row(device_id)
+    result = ota_progress_t3(row["ip"], DEVICE_USER, DEVICE_PASS)
+    if not result.get("ok"):
+        raise HTTPException(status_code=502, detail=result.get("message") or "OTA 进度获取失败")
+    return {"success": True, "message": result.get("message") or "OTA 进度获取完成", "endpoint": result.get("endpoint"), "data": result.get("data", {})}
+
+
+@router.get("/{device_id}/messages")
+def read_device_messages(device_id: int, request: Request) -> dict:
+    require_user(request)
+    row = get_device_row(device_id)
+    msg_type = str(request.query_params.get("type") or "all")
+    result = get_t3_messages(row["ip"], msg_type, DEVICE_USER, DEVICE_PASS)
+    if not result.get("ok"):
+        raise HTTPException(status_code=502, detail=result.get("message") or "设备消息读取失败")
+    return {"success": True, "message": result.get("message") or "设备消息读取完成", "endpoint": result.get("endpoint"), "data": result.get("data", [])}
 
 
 @router.delete("/{device_id}")

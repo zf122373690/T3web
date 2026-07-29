@@ -1125,3 +1125,20 @@ td code { color: var(--text-secondary); }
   .top-nav-logout { width: 36px; padding: 0; justify-content: center; }
   .top-nav-logout span { display: none; }
 }
+
+/* ── eSIM 写号与管理 / 诊断 / DDNS / OTA 进度 / 消息日志 ─── */
+.diag-result { display: grid; gap: 4px; margin-top: 4px; max-height: 220px; overflow: auto; }
+.diag-row { display: grid; grid-template-columns: 40% 60%; gap: 8px; font-size: 12px; padding: 4px 6px; border-bottom: 1px dashed var(--border); }
+.diag-key { color: var(--muted); word-break: break-all; }
+.diag-val { color: var(--text); word-break: break-all; font-family: var(--mono, monospace); }
+.ota-progress { display: grid; gap: 6px; margin-top: 4px; }
+.ota-bar { position: relative; height: 18px; border-radius: 9px; overflow: hidden; background: var(--border); font-size: 11px; color: var(--text); }
+.ota-bar-fill { position: absolute; inset: 0 auto 0 0; background: var(--accent); opacity: .35; }
+.ota-bar::after { content: ""; position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; }
+.msg-log { display: grid; gap: 4px; margin-top: 4px; max-height: 280px; overflow: auto; font-size: 12px; }
+.msg-row { display: flex; flex-wrap: wrap; gap: 6px; align-items: baseline; padding: 6px 8px; border: 1px solid var(--border); border-radius: var(--radius); background: var(--bg-soft, #f8fafc); }
+.msg-ts { color: var(--muted); font-family: var(--mono, monospace); }
+.msg-sim, .msg-from { color: var(--accent); font-weight: 600; }
+.msg-text { flex: 1 1 100%; color: var(--text); }
+
+

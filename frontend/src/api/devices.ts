@@ -291,6 +291,41 @@ export function startDeviceOta(id: number, url: string) {
   return api.post<{success: boolean; message: string; endpoint?: string; data?: unknown}>(`/devices/${id}/ota`, {url});
 }
 
+
+export function getDeviceDiag(id: number) {
+  return api.get<{success: boolean; message: string; endpoint?: string; data: Record<string, string>}>(`/devices/${id}/diag`);
+}
+
+export function pushTestDevice(id: number, channel?: number) {
+  return api.post<{success: boolean; message: string; endpoint?: string; data?: Record<string, unknown>}>(`/devices/${id}/push-test`, channel === undefined ? {} : {channel});
+}
+
+export function getDeviceDdns(id: number) {
+  return api.get<{success: boolean; message: string; endpoint?: string; data: Record<string, string | number | boolean>}>(`/devices/${id}/ddns`);
+}
+
+export function updateDeviceDdns(id: number) {
+  return api.post<{success: boolean; message: string; endpoint?: string; data?: Record<string, unknown>}>(`/devices/${id}/ddns/update`);
+}
+
+export function getDeviceOtaProgress(id: number) {
+  return api.get<{success: boolean; message: string; endpoint?: string; data: {running?: boolean; finished?: boolean; success?: boolean; loaded?: number; total?: number; percent?: number; message?: string}}>(`/devices/${id}/ota/progress`);
+}
+
+export interface DeviceMessageItem {
+  type?: string;
+  ts?: string;
+  sim?: string;
+  num?: string;
+  from?: string;
+  msg?: string;
+}
+
+export function getDeviceMessages(id: number, type = 'all') {
+  return api.get<{success: boolean; message: string; endpoint?: string; data: DeviceMessageItem[]}>(`/devices/${id}/messages?type=${encodeURIComponent(type)}`);
+}
+
+
 export function startScan(payload: {cidr?: string; startIp?: number; endIp?: number; user?: string; password?: string}) {
   return api.post<{scanId: string; cidr: string; total: number; autoDetected: boolean}>('/scan', payload);
 }
