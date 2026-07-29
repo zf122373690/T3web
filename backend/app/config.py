@@ -22,5 +22,8 @@ LOCAL_TOOL_VERSION = os.environ.get("T3_LOCAL_VERSION", "1.1.0")
 SCAN_CONCURRENCY = int(os.environ.get("T3_SCAN_CONCURRENCY", "64"))
 SCAN_TTL_SECONDS = int(os.environ.get("T3_SCAN_TTL", "1800"))
 
-MESSAGE_AUTO_SYNC_ENABLED = os.environ.get("T3_MESSAGE_AUTO_SYNC", "1").strip().lower() not in {"0", "false", "no", "off"}
-MESSAGE_AUTO_SYNC_INTERVAL = 10
+# Realtime forwarding uses the ingest endpoint. Polling every modem UFS can
+# outlive the HTTP timeout and make the device write to a closed connection.
+# Manual message synchronization remains available for recovery.
+MESSAGE_AUTO_SYNC_ENABLED = os.environ.get("T3_MESSAGE_AUTO_SYNC", "0").strip().lower() not in {"0", "false", "no", "off"}
+MESSAGE_AUTO_SYNC_INTERVAL = 60
