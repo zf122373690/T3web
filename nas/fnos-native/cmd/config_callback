@@ -1,0 +1,21 @@
+#!/bin/bash
+# 配置变更后：应用向导（wizard/config）修改端口/密码后落盘。
+export PATH="/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
+
+VAR_DIR="${TRIM_PKGVAR}"
+ETC_DIR="${TRIM_PKGETC}"
+
+# 端口：向导填写了新端口才覆盖（留空表示不改）
+if [ -n "${wizard_port:-}" ]; then
+    echo "${wizard_port}" > "${VAR_DIR}/port"
+    echo "端口已更新为 ${wizard_port}，重启应用后生效。" >> "${TRIM_TEMP_LOGFILE:-/dev/null}"
+fi
+
+# 密码：留空不改，否则更新 env 文件中的 T3_UI_PASS
+ENV_FILE="${ETC_DIR}/t3web.env"
+if [ -n "${wizard_ui_pass:-}" ] && [ -r "$ENV_FILE" ]; then
+    sed -i "s|^T3_UI_PASS=.*|T3_UI_PASS=${wizard_ui_pass}|" "$ENV_FILE"
+    echo "控制台登录密码已更新。" >> "${TRIM_TEMP_LOGFILE:-/dev/null}"
+fi
+
+exit 0

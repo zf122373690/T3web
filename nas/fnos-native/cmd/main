@@ -1,0 +1,148 @@
+#!/bin/bash
+# 原生模式：使用 fnOS 系统 Python 3.12 运行时，应用数据/venv 均在 TRIM_PKGVAR。
+# fnOS 脚本环境可能没有 PATH，显式导出系统默认值。
+ORIG_PATH="${PATH:-}"
+export PATH="/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
+export PATH="/var/apps/python312/target/bin:$PATH"
+
+APP_NAME="t3web"
+APP_DIR="${TRIM_APPDEST}/backend"
+VAR_DIR="${TRIM_PKGVAR}"
+VENV_DIR="${VAR_DIR}/venv"
+DATA_DIR="${VAR_DIR}/data"
+LOG_FILE="${VAR_DIR}/t3web.log"
+PID_FILE="${VAR_DIR}/t3web.pid"
+
+# 端口优先级：用户自选端口文件 > manifest 默认（TRIM_SERVICE_PORT）
+PORT="${TRIM_SERVICE_PORT:-2333}"
+if [ -r "${VAR_DIR}/port" ]; then
+    SAVED_PORT=$(head -n 1 "${VAR_DIR}/port" | tr -d '[:space:]')
+    [ -n "$SAVED_PORT" ] && PORT="$SAVED_PORT"
+fi
+
+# Linux venv: bin/python；Windows venv: Scripts/python.exe（本机模拟用）
+if [ -x "${VENV_DIR}/bin/python" ]; then
+    PYTHON="${VENV_DIR}/bin/python"
+elif [ -x "${VENV_DIR}/Scripts/python.exe" ]; then
+    PYTHON="${VENV_DIR}/Scripts/python.exe"
+else
+    PYTHON="${VENV_DIR}/bin/python"
+fi
+
+# 读取安装向导持久化的登录账号（由 install_callback 写入）
+if [ -r "${TRIM_PKGETC}/t3web.env" ]; then
+    set -a
+    . "${TRIM_PKGETC}/t3web.env"
+    set +a
+fi
+
+# HTTP 探测命令（fnOS 有 /usr/bin/curl；找不到时跳过探测）
+CURL=$(command -v curl || PATH="$ORIG_PATH" command -v curl || true)
+
+log() { echo "$(date '+%Y-%m-%d %H:%M:%S') $*" >> "$LOG_FILE"; }
+
+# 记录每次系统调用（含参数），便于实机排查
+log "cmd/main called with: '$1' (run as $(id -un 2>/dev/null))"
+
+is_running() {
+    [ -r "$PID_FILE" ] || return 1
+    local pid
+    pid=$(head -n 1 "$PID_FILE" | tr -d '[:space:]')
+    [ -n "$pid" ] && kill -0 "$pid" 2>/dev/null
+}
+
+do_start() {
+    if is_running; then
+        log "already running"
+        return 0
+    fi
+    if [ ! -x "$PYTHON" ]; then
+        echo "虚拟环境不存在（$VENV_DIR），请卸载后重新安装本应用。" > "${TRIM_TEMP_LOGFILE:-/dev/stderr}"
+        return 1
+    fi
+    if [ ! -d "$APP_DIR" ]; then
+        echo "应用目录缺失：$APP_DIR" > "${TRIM_TEMP_LOGFILE:-/dev/stderr}"
+        return 1
+    fi
+    mkdir -p "$DATA_DIR"
+
+    # 端口被其他进程占用时直接报错（区分于本应用进程）
+    if command -v ss >/dev/null 2>&1 && ss -ltn 2>/dev/null | grep -q ":${PORT} "; then
+        if [ -n "$CURL" ] && ! "$CURL" -s -o /dev/null --max-time 2 "http://127.0.0.1:${PORT}/"; then
+            echo "端口 ${PORT} 已被其他程序占用，请在应用设置中修改端口（保存到 ${VAR_DIR}/port 后重启应用）。" > "${TRIM_TEMP_LOGFILE:-/dev/stderr}"
+            return 1
+        fi
+    fi
+
+    # setsid 完全脱离会话（fnOS 可用），避免脚本退出时子进程被回收；无则退化
+    SETSID=""
+    command -v setsid >/dev/null 2>&1 && SETSID="setsid"
+
+    T3_DATA_DIR="$DATA_DIR" \
+    T3_DB="$DATA_DIR/app.db" \
+    PYTHONPATH="${TRIM_APPDEST}" \
+    $SETSID nohup "$PYTHON" -m uvicorn backend.app.main:app \
+        --host 0.0.0.0 --port "$PORT" >> "$LOG_FILE" 2>&1 < /dev/null &
+    echo $! > "$PID_FILE"
+    log "started on port $PORT (pid $(cat "$PID_FILE"))"
+
+    # 等待进程稳定，启动即崩时把错误抛给应用中心
+    sleep 3
+    if ! is_running; then
+        tail -n 20 "$LOG_FILE" > "${TRIM_TEMP_LOGFILE:-/dev/stderr}"
+        rm -f "$PID_FILE"
+        return 1
+    fi
+    return 0
+}
+
+do_stop() {
+    if [ -r "$PID_FILE" ]; then
+        local pid
+        pid=$(head -n 1 "$PID_FILE" | tr -d '[:space:]')
+        if [ -n "$pid" ] && kill -0 "$pid" 2>/dev/null; then
+            kill -TERM "$pid"
+            local count=0
+            while kill -0 "$pid" 2>/dev/null && [ $count -lt 10 ]; do
+                sleep 1
+                count=$((count + 1))
+            done
+            kill -0 "$pid" 2>/dev/null && kill -KILL "$pid"
+        fi
+        rm -f "$PID_FILE"
+        log "stopped"
+    fi
+    return 0
+}
+
+case "$1" in
+start)
+    do_start
+    ;;
+stop)
+    do_stop
+    ;;
+restart)
+    do_stop
+    sleep 1
+    do_start
+    ;;
+status)
+    if is_running; then
+        # 应用状态：进程存活（exit 0）
+        # 业务状态：HTTP 探测并写入日志，便于通过日志/健康检查判断
+        if [ -n "$CURL" ] && "$CURL" -s -o /dev/null --max-time 3 "http://127.0.0.1:${PORT}/"; then
+            log "status: running, business OK (http 127.0.0.1:${PORT}/)"
+        else
+            log "status: process alive, business NOT responding on port ${PORT}"
+        fi
+        exit 0
+    else
+        exit 3
+    fi
+    ;;
+*)
+    # 未知的调用参数：返回 1（fnOS 约定为"不支持该操作"）
+    exit 1
+    ;;
+esac

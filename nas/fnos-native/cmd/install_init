@@ -1,0 +1,9 @@
+#!/bin/bash
+# 安装前检查：fnOS Python 3.12 运行时必须可用（manifest 已声明依赖，
+# 正常情况下系统会自动安装 python312，此处兜底校验）。
+export PATH="/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
+if [ ! -x /var/apps/python312/target/bin/python3 ]; then
+    echo "未找到 fnOS Python 3.12 运行时（/var/apps/python312）。请先在应用中心安装 Python 3.12 运行时，再安装本应用。" > "${TRIM_TEMP_LOGFILE}"
+    exit 1
+fi
+exit 0

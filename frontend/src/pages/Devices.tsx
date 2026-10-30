@@ -1,46 +1,46 @@
 import {useEffect, useMemo, useRef, useState} from 'react';
-import {RefreshCw, Settings2, Send, FileText, Power, MapPin, Monitor, Trash2, Plus, Radar, Search, DownloadCloud, Save} from 'lucide-react';
-import SelfUpdateBar from '../components/SelfUpdateBar';
+import {RefreshCw, Settings2, Send, FileText, Power, MapPin, Monitor, Trash2, Plus, Search, DownloadCloud, Save} from 'lucide-react';
+import {channelMetaMap, channelTypes} from '../utils/channelMeta';
 import {
   addDevice,
   bulkDeleteDevices,
+  refreshAllDevices,
   batchCheckDeviceOta,
   batchStartDeviceOta,
   checkDeviceFirmwareVersion,
   checkDeviceOta,
   clearDeviceMessages,
   deleteDevice,
-  detectLanCidr,
   factoryResetDevice,
-  getDeviceDiag,
   getDeviceDdns,
-  getDeviceMessages,
+  getDeviceKeepaliveTestStatus,
   getDeviceOtaProgress,
   getDeviceTakeover,
-  getSystemVersion,
   listDevices,
+  locateDevice,
+  operateDeviceEsimProfile,
   pushTestDevice,
+  purgeDeviceSms,
+  queryDeviceEsim,
   rebootManagedDevice,
   refreshDevice,
-  sendDeviceAt,
+  selectDeviceOperator,
   sendDeviceSms,
+  startDeviceKeepaliveTest,
   startDeviceOta,
-  startScan,
-  getScanStatus,
   updateDeviceConfig,
   updateDeviceDdns,
   updateDeviceSimNumber,
   updateDeviceWifi,
+  uploadDeviceOta,
   type DeviceItem,
-  type DeviceMessageItem,
+  type EsimProfile,
   type FirmwareOtaResult,
-  type SystemVersionInfo,
   type T3Config,
   type T3MqttConfig,
   type T3Takeover,
 } from '../api/devices';
 
-const channelTypes = ['关闭', 'Webhook/POST', 'Telegram', 'Bark', '钉钉', 'PushDeer', '飞书', '企微机器人', '企微应用', 'Gotify', 'ServerChan', 'PushPlus', 'WxPusher', 'Pushover', 'Inotify', 'Next SMTP Proxy'];
 const defaultChannelTemplate = '【{{设备名称}}】{{事件标题}}\n号码: {{号码}}\n内容: {{内容}}\n时间: {{时间}}\n来源: SIM{{卡槽}} {{卡号}}\n备注: {{备注}}';
 
 function timeLabel(value: number) {
@@ -75,6 +75,8 @@ function defaultConfig(config?: T3Config): T3Config {
     deviceName: config?.deviceName || '',
     callRecordEnabled: Boolean(config?.callRecordEnabled),
     callRecordAutoAnswer: Boolean(config?.callRecordAutoAnswer),
+    sim1CallAutoAnswer: config?.sim1CallAutoAnswer ?? Boolean(config?.callRecordAutoAnswer),
+    sim2CallAutoAnswer: config?.sim2CallAutoAnswer ?? Boolean(config?.callRecordAutoAnswer),
     callHangupSeconds: config?.callHangupSeconds || 10,
     callPlayEnabled: Boolean(config?.callPlayEnabled),
     callPlayFile: config?.callPlayFile || '',
@@ -91,6 +93,9 @@ function defaultConfig(config?: T3Config): T3Config {
     mqttClientId: mqtt.clientId || '',
     mqtt,
     networkMode: config?.networkMode || 0,
+    bootNotifyEnabled: config?.bootNotifyEnabled ?? true,
+    bootNotifyTemplate: config?.bootNotifyTemplate || '',
+    callNotifyTemplate: config?.callNotifyTemplate || '',
     webUser: config?.webUser || '',
     webPass: config?.webPass || '',
     sim1Remark: config?.sim1Remark || '',
@@ -99,6 +104,8 @@ function defaultConfig(config?: T3Config): T3Config {
     sim2Pin: config?.sim2Pin || '',
     sim1PinSet: config?.sim1PinSet || false,
     sim2PinSet: config?.sim2PinSet || false,
+    smsWhitelistEnabled: Boolean(config?.smsWhitelistEnabled),
+    smsWhitelistKeywords: config?.smsWhitelistKeywords || '',
     pushChannels: Array.from({length: 5}, (_, index) => ({
       enabled: Boolean(config?.pushChannels?.[index]?.enabled),
       type: config?.pushChannels?.[index]?.type || 0,
@@ -106,6 +113,8 @@ function defaultConfig(config?: T3Config): T3Config {
       key1: config?.pushChannels?.[index]?.key1 || '',
       key2: config?.pushChannels?.[index]?.key2 || '',
       customBody: config?.pushChannels?.[index]?.customBody || defaultChannelTemplate,
+      sim1Enabled: config?.pushChannels?.[index]?.sim1Enabled ?? true,
+      sim2Enabled: config?.pushChannels?.[index]?.sim2Enabled ?? true,
     })),
   };
 }
@@ -137,35 +146,26 @@ export default function Devices() {
   const [smsDevice, setSmsDevice] = useState<DeviceItem | null>(null);
   const [takeoverDevice, setTakeoverDevice] = useState<DeviceItem | null>(null);
   const [takeover, setTakeover] = useState<T3Takeover | null>(null);
+  const [takeoverPane, setTakeoverPane] = useState('basic');
   const [config, setConfig] = useState<T3Config>(defaultConfig());
   const [activeChannel, setActiveChannel] = useState(0);
   const [wifiSsid, setWifiSsid] = useState('');
   const [wifiPassword, setWifiPassword] = useState('');
   const [showWifiPassword, setShowWifiPassword] = useState(false);
-  const [atCommand, setAtCommand] = useState('AT');
-  const [atResponse, setAtResponse] = useState('');
   const [configReady, setConfigReady] = useState(false);
   const [otaUrl, setOtaUrl] = useState('');
   const [phone, setPhone] = useState('');
   const [content, setContent] = useState('');
   const [simSlot, setSimSlot] = useState(1);
   const [searchQuery, setSearchQuery] = useState('');
-  const [networkPrefix, setNetworkPrefix] = useState('');
-  const [startIp, setStartIp] = useState('1');
-  const [endIp, setEndIp] = useState('254');
-  const [scanning, setScanning] = useState(false);
+  const [filterStatus, setFilterStatus] = useState('');
+  const [addOpen, setAddOpen] = useState(false);
+  const [addIp, setAddIp] = useState('');
   const [scanProgress, setScanProgress] = useState('');
-  const [versionInfo, setVersionInfo] = useState<SystemVersionInfo | null>(null);
   const [batchOtaUrl, setBatchOtaUrl] = useState('');
   const [lastAutoRefreshAt, setLastAutoRefreshAt] = useState(0);
-  const scanTimer = useRef<number | null>(null);
-  const scanningRef = useRef(false);
 
-  // 原始诊断
-  const [diagResponse, setDiagResponse] = useState<Record<string, string> | null>(null);
-  const [diagBusy, setDiagBusy] = useState(false);
   // 推送测试
-  const [pushChannel, setPushChannel] = useState(0);
   const [pushResult, setPushResult] = useState('');
   const [pushBusy, setPushBusy] = useState(false);
   // DDNS 维护
@@ -173,9 +173,28 @@ export default function Devices() {
   const [ddnsBusy, setDdnsBusy] = useState(false);
   // OTA 进度
   const [otaProgressData, setOtaProgressData] = useState<{running?: boolean; finished?: boolean; success?: boolean; loaded?: number; total?: number; percent?: number; message?: string} | null>(null);
-  // 设备消息日志
-  const [deviceMessages, setDeviceMessages] = useState<DeviceMessageItem[]>([]);
-  const [messagesBusy, setMessagesBusy] = useState(false);
+  // eSIM 管理
+  const [esimSlot, setEsimSlot] = useState(1);
+  const [esimBusy, setEsimBusy] = useState(false);
+  const [esimData, setEsimData] = useState<{eid?: string; supported?: boolean; message?: string; profiles?: EsimProfile[]} | null>(null);
+  // 手动运营商搜网
+  const [opSlot, setOpSlot] = useState(1);
+  const [opPlmn, setOpPlmn] = useState('');
+  const [opBusy, setOpBusy] = useState(false);
+  // 保活测试
+  const [kaSlot, setKaSlot] = useState(1);
+  const [kaMode, setKaMode] = useState<'sms' | 'call'>('sms');
+  const [kaPhone, setKaPhone] = useState('');
+  const [kaMessage, setKaMessage] = useState('');
+  const [kaBusy, setKaBusy] = useState(false);
+  const [kaResult, setKaResult] = useState('');
+  // 短信清理
+  const [purgeKeep, setPurgeKeep] = useState(20);
+  const [purgeBusy, setPurgeBusy] = useState(false);
+  const [purgeResult, setPurgeResult] = useState('');
+  // 本地 OTA 上传
+  const [otaFile, setOtaFile] = useState<File | null>(null);
+  const [otaUploadBusy, setOtaUploadBusy] = useState(false);
 
   // Statistics
   const stats = useMemo(() => {
@@ -194,7 +213,7 @@ export default function Devices() {
   const filteredItems = useMemo(() => {
     if (!searchQuery.trim()) return items;
     const q = searchQuery.toLowerCase();
-    return items.filter(item => 
+    return items.filter(item =>
       item.name.toLowerCase().includes(q) ||
       item.ip.includes(q) ||
       item.sim1?.number.toLowerCase().includes(q) ||
@@ -202,6 +221,18 @@ export default function Devices() {
       item.group.toLowerCase().includes(q)
     );
   }, [items, searchQuery]);
+
+  // 状态筛选 chips
+  const visibleItems = useMemo(() => {
+    if (!filterStatus) return filteredItems;
+    if (filterStatus === 'online') return filteredItems.filter((item) => item.status === 'online');
+    if (filterStatus === 'offline') return filteredItems.filter((item) => item.status !== 'online');
+    if (filterStatus === 'nosim') return filteredItems.filter((item) => !(item.sim1?.present || item.sim1?.number) && !(item.sim2?.present || item.sim2?.number));
+    return filteredItems;
+  }, [filteredItems, filterStatus]);
+
+  // 当前编辑通道的字段元数据（type 0=关闭 时无 meta，隐藏 URL/参数）
+  const chanMeta = channelMetaMap[config.pushChannels?.[activeChannel]?.type || 0];
 
   const load = async (silent = false) => {
     if (!silent) {
@@ -220,71 +251,41 @@ export default function Devices() {
   };
 
   const refreshAll = async (silent = false) => {
-    // 对齐 lvyou_smsweb：刷新只读本地库，不访问设备
-    await load(silent);
-    if (!silent) setNotice('已刷新本地列表（未访问设备）');
+    // 并发 TCP 探测每台设备端口并更新在线状态（后端完成，不发 HTTP 请求）
+    if (!silent) {
+      setLoading(true);
+      setError('');
+    }
+    try {
+      const data = await refreshAllDevices();
+      setItems(data.items);
+      setTakeoverDevice((current) => current ? data.items.find((item) => item.id === current.id) || current : current);
+      if (!silent) setNotice('已探测并更新设备在线状态');
+    } catch (err) {
+      if (!silent) setError(err instanceof Error ? err.message : '刷新失败');
+    } finally {
+      if (!silent) setLoading(false);
+    }
     setLastAutoRefreshAt(Date.now());
   };
 
+  // 每 15 秒静默探测一次设备在线状态；切回前台时立即探测，页面打开先用旧状态、再即时纠正
   useEffect(() => {
-    scanningRef.current = scanning;
-  }, [scanning]);
-
-  useEffect(() => {
-    void load();
-    void getSystemVersion().then(setVersionInfo).catch(() => setVersionInfo(null));
+    const probe = () => { if (document.visibilityState === 'visible') void refreshAll(true); };
+    const timer = window.setInterval(probe, 15000);
+    const onVis = () => { if (document.visibilityState === 'visible') void refreshAll(true); };
+    document.addEventListener('visibilitychange', onVis);
     return () => {
-      if (scanTimer.current !== null) window.clearInterval(scanTimer.current);
+      window.clearInterval(timer);
+      document.removeEventListener('visibilitychange', onVis);
     };
   }, []);
 
-
-  const scan = async () => {
-    const prefix = networkPrefix.trim();
-    const start = Number(startIp);
-    const end = Number(endIp);
-    const cidr = prefix.endsWith('.') ? `${prefix}0/24` : prefix;
-    if (!/^\d{1,3}(\.\d{1,3}){3}\/\d{1,2}$/.test(cidr)) {
-      setError('网段前缀格式无效，例如 192.168.123.');
-      return;
-    }
-    if (!Number.isInteger(start) || !Number.isInteger(end) || start < 1 || end > 254 || start > end) {
-      setError('IP 范围必须为 1-254，且起始 IP 不大于结束 IP');
-      return;
-    }
-    if (scanTimer.current !== null) window.clearInterval(scanTimer.current);
-    setScanning(true);
-    setError('');
-    setNotice('');
-    setScanProgress('正在启动扫描...');
-    try {
-      const started = await startScan({cidr, startIp: start, endIp: end});
-      setScanProgress(`扫描 0/${started.total}，发现 0 台设备`);
-      scanTimer.current = window.setInterval(async () => {
-        try {
-          const status = await getScanStatus(started.scanId);
-          const completed = status.total - status.pending;
-          setScanProgress(`扫描 ${completed}/${status.total}，发现 ${status.found} 台设备`);
-          if (status.done || status.pending <= 0) {
-            if (scanTimer.current !== null) window.clearInterval(scanTimer.current);
-            scanTimer.current = null;
-            setScanning(false);
-            await load();
-            setNotice(`扫描完成，发现 ${status.found} 台设备`);
-          }
-        } catch (err) {
-          if (scanTimer.current !== null) window.clearInterval(scanTimer.current);
-          scanTimer.current = null;
-          setScanning(false);
-          setError(err instanceof Error ? err.message : '扫描状态获取失败');
-        }
-      }, 1000);
-    } catch (err) {
-      setScanning(false);
-      setScanProgress('');
-      setError(err instanceof Error ? err.message : '启动扫描失败');
-    }
-  };
+  useEffect(() => {
+    void load();
+    // 挂载后立即探测一次，避免一直显示上一次会话留下的旧在线状态
+    void refreshAll(true);
+  }, []);
 
   const runAction = async (device: DeviceItem, action: () => Promise<{message?: string}>, fallback: string) => {
     setBusyId(device.id);
@@ -297,38 +298,6 @@ export default function Devices() {
       setError(err instanceof Error ? err.message : fallback);
     } finally {
       setBusyId(null);
-    }
-  };
-
-  const add = async () => {
-    const ip = `${networkPrefix}${startIp}`;
-    setLoading(true);
-    setError('');
-    setNotice('');
-    try {
-      await addDevice({ip});
-      await load();
-      setNotice(`设备 ${ip} 已添加`);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : '添加失败');
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const autoDetectLan = async () => {
-    setError('');
-    setNotice('');
-    try {
-      const data = await detectLanCidr();
-      if (!data.prefix) {
-        setError('未检测到局域网，请手动输入网段');
-        return;
-      }
-      setNetworkPrefix(data.prefix);
-      setNotice(`已检测到局域网网段：${data.cidr}`);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : '未检测到局域网，请手动输入网段');
     }
   };
 
@@ -355,11 +324,6 @@ export default function Devices() {
     } finally {
       setBusyId(null);
     }
-  };
-
-  const clearAll = () => {
-    if (!confirm('确认清空所有设备？')) return;
-    setItems([]);
   };
 
   const updateBatchBar = () => {
@@ -411,10 +375,16 @@ export default function Devices() {
   const openTakeover = async (device: DeviceItem) => {
     setTakeoverDevice(device);
     setTakeover(null);
+    setTakeoverPane('basic');
     setError('');
     setNotice('');
-    setAtResponse('');
     setConfigReady(false);
+    setEsimData(null);
+    setEsimSlot(1);
+    setOpPlmn('');
+    setKaResult('');
+    setPurgeResult('');
+    setOtaFile(null);
     setWifiSsid(device.wifi.name || '');
     setWifiPassword('');
     setShowWifiPassword(false);
@@ -463,15 +433,6 @@ export default function Devices() {
       }
       return result;
     }, 'SIM 号码写入失败');
-  };
-
-  const runAt = async () => {
-    if (!takeoverDevice || !atCommand.trim()) return;
-    await runAction(takeoverDevice, async () => {
-      const result = await sendDeviceAt(takeoverDevice.id, {command: atCommand.trim(), timeout: 3000});
-      setAtResponse(result.data?.response || result.message || 'OK');
-      return result;
-    }, 'AT 命令执行失败');
   };
 
   const upgradeDevice = async (device: DeviceItem) => {
@@ -554,27 +515,13 @@ export default function Devices() {
     }
   };
 
-  // ===== 设备诊断 =====
-  const runDiag = async () => {
-    if (!takeoverDevice) return;
-    setDiagBusy(true);
-    try {
-      const result = await getDeviceDiag(takeoverDevice.id);
-      setDiagResponse(result.data);
-    } catch (err) {
-      setDiagResponse({'error': err instanceof Error ? err.message : '诊断获取失败'});
-    } finally {
-      setDiagBusy(false);
-    }
-  };
-
   // ===== 推送测试 =====
   const runPushTest = async () => {
     if (!takeoverDevice) return;
     setPushBusy(true);
     setPushResult('');
     try {
-      const result = await pushTestDevice(takeoverDevice.id, pushChannel);
+      const result = await pushTestDevice(takeoverDevice.id, activeChannel);
       setPushResult(result.message || (result.success ? '推送测试已发送' : '推送测试失败'));
     } catch (err) {
       setPushResult(err instanceof Error ? err.message : '推送测试失败');
@@ -621,62 +568,146 @@ export default function Devices() {
     }
   };
 
-  // ===== 设备消息日志 =====
-  const refreshDeviceMessages = async (type = 'all') => {
+
+  // ===== eSIM 管理 =====
+  const runEsimQuery = async () => {
     if (!takeoverDevice) return;
-    setMessagesBusy(true);
+    setEsimBusy(true);
+    setEsimData(null);
     try {
-      const result = await getDeviceMessages(takeoverDevice.id, type);
-      setDeviceMessages(result.data);
+      const started = await queryDeviceEsim(takeoverDevice.id, esimSlot, true);
+      const status = started.data || {};
+      // 启动后轮询，最多 90 秒
+      const deadline = Date.now() + 90_000;
+      let latest = status;
+      while (Date.now() < deadline && (latest.running || !latest.done)) {
+        await new Promise((r) => setTimeout(r, 2000));
+        const polled = await queryDeviceEsim(takeoverDevice.id, esimSlot, false);
+        latest = polled.data || {};
+      }
+      setEsimData(latest);
+      if (!latest.done) setError('eSIM 查询超时，请稍后重试');
+      else if (!latest.success) setError(latest.message || 'eSIM 查询未成功');
+      else setNotice(`eSIM 查询完成${latest.profiles?.length ? `，共 ${latest.profiles.length} 个 Profile` : ''}`);
     } catch (err) {
-      setDeviceMessages([{type: 'error', msg: err instanceof Error ? err.message : '消息读取失败'}]);
+      setError(err instanceof Error ? err.message : 'eSIM 查询失败');
     } finally {
-      setMessagesBusy(false);
+      setEsimBusy(false);
+    }
+  };
+
+  const runEsimProfile = async (profile: EsimProfile, action: 'enable' | 'disable' | 'delete') => {
+    if (!takeoverDevice || !profile.aid) return;
+    const label = action === 'enable' ? '启用' : action === 'disable' ? '停用' : '删除';
+    if (!confirm(`确认${label} Profile「${profile.nickname || profile.profileName || profile.iccid}」？${action === 'delete' ? '删除后不可恢复！' : ''}`)) return;
+    await runAction(takeoverDevice, () => operateDeviceEsimProfile(takeoverDevice.id, {slot: esimSlot, action, identifier: profile.aid!}), `eSIM Profile ${label}失败`);
+  };
+
+  // ===== 手动运营商搜网 =====
+  const runOperatorSelect = async () => {
+    if (!takeoverDevice) return;
+    if (!confirm(`确认对 SIM${opSlot} 手动搜网？搜网期间约 1-3 分钟，请勿重复操作。`)) return;
+    setOpBusy(true);
+    try {
+      const result = await selectDeviceOperator(takeoverDevice.id, {slot: opSlot, plmn: opPlmn.trim()});
+      setNotice(result.message || '搜网任务已启动');
+    } catch (err) {
+      setError(err instanceof Error ? err.message : '搜网任务启动失败');
+    } finally {
+      setOpBusy(false);
+    }
+  };
+
+  // ===== 保活测试 =====
+  const runKeepaliveTest = async () => {
+    if (!takeoverDevice) return;
+    setKaBusy(true);
+    setKaResult('');
+    try {
+      const started = await startDeviceKeepaliveTest(takeoverDevice.id, {
+        slot: kaSlot,
+        mode: kaMode,
+        phone: kaPhone.trim(),
+        message: kaMessage.trim(),
+      });
+      const deadline = Date.now() + 60_000;
+      let status = '';
+      while (Date.now() < deadline) {
+        await new Promise((r) => setTimeout(r, 2000));
+        const polled = await getDeviceKeepaliveTestStatus(takeoverDevice.id);
+        status = polled.data?.message || polled.data?.state || '';
+        if (polled.data?.running === false && polled.data?.state && polled.data.state !== 'running') break;
+      }
+      setKaResult(status || started.message || '保活测试已启动');
+    } catch (err) {
+      setKaResult(err instanceof Error ? err.message : '保活测试启动失败');
+    } finally {
+      setKaBusy(false);
+    }
+  };
+
+  // ===== 短信清理 =====
+  const runSmsPurge = async () => {
+    if (!takeoverDevice) return;
+    if (!confirm(`确认清理设备 SIM 卡旧短信（每卡保留最新 ${purgeKeep} 条）？`)) return;
+    setPurgeBusy(true);
+    try {
+      const result = await purgeDeviceSms(takeoverDevice.id, purgeKeep);
+      setPurgeResult(result.message || '清理完成');
+    } catch (err) {
+      setPurgeResult(err instanceof Error ? err.message : '清理失败');
+    } finally {
+      setPurgeBusy(false);
+    }
+  };
+
+  // ===== 本地 OTA 上传 =====
+  const runOtaUpload = async () => {
+    if (!takeoverDevice || !otaFile) return;
+    if (!confirm(`确认将本地固件「${otaFile.name}」上传刷写到设备？升级期间请勿断电。`)) return;
+    setOtaUploadBusy(true);
+    try {
+      const result = await uploadDeviceOta(takeoverDevice.id, otaFile);
+      setNotice(result.message || '固件上传成功，设备重启中');
+      setOtaFile(null);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : '固件上传失败');
+    } finally {
+      setOtaUploadBusy(false);
     }
   };
 
   return (
     <section className="page devices-page">
-      <div className="version-banner"><span>T3服务端 {versionInfo?.localVersion || '检测中'}</span><span>OTA 服务器 {versionInfo?.otaServerVersion || versionInfo?.otaServerMessage || '检测中'}</span><span>当前设备版本 {items.filter((item) => item.status === 'online').map((item) => `${item.name || item.ip}: ${item.version || '-'}`).join('，') || '暂无在线设备'}</span></div>
-      <SelfUpdateBar versionInfo={versionInfo} />
-      <div className="batch-ota-bar"><input value={batchOtaUrl} onChange={(event) => setBatchOtaUrl(event.target.value)} placeholder="OTA 固件 URL，可留空使用设备检查结果" /><button className="btn-primary" onClick={() => void batchUpgrade()} disabled={loading || !items.some((item) => item.status === 'online')}><DownloadCloud size={15} />全部在线设备 OTA</button></div>
-
       <div className="stats-bar">
-        <span className="stat-item"> 设备 {stats.total}</span>
-        <span className="stat-item stat-online"> {stats.online}</span>
-        <span className="stat-item">卡槽 {stats.simSlots}</span>
-        <span className="stat-item stat-nosim">❌ 无卡 {stats.noSim}</span>
-        <span className="stat-item stat-sim">🟡 插卡 {stats.withSim}</span>
-        <span className="stat-item stat-registered">✅ 已注册 {stats.registered}</span>
-        <span className="stat-item stat-auto-refresh">
-          {lastAutoRefreshAt ? `⏱ 上次刷新 ${new Date(lastAutoRefreshAt).toLocaleTimeString('zh-CN', {hour12: false})}` : '⏱ 手动刷新本地列表'}
-        </span>
+        <span className="stat-item stat-online">在线 {stats.online}/{stats.total}</span>
+        <span className="stat-item stat-sim">插卡 {stats.withSim}</span>
+        <span className="stat-item stat-nosim">无卡 {stats.noSim}</span>
+        <span className="stat-item stat-registered">已注册 {stats.registered}</span>
+        <button
+          className="stat-item stat-auto-refresh"
+          onClick={() => void refreshAll()}
+          disabled={loading}
+          title="探测全部设备端口并更新在线状态"
+        >
+          <RefreshCw size={12} className={loading ? 'spin' : ''} />
+          {loading ? '探测中…' : lastAutoRefreshAt ? `上次刷新 ${new Date(lastAutoRefreshAt).toLocaleTimeString('zh-CN', {hour12: false})}` : '刷新在线状态'}
+        </button>
+        <button
+          className="stat-item stat-auto-refresh"
+          onClick={() => void batchUpgrade()}
+          disabled={loading}
+          title="对全部在线设备检查并触发固件升级"
+        >
+          ⚡ 全部在线 OTA
+        </button>
       </div>
 
-      {/* Scan Control Panel */}
-      <div className="scan-control-panel">
-        <div className="scan-inputs">
-          <label>
-            <span>网段前缀</span>
-            <input value={networkPrefix} onChange={(e) => setNetworkPrefix(e.target.value)} placeholder="留空自动检测" />
-          </label>
-          <label>
-            <span>起始IP</span>
-            <input value={startIp} onChange={(e) => setStartIp(e.target.value)} placeholder="1" />
-          </label>
-          <label>
-            <span>结束IP</span>
-            <input value={endIp} onChange={(e) => setEndIp(e.target.value)} placeholder="254" />
-          </label>
-        </div>
-        <div className="scan-hint">💡 网段前缀留空时，点击"自动检测"会自动识别当前局域网网段，无需手动输入。</div>
-        <div className="scan-actions">
-          <button className="btn-secondary" onClick={() => void autoDetectLan()}>🌐 自动检测</button>
-          <button className="btn-primary" onClick={scan} disabled={loading || scanning}>🔍 {scanning ? '扫描中...' : '开始扫描'}</button>
-          <button className="btn-secondary" onClick={() => void refreshAll()} disabled={loading || scanning}>🔄 刷新全部</button>
-          <button className="btn-secondary" onClick={add} disabled={loading}>➕ 添加设备</button>
-          <button className="btn-secondary" onClick={clearAll} disabled={loading}>🗑️ 清空列表</button>
-        </div>
+      {/* 筛选 chips */}
+      <div className="filter-chips">
+        {([['', '全部'], ['online', '在线'], ['offline', '离线'], ['nosim', '无卡']] as Array<[string, string]>).map(([value, label]) => (
+          <button key={label} className={`chip ${filterStatus === value ? 'active' : ''}`} onClick={() => setFilterStatus(value)}>{label}</button>
+        ))}
       </div>
 
       {/* Search Bar */}
@@ -685,7 +716,7 @@ export default function Devices() {
         <input
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
-          placeholder="搜索编号/号码/IP/备注..."
+          placeholder="搜索编号 / 号码 / IP / 备注"
         />
       </div>
 
@@ -694,94 +725,122 @@ export default function Devices() {
       {error && <div className="error inline-error">{error}</div>}
       {notice && <div className="success inline-error">{notice}</div>}
 
-      {/* 顶部功能选项 Tab */}
+      {/* Device Cards */}
+      <div className="device-list">
+        {visibleItems.length === 0 ? (
+          <div className="empty">暂无设备，点击右下角 + 扫描或手动添加。</div>
+        ) : visibleItems.map((device) => {
+          const online = device.status === 'online';
+          return (
+            <div key={device.id} className={`dev-card ${online ? 'online' : 'offline'}`}>
+              <div className="dev-card-top">
+                <input type="checkbox" className="dev-sel dev-card-check" value={device.id} onChange={() => updateBatchBar()} />
+                <span className="dev-dot" />
+                <strong>{device.name || device.ip}</strong>
+                <span className={`dev-badge ${online ? '' : 'off'}`}>
+                  {online ? '在线' : '离线'}
+                  {!online && device.lastSeen ? ` · ${timeLabel(device.lastSeen)}` : ''}
+                </span>
+              </div>
 
-      {
-        <>
-          {/* Data Table */}
-          <div className="table-card">
-        <table>
-          <thead>
-            <tr>
-              <th><input type="checkbox" id="sel-all" onChange={(e) => { document.querySelectorAll('.dev-sel').forEach((cb: any) => cb.checked = e.target.checked); updateBatchBar(); }} /></th>
-              <th>设备编号</th>
-              <th>IP地址</th>
-              <th>状态</th>
-              <th>版本号</th>
-              <th>SIM卡1</th>
-              <th>SIM卡2</th>
-              <th>操作</th>
-            </tr>
-          </thead>
-          <tbody>
-            {filteredItems.length === 0 ? (
-              <tr>
-                <td colSpan={8} className="empty">暂无设备，请先扫描或手动添加。</td>
-              </tr>
-            ) : filteredItems.map((device) => (
-              <tr key={device.id}>
-                <td><input type="checkbox" className="dev-sel" value={device.id} onChange={() => updateBatchBar()} /></td>
-                <td>
-                  <strong>{device.name || device.ip}</strong>
-                  <br />
-                  <small className="text-muted">{device.group}</small>
-                </td>
-                <td><code>{device.ip}</code></td>
-                <td>
-                  <span className={`status-badge ${device.status === 'online' ? 'status-online' : 'status-offline'}`}>
-                    {device.status === 'online' ? '🟢 在线' : '⚫ 离线'}
-                  </span>
-                </td>
-                <td>{device.version || String(otaResults[device.id]?.data?.version ?? '-')}</td>
-                <td>
+              <div className="dev-sim-rows">
+                <div className="dev-sim-row">
+                  <span className="dev-sim-tag">SIM1</span>
                   {(device.sim1?.present || device.sim1?.number || device.sim1?.operator || device.sim1?.iccid) ? (
-                    <div className="sim-cell">
-                      <div className="sim-num mono">{device.sim1.number || '未设置号码'}</div>
-                      <small className="text-muted">
-                        <span className="sim-op">{device.sim1.operator || '-'}</span>
-                        {device.sim1.signal ? ` · ${device.sim1.signal}dBm` : ''}
-                        {device.sim1.registered ? ' · 已注册' : ' · 未注册'}
-                      </small>
-                    </div>
+                    <>
+                      <span className="num">{device.sim1.number || '未设置号码'}</span>
+                      <span className="meta">{device.sim1.operator || '-'}{device.sim1.signal ? ` · ${device.sim1.signal}dBm` : ''}{device.sim1.registered ? ' · 已注册' : ' · 未注册'}</span>
+                    </>
                   ) : (
-                    <span className="text-muted">无卡</span>
+                    <span className="meta">无卡</span>
                   )}
-                </td>
-                <td>
+                </div>
+                <div className="dev-sim-row">
+                  <span className="dev-sim-tag">SIM2</span>
                   {(device.sim2?.present || device.sim2?.number || device.sim2?.operator || device.sim2?.iccid) ? (
-                    <div className="sim-cell">
-                      <div className="sim-num mono">{device.sim2.number || '未设置号码'}</div>
-                      <small className="text-muted">
-                        <span className="sim-op">{device.sim2.operator || '-'}</span>
-                        {device.sim2.signal ? ` · ${device.sim2.signal}dBm` : ''}
-                        {device.sim2.registered ? ' · 已注册' : ' · 未注册'}
-                      </small>
-                    </div>
+                    <>
+                      <span className="num">{device.sim2.number || '未设置号码'}</span>
+                      <span className="meta">{device.sim2.operator || '-'}{device.sim2.signal ? ` · ${device.sim2.signal}dBm` : ''}{device.sim2.registered ? ' · 已注册' : ' · 未注册'}</span>
+                    </>
                   ) : (
-                    <span className="text-muted">无卡</span>
+                    <span className="meta">无卡</span>
                   )}
-                </td>
-                <td className="action-buttons">
-                  <button className="btn-action" onClick={() => refresh(device)} disabled={busyId === device.id}>🔄 刷新</button>
-                  <button className="btn-action" onClick={() => openTakeover(device)}>⚙️ 配置</button>
-                  <button className="btn-action" onClick={() => setSmsDevice(device)}>💬 短信</button>
-                  <button className="btn-action" onClick={() => void upgradeDevice(device)} disabled={device.status !== 'online' || busyId === device.id} title={device.status === 'online' ? '检查并升级设备固件' : '设备离线，无法升级'}>
-                    <DownloadCloud size={14} /> {busyId === device.id ? '处理中' : 'OTA 升级'}
-                  </button>
-                  <button className="btn-action" onClick={() => runAction(device, () => rebootManagedDevice(device.id), '重启失败')} disabled={busyId === device.id}>⚡ 重启</button>
-                  <button className="btn-action" onClick={() => window.open(`http://${device.ip}`, '_blank')}>🖥️ 后台</button>
-                  <button className="btn-action btn-danger" onClick={() => remove(device)} disabled={busyId === device.id}>🗑️ 删除</button>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+                </div>
+              </div>
+
+              <div className="dev-meta-row">
+                <span>IP <b className="mono">{device.ip}</b></span>
+                <span>固件 <b>{device.version || String(otaResults[device.id]?.data?.version ?? '-')}</b></span>
+                <span>分组 <b>{device.group || 'auto'}</b></span>
+              </div>
+
+              <div className="dev-actions">
+                <button className="btn-action" onClick={() => refresh(device)} disabled={busyId === device.id}>🔄 刷新</button>
+                <button className="btn-action" onClick={() => openTakeover(device)}>⚙️ 配置</button>
+                <button className="btn-action" onClick={() => setSmsDevice(device)}>💬 短信</button>
+                <button className="btn-action" onClick={() => void upgradeDevice(device)} disabled={!online || busyId === device.id} title={online ? '检查并升级设备固件' : '设备离线，无法升级'}>
+                  <DownloadCloud size={13} /> OTA
+                </button>
+                <button className="btn-action" onClick={() => runAction(device, () => rebootManagedDevice(device.id), '重启失败')} disabled={busyId === device.id}>⚡ 重启</button>
+                <button className="btn-action" onClick={() => window.open(`http://${device.ip}`, '_blank')}>🖥️ 后台</button>
+                <button className="btn-action btn-danger" onClick={() => remove(device)} disabled={busyId === device.id}>🗑️</button>
+              </div>
+            </div>
+          );
+        })}
       </div>
+
       <div className="batch-bar" id="batch-bar" style={{display: 'none'}}>
         <span id="batch-count">0</span> 台已选
         <button className="btn-action" onClick={batchReboot}>⚡ 批量重启</button>
         <button className="btn-action btn-danger" onClick={batchRemove}>🗑️ 批量删除</button>
       </div>
+
+      {/* FAB 添加设备 */}
+      <button className="fab" onClick={() => setAddOpen(true)}>
+        <Plus size={22} />
+        添加
+      </button>
+
+      {/* Add Device Modal */}
+      {addOpen && (
+        <div className="modal-backdrop" onClick={() => setAddOpen(false)}>
+          <div className="modal-panel" onClick={(e) => e.stopPropagation()}>
+            <div className="modal-header">
+              <h2>添加短信转发设备</h2>
+              <button onClick={() => setAddOpen(false)}>✕</button>
+            </div>
+            <label className="field">
+              <span>设备 IP 地址</span>
+              <input value={addIp} onChange={(e) => setAddIp(e.target.value)} placeholder="例如 192.168.1.101" autoFocus />
+            </label>
+            <div className="modal-actions">
+              <button
+                className="btn-primary"
+                disabled={loading || !addIp.trim()}
+                onClick={async () => {
+                  const ip = addIp.trim();
+                  if (!ip) return;
+                  setLoading(true);
+                  setError('');
+                  setNotice('');
+                  try {
+                    await addDevice({ip});
+                    await load();
+                    setNotice(`设备 ${ip} 已添加`);
+                    setAddOpen(false);
+                    setAddIp('');
+                  } catch (err) {
+                    setError(err instanceof Error ? err.message : '添加失败');
+                  } finally {
+                    setLoading(false);
+                  }
+                }}
+              >确认添加</button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* SMS Modal */}
       {smsDevice && (
@@ -815,9 +874,14 @@ export default function Devices() {
             <div className="takeover-content">
               <div className="takeover-metrics">
                 <div><span>运行</span><strong>{uptimeLabel(takeover?.status.uptime)}</strong></div>
-                <div><span>堆内存</span><strong>{takeover?.status.freeHeap || '-'} B</strong></div>
                 <div><span>WiFi</span><strong>{takeover?.status.wifi?.ssid || takeoverDevice.wifi.name || '-'}</strong></div>
                 <div><span>信号</span><strong>{String(takeover?.status.modem?.signal_dbm || takeoverDevice.sim1.signal || '-')} dBm</strong></div>
+              </div>
+
+              <div className="takeover-nav">
+                {([['basic', '📱 基础'], ['forward', '📤 转发'], ['network', '🌐 网络服务'], ['maint', '⚙️ 维护']] as Array<[string, string]>).map(([key, label]) => (
+                  <button key={key} className={takeoverPane === key ? 'active' : ''} onClick={() => setTakeoverPane(key)}>{label}</button>
+                ))}
               </div>
 
               {takeover?.statusError && <div className="error inline-error">{takeover.statusError}</div>}
@@ -827,55 +891,127 @@ export default function Devices() {
                 <button className="btn-primary" onClick={saveConfig} disabled={!configReady}>💾 保存固件配置</button>
               </div>
 
-              <div className="takeover-grid">
-                <section className="takeover-card accent-blue">
+              <div className="takeover-grid" data-pane={takeoverPane}>
+                <section className="takeover-card accent-blue" data-pane="basic">
                   <h3>📱 设备身份</h3>
                   <label>设备名称<input value={config.deviceName || ''} onChange={(e) => patchConfig({deviceName: e.target.value})} /></label>
                   <label>Web 用户<input value={config.webUser || ''} onChange={(e) => patchConfig({webUser: e.target.value})} /></label>
                   <label>Web 密码<input type="password" value={config.webPass || ''} onChange={(e) => patchConfig({webPass: e.target.value})} /></label>
                 </section>
 
-                <section className="takeover-card accent-green">
+                <section className="takeover-card accent-green" data-pane="basic">
                   <h3>📶 WiFi 热点接管</h3>
                   <label>热点名称<input value={wifiSsid} onChange={(e) => setWifiSsid(e.target.value)} placeholder="路由器 SSID" /></label>
                   <label>热点密码<div className="password-input-row"><input type={showWifiPassword ? 'text' : 'password'} value={wifiPassword} onChange={(e) => setWifiPassword(e.target.value)} placeholder="当前热点未设置密码" /><button type="button" className="btn-secondary" onClick={() => setShowWifiPassword((current) => !current)}>{showWifiPassword ? '隐藏' : '查看'}</button></div></label>
                   <button className="btn-secondary" onClick={saveWifi} disabled={!wifiSsid.trim() || busyId === takeoverDevice.id}>保存 WiFi 并重连</button>
                 </section>
 
-                <section className="takeover-card accent-amber">
+                <section className="takeover-card accent-amber" data-pane="basic">
                   <h3> SIM 与网络</h3>
                   <label>SIM1 号码<input value={String(takeover?.status.modem?.sim1_number || takeoverDevice.sim1.number || '')} onChange={() => undefined} onBlur={(e) => saveSimNumber(1, e.currentTarget.value)} /></label>
+                  {String((takeover?.status.modem as Record<string, unknown> | undefined)?.sim1_imsi || '') && (
+                    <label style={{fontSize: 12, color: '#94a3b8'}}>SIM1 IMSI：{String((takeover?.status.modem as Record<string, unknown>).sim1_imsi)}</label>
+                  )}
                   <label>SIM1 PIN 码<input type="password" value={config.sim1Pin || ''} onChange={(e) => patchConfig({sim1Pin: e.target.value})} placeholder={config.sim1PinSet ? '已设置，留空不修改' : '未设置'} /></label>
                   <label>SIM2 号码<input value={String(takeover?.status.modem?.sim2_number || takeoverDevice.sim2.number || '')} onChange={() => undefined} onBlur={(e) => saveSimNumber(2, e.currentTarget.value)} /></label>
-                  <label>SIM2 PIN 码<input type="password" value={config.sim2Pin || ''} onChange={(e) => patchConfig({sim2Pin: e.target.value})} placeholder={config.sim2PinSet ? '已设置，留空不修改' : '未设置'} /></label>
+                  {String((takeover?.status.modem as Record<string, unknown> | undefined)?.sim2_imsi || '') && (
+                    <label style={{fontSize: 12, color: '#94a3b8'}}>SIM2 IMSI：{String((takeover?.status.modem as Record<string, unknown>).sim2_imsi)}</label>
+                  )}
                   <label>网络模式<select value={config.networkMode || 0} onChange={(e) => patchConfig({networkMode: Number(e.target.value)})}><option value={0}>自动</option><option value={1}>WiFi only</option><option value={2}>4G only</option></select></label>
+                  <label>手动搜网卡槽<select value={opSlot} onChange={(e) => setOpSlot(Number(e.target.value))}><option value={1}>SIM 1</option><option value={2}>SIM 2</option></select></label>
+                  <label>运营商 PLMN<input value={opPlmn} onChange={(e) => setOpPlmn(e.target.value)} placeholder="5-6 位数字，留空=自动搜网" /></label>
+                  <button className="btn-secondary" onClick={runOperatorSelect} disabled={opBusy || busyId === takeoverDevice.id}>📡 启动手动搜网（1-3 分钟）</button>
+                  <label>保活测试卡槽<select value={kaSlot} onChange={(e) => setKaSlot(Number(e.target.value))}><option value={1}>SIM 1</option><option value={2}>SIM 2</option></select></label>
+                  <div className="takeover-two">
+                    <label>测试方式<select value={kaMode} onChange={(e) => setKaMode(e.target.value as 'sms' | 'call')}><option value="sms">短信</option><option value="call">拨号</option></select></label>
+                    <label>目标号码<input value={kaPhone} onChange={(e) => setKaPhone(e.target.value)} placeholder="留空用配置号码" /></label>
+                  </div>
+                  {kaMode === 'sms' && <label>测试内容<input value={kaMessage} onChange={(e) => setKaMessage(e.target.value)} placeholder="留空用配置内容" /></label>}
+                  <button className="btn-secondary" onClick={runKeepaliveTest} disabled={kaBusy || busyId === takeoverDevice.id}>{kaBusy ? '测试进行中…' : '🧪 启动保活测试'}</button>
+                  {kaResult && <div className="inline-error success">{kaResult}</div>}
                 </section>
 
-                <section className="takeover-card">
+                <section className="takeover-card accent-green" data-pane="basic">
+                  <h3>💾 eSIM 管理</h3>
+                  <div className="takeover-two">
+                    <label>卡槽<select value={esimSlot} onChange={(e) => setEsimSlot(Number(e.target.value))}><option value={1}>SIM 1</option><option value={2}>SIM 2</option></select></label>
+                    <div className="serial-command refined" style={{marginTop: 18}}>
+                      <button className="btn-primary" onClick={runEsimQuery} disabled={esimBusy || busyId === takeoverDevice.id}>{esimBusy ? '查询中…' : '查询Profile'}</button>
+                    </div>
+                  </div>
+                  {esimData && (
+                    <div className="msg-log">
+                      {esimData.message && <div className={`inline-error ${esimData.supported ? 'success' : 'error'}`}>{esimData.message}</div>}
+                      {esimData.eid && <div className="diag-row"><span className="diag-key">EID</span><span className="diag-val">{esimData.eid}</span></div>}
+                      {esimData.profiles?.length ? esimData.profiles.map((profile, idx) => (
+                        <div className="diag-row" key={profile.aid || idx}>
+                          <span className="diag-key">{profile.nickname || profile.profileName || profile.iccid}<br /><small>{profile.iccid || ''} {profile.state || ''} {profile.profileClass || ''}</small></span>
+                          <span className="diag-val">
+                            {profile.aid && (<>
+                              {profile.state !== 'enabled' && <button className="btn-action" onClick={() => runEsimProfile(profile, 'enable')}>启用</button>}
+                              {profile.state === 'enabled' && <button className="btn-action" onClick={() => runEsimProfile(profile, 'disable')}>停用</button>}
+                              <button className="btn-action btn-danger" onClick={() => runEsimProfile(profile, 'delete')}>删除</button>
+                            </>)}
+                          </span>
+                        </div>
+                      )) : <div className="text-muted">暂无 Profile 数据，请先查询</div>}
+                    </div>
+                  )}
+                </section>
+
+                <section className="takeover-card" data-pane="forward">
                   <h3>📞 通话/录音</h3>
-                  <label>来电处理<select value={config.callRecordEnabled ? (config.callRecordAutoAnswer ? 1 : 2) : 0} onChange={(e) => patchConfig({callRecordEnabled: e.target.value !== '0', callRecordAutoAnswer: e.target.value === '1'})}><option value={0}>关闭</option><option value={1}>自动接听录音</option><option value={2}>仅记录</option></select></label>
+                  <label>录音<select value={config.callRecordEnabled ? 1 : 0} onChange={(e) => patchConfig({callRecordEnabled: e.target.value === '1'})}><option value={0}>关闭</option><option value={1}>开启</option></select></label>
+                  <label>SIM1 自动接听<select value={config.sim1CallAutoAnswer ? 1 : 0} onChange={(e) => { const enabled = e.target.value === '1'; patchConfig({sim1CallAutoAnswer: enabled, callRecordAutoAnswer: enabled || Boolean(config.sim2CallAutoAnswer)}); }}><option value={0}>关闭</option><option value={1}>开启</option></select></label>
+                  <label>SIM2 自动接听<select value={config.sim2CallAutoAnswer ? 1 : 0} onChange={(e) => { const enabled = e.target.value === '1'; patchConfig({sim2CallAutoAnswer: enabled, callRecordAutoAnswer: enabled || Boolean(config.sim1CallAutoAnswer)}); }}><option value={0}>关闭</option><option value={1}>开启</option></select></label>
                   <label>挂断秒数<input type="number" value={config.callHangupSeconds || 10} onChange={(e) => patchConfig({callHangupSeconds: Number(e.target.value)})} /></label>
                   <label>TTS 播报<select value={config.callPlayEnabled ? 1 : 0} onChange={(e) => patchConfig({callPlayEnabled: e.target.value === '1'})}><option value={0}>关闭</option><option value={1}>开启</option></select></label>
                   <label>TTS 内容<input value={config.callPlayFile || ''} onChange={(e) => patchConfig({callPlayFile: e.target.value})} placeholder="播报内容" /></label>
                 </section>
 
-                <section className="takeover-card wide">
+                <section className="takeover-card wide accent-amber" data-pane="forward">
+                  <h3>📣 通知模板与短信白名单</h3>
+                  <div className="takeover-two">
+                    <label>开机通知<select value={config.bootNotifyEnabled ?? true ? 1 : 0} onChange={(e) => patchConfig({bootNotifyEnabled: e.target.value === '1'})}><option value={0}>关闭</option><option value={1}>开启</option></select></label>
+                    <label>短信白名单<select value={config.smsWhitelistEnabled ? 1 : 0} onChange={(e) => patchConfig({smsWhitelistEnabled: e.target.value === '1'})}><option value={0}>关闭</option><option value={1}>开启</option></select></label>
+                  </div>
+                  <label>开机通知模板<input value={config.bootNotifyTemplate || ''} onChange={(e) => patchConfig({bootNotifyTemplate: e.target.value})} placeholder="设备开机推送到各通道的内容模板" /></label>
+                  <label>来电通知模板<input value={config.callNotifyTemplate || ''} onChange={(e) => patchConfig({callNotifyTemplate: e.target.value})} placeholder="来电推送内容模板" /></label>
+                  <label>白名单关键词<input value={config.smsWhitelistKeywords || ''} onChange={(e) => patchConfig({smsWhitelistKeywords: e.target.value})} placeholder="逗号分隔，短信命中任一关键词才推送" /></label>
+                  <label style={{fontSize: 12, color: '#94a3b8'}}>白名单仅对短信推送生效（固件 V4.7+）；开启后未命中关键词的短信只入消息中心、不推送。</label>
+                </section>
+
+                <section className="takeover-card wide" data-pane="forward">
                   <h3>📤 转发通道</h3>
                   <div className="channel-tabs">
                     {[0, 1, 2, 3, 4].map((i) => <button key={i} className={activeChannel === i ? 'active' : ''} onClick={() => setActiveChannel(i)}>通道 {i + 1}</button>)}
                   </div>
                   <label>类型<select value={config.pushChannels?.[activeChannel]?.type || 0} onChange={(e) => patchChannel({type: Number(e.target.value)})}>{channelTypes.map((name, i) => <option key={name} value={i}>{name}</option>)}</select></label>
-                  <label>URL<textarea value={config.pushChannels?.[activeChannel]?.url || ''} onChange={(e) => patchChannel({url: e.target.value})} /></label>
-                  <div className="takeover-two">
-                    <label>参数1<input value={config.pushChannels?.[activeChannel]?.key1 || ''} onChange={(e) => patchChannel({key1: e.target.value})} /></label>
-                    <label>参数2<input value={config.pushChannels?.[activeChannel]?.key2 || ''} onChange={(e) => patchChannel({key2: e.target.value})} /></label>
-                  </div>
+                  {chanMeta && (
+                    <label>{chanMeta.urlLabel}<textarea value={config.pushChannels?.[activeChannel]?.url || ''} onChange={(e) => patchChannel({url: e.target.value})} placeholder={chanMeta.urlPh} /></label>
+                  )}
+                  {chanMeta?.k1 && (
+                    <label>{chanMeta.k1[0]}<input value={config.pushChannels?.[activeChannel]?.key1 || ''} onChange={(e) => patchChannel({key1: e.target.value})} placeholder={chanMeta.k1[1]} /></label>
+                  )}
+                  {chanMeta?.k2 && (
+                    <label>{chanMeta.k2[0]}<input value={config.pushChannels?.[activeChannel]?.key2 || ''} onChange={(e) => patchChannel({key2: e.target.value})} placeholder={chanMeta.k2[1]} /></label>
+                  )}
                   <label>模板<textarea value={config.pushChannels?.[activeChannel]?.customBody || ''} onChange={(e) => patchChannel({customBody: e.target.value})} /></label>
+                  <div className="takeover-two">
+                    <label>SIM1 推送<select value={config.pushChannels?.[activeChannel]?.sim1Enabled ?? true ? 1 : 0} onChange={(e) => patchChannel({sim1Enabled: e.target.value === '1'})}><option value={0}>关闭</option><option value={1}>开启</option></select></label>
+                    <label>SIM2 推送<select value={config.pushChannels?.[activeChannel]?.sim2Enabled ?? true ? 1 : 0} onChange={(e) => patchChannel({sim2Enabled: e.target.value === '1'})}><option value={0}>关闭</option><option value={1}>开启</option></select></label>
+                  </div>
+                  <label style={{fontSize: 12, color: '#94a3b8'}}>卡绑定：关闭后该通道不转发对应 SIM 卡的短信/来电（固件 V4.7+）。</label>
                   <label>录音上传<select value={config.pushChannels?.[activeChannel]?.recordUploadEnabled ? 1 : 0} onChange={(e) => patchChannel({recordUploadEnabled: e.target.value === '1'})}><option value={0}>关闭</option><option value={1}>开启</option></select></label>
                   <label>录音上传 URL<input value={config.pushChannels?.[activeChannel]?.recordUrl || ''} onChange={(e) => patchChannel({recordUrl: e.target.value})} placeholder="录音文件上传地址" /></label>
+                  <div className="serial-command refined">
+                    <button className="btn-primary" onClick={runPushTest} disabled={pushBusy || busyId === takeoverDevice.id}>{pushBusy ? '发送中…' : '发送测试推送'}</button>
+                    <span className="text-muted">推送至当前通道 {activeChannel + 1}</span>
+                  </div>
+                  {pushResult && <div className={`inline-error ${pushResult.includes('失败') ? 'error' : 'success'}`}>{pushResult}</div>}
                 </section>
 
-                <section className="takeover-card wide">
+                <section className="takeover-card wide" data-pane="network">
                   <h3>📊 MQTT 上报</h3>
                   <div className="takeover-two">
                     <label>MQTT 开关<select value={config.mqttEnabled ? 1 : 0} onChange={(e) => patchConfig({mqttEnabled: e.target.value === '1'})}><option value={0}>关闭</option><option value={1}>开启</option></select></label>
@@ -896,7 +1032,7 @@ export default function Devices() {
                   <label>Client ID<input value={config.mqttClientId || ''} onChange={(e) => patchConfig({mqttClientId: e.target.value})} placeholder="留空自动生成" /></label>
                 </section>
 
-                <section className="takeover-card wide">
+                <section className="takeover-card wide" data-pane="network">
                   <h3>☁️ Cloudflare DDNS</h3>
                   <div className="takeover-two">
                     <label>DDNS 开关<select value={config.ddnsEnabled ? 1 : 0} onChange={(e) => patchConfig({ddnsEnabled: e.target.value === '1'})}><option value={0}>关闭</option><option value={1}>开启</option></select></label>
@@ -906,7 +1042,7 @@ export default function Devices() {
                   <label>子域名<input value={config.ddnsSubDomain || ''} onChange={(e) => patchConfig({ddnsSubDomain: e.target.value})} placeholder="例如：t3.example.com" /></label>
                 </section>
 
-                <section className="takeover-card wide">
+                <section className="takeover-card wide" data-pane="maint">
                   <h3>⚙️ 系统与维护</h3>
                   <div className="takeover-two">
                     <label>定时重启<select value={config.rebootEnabled ? 1 : 0} onChange={(e) => patchConfig({rebootEnabled: e.target.value === '1'})}><option value={0}>关闭</option><option value={1}>开启</option></select></label>
@@ -925,11 +1061,15 @@ export default function Devices() {
                     <label>保留条数<input type="number" value={config.smsCleanKeepCount ?? 50} onChange={(e) => patchConfig({smsCleanKeepCount: Number(e.target.value)})} /></label>
                   </div>
                   <label>Web 端口<input type="number" value={config.webPort ?? 80} onChange={(e) => patchConfig({webPort: Number(e.target.value)})} min={1} max={65535} placeholder="80" /></label>
-                  <div className="serial-command refined">
-                    <input value={atCommand} onChange={(e) => setAtCommand(e.target.value)} />
-                    <button className="btn-secondary" onClick={runAt}>执行 AT</button>
+                  <div className="takeover-two">
+                    <label>清理保留条数<input type="number" value={purgeKeep} onChange={(e) => setPurgeKeep(Number(e.target.value))} min={0} max={50} /></label>
+                    <div className="serial-command refined" style={{marginTop: 18}}>
+                      <button className="btn-secondary" onClick={runSmsPurge} disabled={purgeBusy || busyId === takeoverDevice.id}>{purgeBusy ? '清理中…' : '🧹 清理 SIM 旧短信'}</button>
+                      <button className="btn-secondary" onClick={() => runAction(takeoverDevice, () => locateDevice(takeoverDevice.id), '寻找设备失败')}>🔔 寻找设备</button>
+                    </div>
                   </div>
-                  {atResponse && <pre className="at-response">{atResponse}</pre>}
+                  {purgeResult && <div className="inline-error success">{purgeResult}</div>}
+                  <label>本地固件上传<div className="serial-command refined"><input type="file" accept=".bin" onChange={(e) => setOtaFile(e.target.files?.[0] || null)} /><button className="btn-secondary" onClick={runOtaUpload} disabled={!otaFile || otaUploadBusy || busyId === takeoverDevice.id}>{otaUploadBusy ? '上传中…' : '上传并刷写'}</button></div></label>
                   <div className="serial-command refined">
                     <input value={otaUrl} onChange={(e) => setOtaUrl(e.target.value)} placeholder="OTA 固件 URL" />
                     <button className="btn-secondary" onClick={checkOta}>检查 OTA</button>
@@ -942,38 +1082,7 @@ export default function Devices() {
                   </div>
                 </section>
 
-                <section className="takeover-card accent-slate">
-                  <h3>🩺 设备诊断</h3>
-                  <div className="serial-command refined">
-                    <button className="btn-secondary" onClick={runDiag} disabled={diagBusy}>运行诊断</button>
-                  </div>
-                  {diagResponse && (
-                    <div className="diag-result">
-                      {Object.entries(diagResponse).map(([k, v]) => (
-                        <div className="diag-row" key={k}><span className="diag-key">{k}</span><span className="diag-val">{String(v)}</span></div>
-                      ))}
-                    </div>
-                  )}
-                </section>
-
-                <section className="takeover-card accent-green">
-                  <h3>📨 推送测试</h3>
-                  <label>测试通道
-                    <select value={pushChannel} onChange={(e) => setPushChannel(Number(e.target.value))}>
-                      <option value={0}>通道 1</option>
-                      <option value={1}>通道 2</option>
-                      <option value={2}>通道 3</option>
-                      <option value={3}>通道 4</option>
-                      <option value={4}>通道 5</option>
-                    </select>
-                  </label>
-                  <div className="serial-command refined">
-                    <button className="btn-primary" onClick={runPushTest} disabled={pushBusy}>发送测试推送</button>
-                  </div>
-                  {pushResult && <div className={`inline-error ${pushResult.includes('失败') ? 'error' : 'success'}`}>{pushResult}</div>}
-                </section>
-
-                <section className="takeover-card accent-amber">
+                <section className="takeover-card accent-amber" data-pane="network">
                   <h3>🌐 DDNS 状态</h3>
                   <div className="serial-command refined">
                     <button className="btn-secondary" onClick={refreshDdns} disabled={ddnsBusy}>查询状态</button>
@@ -988,7 +1097,7 @@ export default function Devices() {
                   )}
                 </section>
 
-                <section className="takeover-card accent-red">
+                <section className="takeover-card accent-red" data-pane="maint">
                   <h3>⬆️ OTA 进度</h3>
                   <div className="serial-command refined">
                     <button className="btn-secondary" onClick={refreshOtaProgress} disabled={!takeoverDevice}>刷新进度</button>
@@ -1004,26 +1113,6 @@ export default function Devices() {
                     </div>
                   )}
                 </section>
-
-                <section className="takeover-card wide accent-blue">
-                  <h3>📜 设备消息日志</h3>
-                  <div className="serial-command refined">
-                    <button className="btn-secondary" onClick={() => refreshDeviceMessages('all')} disabled={messagesBusy}>全部</button>
-                    <button className="btn-secondary" onClick={() => refreshDeviceMessages('sms')} disabled={messagesBusy}>短信</button>
-                    <button className="btn-secondary" onClick={() => refreshDeviceMessages('call')} disabled={messagesBusy}>通话</button>
-                  </div>
-                  <div className="msg-log">
-                    {deviceMessages.length ? deviceMessages.map((m, idx) => (
-                      <div className="msg-row" key={idx}>
-                        {m.ts && <span className="msg-ts">{m.ts}</span>}
-                        {m.sim && <span className="msg-sim">{m.sim}</span>}
-                        {m.from && <span className="msg-from">{m.from}</span>}
-                        {m.num && <span className="msg-from">{m.num}</span>}
-                        <span className="msg-text">{m.msg || m.type || ''}</span>
-                      </div>
-                    )) : <div className="text-muted">暂无消息</div>}
-                  </div>
-                </section>
               </div>
               <div className="save-config-bar">
                 <button className="btn-primary" onClick={saveConfig} disabled={!configReady}>💾 保存固件配置</button>
@@ -1032,9 +1121,6 @@ export default function Devices() {
           </div>
         </div>
       )}
-        </>
-      }
-
     </section>
   );
 }

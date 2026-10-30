@@ -1,13 +1,14 @@
 import {useCallback, useEffect, useMemo, useState} from 'react';
 import {
   MessageSquare, Phone, ArrowDownLeft, ArrowUpRight, Trash2,
-  RefreshCw, Search, Inbox, MessageCircle, PhoneCall, AlertTriangle,
+  RefreshCw, Search, Inbox, PhoneCall, Send, X,
   ChevronLeft, ChevronRight, Download,
 } from 'lucide-react';
 import {
   CallItem, MessageItem, MessageStats, clearMessages, deleteMessage,
   getMessageStats, listCalls, listMessages, syncDeviceRecords,
 } from '../api/messages';
+import {listDevices, sendDeviceSms, type DeviceItem} from '../api/devices';
 
 type ViewMode = 'conversations' | 'messages' | 'calls';
 
@@ -58,11 +59,15 @@ export default function MessagesPage() {
   const [syncing, setSyncing] = useState(false);
   const [search, setSearch] = useState('');
   const [direction, setDirection] = useState('');
+  const [deviceId, setDeviceId] = useState('');
+  const [devices, setDevices] = useState<DeviceItem[]>([]);
   const [page, setPage] = useState(1);
   const [total, setTotal] = useState(0);
   const [error, setError] = useState('');
   const [notice, setNotice] = useState('');
   const [activeConversation, setActiveConversation] = useState<Conversation | null>(null);
+  const [replyDialog, setReplyDialog] = useState<{phone: string; content: string; deviceId: string; simSlot: number} | null>(null);
+  const [sending, setSending] = useState(false);
   const pageSize = 50;
 
   const load = useCallback(async () => {
@@ -70,7 +75,7 @@ export default function MessagesPage() {
     setError('');
     try {
       const [msgData, callData, statsData] = await Promise.all([
-        listMessages({page, pageSize, search, direction}),
+        listMessages({page, pageSize, search, direction, deviceId}),
         listCalls({page: 1, pageSize: 200}),
         getMessageStats(),
       ]);
@@ -83,9 +88,13 @@ export default function MessagesPage() {
     } finally {
       setLoading(false);
     }
-  }, [page, search, direction]);
+  }, [page, search, direction, deviceId]);
 
   useEffect(() => { void load(); }, [load]);
+
+  useEffect(() => {
+    listDevices().then((data) => setDevices(data.items)).catch(() => {});
+  }, []);
 
   const conversations = useMemo(() => {
     const map = new Map<string, Conversation>();
@@ -152,6 +161,44 @@ export default function MessagesPage() {
     setPage(1);
   };
 
+  const handleDeviceChange = (value: string) => {
+    setDeviceId(value);
+    setPage(1);
+  };
+
+  const openReply = (phone: string) => {
+    const onlineDevices = devices.filter((d) => d.status === 'online');
+    setReplyDialog({
+      phone,
+      content: '',
+      deviceId: onlineDevices[0]?.id ? String(onlineDevices[0].id) : '',
+      simSlot: 1,
+    });
+  };
+
+  const handleSendSms = async () => {
+    if (!replyDialog) return;
+    if (!replyDialog.phone.trim()) { setError('号码不能为空'); return; }
+    if (!replyDialog.content.trim()) { setError('内容不能为空'); return; }
+    if (!replyDialog.deviceId) { setError('请选择发送设备'); return; }
+    setSending(true);
+    setError('');
+    try {
+      await sendDeviceSms(Number(replyDialog.deviceId), {
+        phone: replyDialog.phone.trim(),
+        content: replyDialog.content.trim(),
+        simSlot: replyDialog.simSlot,
+      });
+      setNotice(`已发送到 ${replyDialog.phone}`);
+      setReplyDialog(null);
+      await load();
+    } catch (err) {
+      setError(err instanceof Error ? err.message : '发送失败');
+    } finally {
+      setSending(false);
+    }
+  };
+
   const handleDelete = async (id: number) => {
     if (!confirm('确认删除这条短信？')) return;
     try {
@@ -208,12 +255,15 @@ export default function MessagesPage() {
             </button>
             <div className="msg-chat-identity">
               <strong>{activeConversation.phone}</strong>
-              <span>
+              <small>
                 {activeConversation.deviceName}
                 {activeConversation.simSlot ? ` · SIM${activeConversation.simSlot}` : ''}
                 {` · ${activeConversation.count} 条`}
-              </span>
+              </small>
             </div>
+            <button className="msg-btn primary" onClick={() => openReply(activeConversation.phone)} title="回复短信">
+              <Send size={14} /> 回复
+            </button>
           </div>
           <div className="msg-chat-body">
             {timeline.length === 0 ? (
@@ -265,28 +315,24 @@ export default function MessagesPage() {
 
       <div className="msg-stats">
         <div className="msg-stat total">
-          <div className="msg-stat-icon"><Inbox size={20} /></div>
           <div>
             <div className="msg-stat-value">{stats.total}</div>
             <div className="msg-stat-label">总短信</div>
           </div>
         </div>
         <div className="msg-stat today">
-          <div className="msg-stat-icon"><MessageCircle size={20} /></div>
           <div>
             <div className="msg-stat-value">{stats.today}</div>
             <div className="msg-stat-label">今日</div>
           </div>
         </div>
         <div className="msg-stat week">
-          <div className="msg-stat-icon"><MessageSquare size={20} /></div>
           <div>
             <div className="msg-stat-value">{stats.week}</div>
             <div className="msg-stat-label">本周</div>
           </div>
         </div>
         <div className="msg-stat failed">
-          <div className="msg-stat-icon"><AlertTriangle size={20} /></div>
           <div>
             <div className="msg-stat-value">{stats.failed}</div>
             <div className="msg-stat-label">失败</div>
@@ -313,6 +359,16 @@ export default function MessagesPage() {
             <option value="">全部方向</option>
             <option value="in">仅收到</option>
             <option value="out">仅发出</option>
+          </select>
+          <select
+            className="msg-filter"
+            value={deviceId}
+            onChange={(e) => handleDeviceChange(e.target.value)}
+          >
+            <option value="">全部设备</option>
+            {devices.map((d) => (
+              <option key={d.id} value={d.ip}>{d.name || d.ip}</option>
+            ))}
           </select>
         </div>
         <div className="msg-toolbar-right">
@@ -364,23 +420,28 @@ export default function MessagesPage() {
         ) : (
           <div className="msg-conv-list">
             {conversations.map((c) => (
-              <button key={c.key} className="msg-conv-card" onClick={() => setActiveConversation(c)}>
-                <div className={`msg-conv-avatar ${c.hasCall ? 'call' : ''}`}>
-                  {c.hasCall ? <Phone size={16} /> : <MessageSquare size={16} />}
-                </div>
-                <div className="msg-conv-main">
-                  <div className="msg-conv-top">
-                    <strong className="mono">{c.phone}</strong>
-                    {c.simSlot ? <span className="msg-tag">SIM{c.simSlot}</span> : null}
+              <div key={c.key} className="msg-conv-card-wrap">
+                <button className="msg-conv-card" onClick={() => setActiveConversation(c)}>
+                  <div className={`msg-conv-avatar ${c.hasCall ? 'call' : ''}`}>
+                    {c.hasCall ? <Phone size={16} /> : <MessageSquare size={16} />}
                   </div>
-                  <div className="msg-conv-sub mono">{c.deviceName}</div>
-                  <div className="msg-conv-preview">{c.lastContent || '(无内容)'}</div>
-                </div>
-                <div className="msg-conv-meta">
-                  <span className="mono">{formatTime(c.lastTime)}</span>
-                  <em>{c.count}</em>
-                </div>
-              </button>
+                  <div className="msg-conv-main">
+                    <div className="msg-conv-top">
+                      <strong className="mono">{c.phone}</strong>
+                      {c.simSlot ? <span className="msg-tag">SIM{c.simSlot}</span> : null}
+                    </div>
+                    <div className="msg-conv-sub mono">{c.deviceName}</div>
+                    <div className="msg-conv-preview">{c.lastContent || '(无内容)'}</div>
+                  </div>
+                  <div className="msg-conv-meta">
+                    <span className="mono">{formatTime(c.lastTime)}</span>
+                    <em>{c.count}</em>
+                  </div>
+                </button>
+                <button className="msg-conv-reply" onClick={(e) => { e.stopPropagation(); openReply(c.phone); }} title="回复">
+                  <Send size={14} />
+                </button>
+              </div>
             ))}
           </div>
         )
@@ -480,6 +541,51 @@ export default function MessagesPage() {
             </table>
           </div>
         )
+      )}
+
+      {replyDialog && (
+        <div className="msg-reply-overlay" onClick={() => !sending && setReplyDialog(null)}>
+          <div className="msg-reply-dialog" onClick={(e) => e.stopPropagation()}>
+            <div className="msg-reply-header">
+              <strong>回复短信</strong>
+              <button className="msg-icon-btn" onClick={() => setReplyDialog(null)} disabled={sending}><X size={16} /></button>
+            </div>
+            <label className="msg-reply-field">
+              <span>号码</span>
+              <input className="mono" value={replyDialog.phone} onChange={(e) => setReplyDialog({...replyDialog, phone: e.target.value})} placeholder="接收号码" disabled={sending} />
+            </label>
+            <label className="msg-reply-field">
+              <span>内容</span>
+              <textarea rows={4} value={replyDialog.content} onChange={(e) => setReplyDialog({...replyDialog, content: e.target.value})} placeholder="短信内容…" disabled={sending} />
+            </label>
+            <div className="msg-reply-row">
+              <label className="msg-reply-field inline">
+                <span>发送设备</span>
+                <select value={replyDialog.deviceId} onChange={(e) => setReplyDialog({...replyDialog, deviceId: e.target.value})} disabled={sending}>
+                  <option value="">请选择</option>
+                  {devices.filter((d) => d.status === 'online').map((d) => (
+                    <option key={d.id} value={String(d.id)}>{d.name || d.ip}</option>
+                  ))}
+                </select>
+              </label>
+              <label className="msg-reply-field inline">
+                <span>SIM 卡槽</span>
+                <select value={replyDialog.simSlot} onChange={(e) => setReplyDialog({...replyDialog, simSlot: Number(e.target.value)})} disabled={sending}>
+                  <option value={1}>SIM1</option>
+                  <option value={2}>SIM2</option>
+                </select>
+              </label>
+            </div>
+            {error && <div className="msg-reply-error">{error}</div>}
+            <div className="msg-reply-actions">
+              <button className="msg-btn" onClick={() => setReplyDialog(null)} disabled={sending}>取消</button>
+              <button className="msg-btn primary" onClick={() => void handleSendSms()} disabled={sending}>
+                <Send size={14} />
+                {sending ? '发送中…' : '发送'}
+              </button>
+            </div>
+          </div>
+        </div>
       )}
     </div>
   );

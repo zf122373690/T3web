@@ -1,0 +1,15 @@
+services:
+  t3web:
+    image: t3web:latest
+    container_name: t3web
+    # 主机网络模式：与 T3 设备同网段，局域网扫描可直接发现设备
+    network_mode: host
+    environment:
+      - TZ=Asia/Shanghai
+      - T3_UI_USER=${wizard_ui_user:-admin}
+      - T3_UI_PASS=${wizard_ui_pass:-admin}
+      - T3_DATA_DIR=/app/data
+      - T3_DB=/app/data/app.db
+    volumes:
+      - ${TRIM_PKGVAR}/data:/app/data
+    restart: unless-stopped

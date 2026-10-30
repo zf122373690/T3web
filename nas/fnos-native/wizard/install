@@ -1,0 +1,61 @@
+[
+    {
+        "stepTitle": "安装说明",
+        "items": [
+            {
+                "type": "tips",
+                "helpText": "<b>T3 短信转发控制台</b>用于管理局域网内的 T3 短信转发设备：扫描发现、配置读写、OTA 升级、短信/通话记录、AT 指令、MQTT 转发通道等。所有数据保存在 NAS 本机。"
+            },
+            {
+                "type": "tips",
+                "helpText": "<b>原生模式：</b>本应用基于 fnOS Python 3.12 运行时直接运行，无需 Docker。<b>首次安装需联网</b>下载 Python 依赖包（PyPI）。"
+            },
+            {
+                "type": "tips",
+                "helpText": "<b>网络说明：</b>服务监听 <code>2333</code> 端口，与 T3 设备同网段时可直接扫描发现设备。"
+            },
+            {
+                "type": "tips",
+                "helpText": "<b>串口模式：</b>支持 USB 串口直连 T3 设备（<code>/dev/ttyUSB*</code> / <code>/dev/ttyACM*</code>）。请先将 USB 转接板接入 NAS；若列表中看不到串口，需在 fnOS 终端确认设备已被识别（<code>ls /dev/ttyUSB*</code>）。"
+            }
+        ]
+    },
+    {
+        "stepTitle": "端口与账号",
+        "items": [
+            {
+                "type": "text",
+                "field": "wizard_port",
+                "label": "Web 端口（若 2333 已被占用请修改）",
+                "initValue": "2333",
+                "rules": [
+                    { "required": true, "message": "请填写端口号" },
+                    { "pattern": "^([1-9][0-9]{0,4})$", "message": "端口必须是 1-65535 之间的数字" }
+                ]
+            },
+            {
+                "type": "text",
+                "field": "wizard_ui_user",
+                "label": "登录用户名",
+                "initValue": "admin",
+                "rules": [
+                    { "required": true, "message": "请输入登录用户名" }
+                ]
+            },
+            {
+                "type": "text",
+                "field": "wizard_pip_mirror",
+                "label": "pip 镜像源（默认清华源，留空用官方源）",
+                "initValue": "https://pypi.tuna.tsinghua.edu.cn/simple",
+                "rules": []
+            },
+            {
+                "type": "password",
+                "field": "wizard_ui_pass",
+                "label": "登录密码（留空则使用默认 admin）",
+                "initValue": "",
+                "rules": []
+            }
+        ]
+    }
+]

@@ -1,0 +1,23 @@
+[
+    {
+        "stepTitle": "应用设置",
+        "items": [
+            {
+                "type": "text",
+                "field": "wizard_port",
+                "label": "Web 端口（修改后保存并重启应用生效）",
+                "initValue": "",
+                "rules": [
+                    { "pattern": "^$|^([1-9][0-9]{0,4})$", "message": "端口必须是 1-65535 之间的数字" }
+                ]
+            },
+            {
+                "type": "password",
+                "field": "wizard_ui_pass",
+                "label": "控制台登录密码（留空不修改）",
+                "initValue": "",
+                "rules": []
+            }
+        ]
+    }
+]

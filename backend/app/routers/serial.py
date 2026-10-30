@@ -118,11 +118,25 @@ def read_serial_config(request: Request) -> dict:
     if not json_parts:
         return {"success": False, "message": "未找到配置 JSON 响应，请确认固件已支持 ::T3CFG? 命令", "config": {}, "raw": all_lines}
     full_json = "".join(json_parts)
-    try:
-        config = json.loads(full_json)
+
+    def _try_loads(text: str) -> dict | None:
+        try:
+            data = json.loads(text)
+            return data if isinstance(data, dict) else None
+        except json.JSONDecodeError:
+            return None
+
+    # 常规解析；若固件诊断日志混入串口流污染 JSON，则退化为
+    # “首个 { 到最后一个 }”的兜底提取再解析。
+    config = _try_loads(full_json)
+    if config is None:
+        head = full_json.find("{")
+        tail = full_json.rfind("}")
+        if head >= 0 and tail > head:
+            config = _try_loads(full_json[head:tail + 1])
+    if config is not None:
         return {"success": True, "message": "设备配置读取成功", "config": config}
-    except json.JSONDecodeError as exc:
-        return {"success": False, "message": f"配置 JSON 解析失败：{exc}", "config": {}, "raw": all_lines, "jsonHead": full_json[:200]}
+    return {"success": False, "message": "配置 JSON 解析失败（可能被设备日志干扰，请重试）", "config": {}, "raw": all_lines, "jsonHead": full_json[:200]}
 
 
 def _build_offline_config(body: dict) -> tuple[dict, str, str]:

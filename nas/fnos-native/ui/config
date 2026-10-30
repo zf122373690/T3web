@@ -1,0 +1,14 @@
+{
+    ".url": {
+        "t3web.APPLICATION": {
+            "title": "T3 短信转发控制台",
+            "desc": "T3 短信转发器本地管理控制台",
+            "icon": "images/{0}.png",
+            "type": "url",
+            "port": "2333",
+            "protocol": "http",
+            "url": "/",
+            "allUsers": true
+        }
+    }
+}

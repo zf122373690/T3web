@@ -1,0 +1,44 @@
+[
+    {
+        "stepTitle": "安装说明",
+        "items": [
+            {
+                "type": "tips",
+                "helpText": "<b>T3 短信转发控制台</b>用于管理局域网内的 T3 短信转发设备：扫描发现、配置读写、OTA 升级、短信/通话记录、AT 指令、MQTT 转发通道等。所有数据保存在 NAS 本机。"
+            },
+            {
+                "type": "tips",
+                "helpText": "<b>前置条件：</b>请先确认 NAS 的 Docker 中已存在 T3 控制台镜像（默认 <code>t3web:latest</code>）。可在电脑上执行 <code>docker build -t t3web:latest .</code> 构建后，通过 <code>docker save</code> 导出、NAS 上 <code>docker load</code> 导入。"
+            },
+            {
+                "type": "tips",
+                "helpText": "<b>网络说明：</b>容器使用主机网络模式（host），监听端口 <code>8080</code>，与 T3 设备同网段，局域网扫描可直接发现设备。"
+            },
+            {
+                "type": "tips",
+                "helpText": "<b>串口模式不可用：</b>容器内无法访问 USB 串口，仅支持局域网设备管理。需要串口配置请使用 Windows EXE 版本。"
+            }
+        ]
+    },
+    {
+        "stepTitle": "控制台账号",
+        "items": [
+            {
+                "type": "text",
+                "field": "wizard_ui_user",
+                "label": "登录用户名",
+                "initValue": "admin",
+                "rules": [
+                    { "required": true, "message": "请输入登录用户名" }
+                ]
+            },
+            {
+                "type": "password",
+                "field": "wizard_ui_pass",
+                "label": "登录密码（留空则使用默认 admin）",
+                "initValue": "",
+                "rules": []
+            }
+        ]
+    }
+]

@@ -1,0 +1,84 @@
+#!/bin/bash
+# 安装后处理：创建 venv 并安装后端依赖（首次安装需联网访问 PyPI）。
+ORIG_PATH="${PATH:-}"
+export PATH="/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
+export PATH="/var/apps/python312/target/bin:$PATH"
+
+# 兜底：任何未捕获错误都写入 TRIM_TEMP_LOGFILE，避免应用中心显示"原因未知"
+fail() {
+    echo "$*" >> "${TRIM_TEMP_LOGFILE:-/tmp/t3web-install.err}"
+    exit 1
+}
+trap 'fail "install_callback 异常退出（行 $LINENO），详见 ${TRIM_PKGVAR}/install.log"' ERR
+set -e
+
+VAR_DIR="${TRIM_PKGVAR}"
+VENV_DIR="${VAR_DIR}/venv"
+REQ="${TRIM_APPDEST}/backend/requirements.txt"
+LOG="${VAR_DIR}/install.log"
+
+mkdir -p "$VAR_DIR"
+{
+    echo "== $(date) install_callback =="
+
+    if [ ! -f "$REQ" ]; then
+        echo "未找到依赖清单：$REQ"
+        exit 1
+    fi
+
+    # venv 已存在则复用（升级场景），避免重复安装
+    if [ ! -x "${VENV_DIR}/bin/pip" ] && [ ! -x "${VENV_DIR}/Scripts/pip.exe" ]; then
+        rm -rf "$VENV_DIR"
+        PY_BIN=$(command -v python3 || PATH="$ORIG_PATH" command -v python3 || PATH="$ORIG_PATH" command -v python)
+        [ -n "$PY_BIN" ] || { echo "未找到 python3"; exit 1; }
+        "$PY_BIN" -m venv "$VENV_DIR" || exit 1
+    fi
+    # Linux venv: bin/pip；Windows venv: Scripts/pip.exe（本机模拟用）
+    if [ -x "${VENV_DIR}/bin/pip" ]; then
+        PIP_BIN="${VENV_DIR}/bin/pip"
+    else
+        PIP_BIN="${VENV_DIR}/Scripts/pip.exe"
+    fi
+
+    # 排除 pyinstaller（仅 Windows 打包需要）；pyserial 保留以支持 USB 串口
+    grep -v -i -E '^(pyinstaller)' "$REQ" \
+        | sed 's/^uvicorn\[standard\]/uvicorn/' > "${VAR_DIR}/requirements.nas.txt"
+
+    # 默认使用国内镜像源（PyPI 官方源在 NAS 上常超时导致安装卡死），
+    # 可通过安装向导 pip_mirror 自定义；显式留空则用官方源
+    PIP_INDEX="${wizard_pip_mirror-https://pypi.tuna.tsinghua.edu.cn/simple}"
+    PIP_ARGS="--no-cache-dir --disable-pip-version-check --timeout 60 --retries 3"
+    if [ -n "$PIP_INDEX" ]; then
+        PIP_ARGS="$PIP_ARGS -i $PIP_INDEX"
+    fi
+
+    "$PIP_BIN" install $PIP_ARGS \
+        -r "${VAR_DIR}/requirements.nas.txt" || exit 1
+
+    # 持久化安装向导中的登录账号和端口（etc 目录在升级时保留）。
+    # 升级场景（无向导变量）不覆盖已有账号，避免用户设置被重置为默认值
+    mkdir -p "${TRIM_PKGETC}"
+    if [ -n "${wizard_ui_user:-}" ]; then
+        cat > "${TRIM_PKGETC}/t3web.env" <<EOF
+T3_UI_USER=${wizard_ui_user}
+T3_UI_PASS=${wizard_ui_pass:-admin}
+EOF
+        chmod 600 "${TRIM_PKGETC}/t3web.env"
+    elif [ ! -f "${TRIM_PKGETC}/t3web.env" ]; then
+        printf 'T3_UI_USER=admin\nT3_UI_PASS=admin\n' > "${TRIM_PKGETC}/t3web.env"
+        chmod 600 "${TRIM_PKGETC}/t3web.env"
+    fi
+
+    # 端口优先级：向导填写 > 之前保存的 > manifest 默认（TRIM_SERVICE_PORT）
+    if [ -n "${wizard_port:-}" ]; then
+        echo "${wizard_port}" > "${VAR_DIR}/port"
+    elif [ ! -f "${VAR_DIR}/port" ]; then
+        echo "${TRIM_SERVICE_PORT:-2333}" > "${VAR_DIR}/port"
+    fi
+
+    echo "install_callback done"
+} >> "$LOG" 2>&1 || {
+    tail -n 30 "$LOG" > "${TRIM_TEMP_LOGFILE:-/dev/stderr}"
+    exit 1
+}
+exit 0

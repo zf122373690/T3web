@@ -1,0 +1,3 @@
+#!/bin/bash
+# 升级后：复用 install_callback 刷新依赖（venv 已存在时只补装变更项）。
+exec "$(dirname "$0")/install_callback"

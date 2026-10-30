@@ -2,7 +2,9 @@ from __future__ import annotations
 
 import json
 
-from fastapi import APIRouter, HTTPException, Request
+from fastapi import APIRouter, File, HTTPException, Request, UploadFile
+
+from concurrent.futures import ThreadPoolExecutor
 
 from ..auth import require_user
 from ..config import DEVICE_PASS, DEVICE_USER
@@ -12,24 +14,32 @@ from ..device_client import (
     clear_device_messages,
     ddns_status_t3,
     ddns_update_t3,
-    diag_t3,
+    esim_profile_t3,
+    esim_query_t3,
     factory_reset_t3,
     get_device_data,
+    get_pending_device_messages,
     get_t3_config,
     get_t3_messages,
     get_t3_status,
+    keepalive_test_status_t3,
+    keepalive_test_t3,
     lan_discover_device,
+    locate_t3,
     ota_progress_t3,
+    operator_select_t3,
+    purge_t3_sms,
     push_test_t3,
     reboot_device,
     send_sms_to_device,
-    send_t3_at,
     set_device_flymode,
     set_t3_sim_number,
     set_t3_wifi,
     start_t3_ota,
     status_payload_to_raw,
+    tcp_open,
     update_t3_config,
+    upload_t3_ota,
 )
 
 router = APIRouter(prefix="/api/devices", tags=["devices"])
@@ -85,6 +95,7 @@ def _sim_slot(raw: dict, slot: int) -> dict:
         modem.get("signal_dbm"),
     )
     iccid = _as_text(raw.get(f"{prefix}_ICCID"), modem.get(f"sim{slot}_iccid"))
+    imsi = _as_text(modem.get(f"sim{slot}_imsi"))
 
     present_raw = raw.get(f"{prefix}_PRESENT")
     if present_raw is None and f"p{slot}" in nested:
@@ -109,6 +120,7 @@ def _sim_slot(raw: dict, slot: int) -> dict:
         "operator": operator,
         "signal": signal,
         "iccid": iccid,
+        "imsi": imsi,
         "present": present,
         "registered": registered,
     }
@@ -314,6 +326,33 @@ def upsert_device(ip: str, mac: str = "", raw: dict | None = None, group: str = 
         mac_val = (mac or "").strip() or _as_text(incoming.get("MAC"))
         name = _as_text(incoming.get("DEV_ID")) or ip
         group_val = (group or "").strip() or "auto"
+
+        if mac_val:
+            by_mac = conn.execute("SELECT * FROM devices WHERE mac = ?", (mac_val,)).fetchone()
+            if by_mac:
+                old_raw = _load_raw_json(by_mac)
+                merged = merge_device_raw(old_raw, incoming)
+                old_ip = by_mac["ip"]
+                if not group_val or group_val == "auto":
+                    group_val = by_mac["group_name"] or "auto"
+                conn.execute(
+                    """
+                    UPDATE devices SET
+                      ip = ?,
+                      mac = ?,
+                      name = ?,
+                      group_name = ?,
+                      status = 'online',
+                      last_seen = ?,
+                      raw_json = ?,
+                      updated_at = ?
+                    WHERE id = ?
+                    """,
+                    (ip, mac_val, name, group_val, now, json.dumps(merged, ensure_ascii=False), now, by_mac["id"]),
+                )
+                row = conn.execute("SELECT * FROM devices WHERE ip = ?", (ip,)).fetchone()
+                return normalize_device(row)
+
         conn.execute(
             """
             INSERT INTO devices(ip, mac, name, group_name, status, last_seen, raw_json, created_at, updated_at)
@@ -343,8 +382,45 @@ def list_devices(request: Request) -> dict:
 
 @router.post("/refresh-all")
 def refresh_all_devices(request: Request) -> dict:
-    """只读本地数据库缓存，不访问设备，避免打断模组注册。"""
-    return list_devices(request)
+    """并发 TCP 探测每台设备的 HTTP 端口并更新在线状态。
+
+    只做端口握手（SYN/ACK），不发任何 HTTP 请求、不触碰 AT 串口，
+    对设备零打扰；探测超时 1.5s，全部并发完成通常 <2s。
+    """
+    require_user(request)
+    with connect() as conn:
+        rows = conn.execute("SELECT * FROM devices ORDER BY updated_at DESC, id DESC").fetchall()
+
+    def _probe(row) -> tuple[int, bool]:
+        try:
+            return row["id"], tcp_open(row["ip"], 80, timeout=1.5)
+        except Exception:
+            return row["id"], False
+
+    results: dict[int, bool] = {}
+    if rows:
+        with ThreadPoolExecutor(max_workers=16) as pool:
+            for device_id, alive in pool.map(_probe, rows):
+                results[device_id] = alive
+
+    now = now_ts()
+    with connect() as conn:
+        for row in rows:
+            alive = results.get(row["id"], False)
+            if alive and row["status"] != "online":
+                conn.execute(
+                    "UPDATE devices SET status = 'online', last_seen = ?, updated_at = ? WHERE id = ?",
+                    (now, now, row["id"]),
+                )
+            elif not alive and row["status"] != "offline":
+                conn.execute(
+                    "UPDATE devices SET status = 'offline', updated_at = ? WHERE id = ?",
+                    (now, row["id"]),
+                )
+            elif alive:
+                conn.execute("UPDATE devices SET last_seen = ? WHERE id = ?", (now, row["id"]))
+        fresh = conn.execute("SELECT * FROM devices ORDER BY updated_at DESC, id DESC").fetchall()
+    return {"items": [normalize_device(row) for row in fresh], "total": len(fresh)}
 
 
 @router.post("")
@@ -612,21 +688,6 @@ async def update_sim_number(device_id: int, request: Request) -> dict:
     }
 
 
-@router.post("/{device_id}/at")
-async def proxy_at(device_id: int, request: Request) -> dict:
-    require_user(request)
-    row = get_device_row(device_id)
-    body = await request.json()
-    command = str(body.get("command") or body.get("cmd") or "").strip()
-    timeout_ms = int(body.get("timeout") or 1000)
-    if not command:
-        raise HTTPException(status_code=400, detail="AT 命令不能为空")
-    result = send_t3_at(row["ip"], command, timeout_ms, str(body.get("user") or DEVICE_USER), str(body.get("password") or DEVICE_PASS))
-    if not result.get("ok"):
-        raise HTTPException(status_code=502, detail=result.get("message") or "AT 命令执行失败")
-    return {"success": True, "message": result.get("message") or "AT 命令已执行", "endpoint": result.get("endpoint"), "data": result.get("data", {})}
-
-
 @router.post("/{device_id}/factory-reset")
 async def factory_reset(device_id: int, request: Request) -> dict:
     require_user(request)
@@ -731,16 +792,6 @@ async def start_ota(device_id: int, request: Request) -> dict:
     return {"success": True, "message": result.get("message") or "OTA 已启动", "endpoint": result.get("endpoint"), "data": result.get("data", {})}
 
 
-@router.get("/{device_id}/diag")
-def get_diag(device_id: int, request: Request) -> dict:
-    require_user(request)
-    row = get_device_row(device_id)
-    result = diag_t3(row["ip"], DEVICE_USER, DEVICE_PASS)
-    if not result.get("ok"):
-        raise HTTPException(status_code=502, detail=result.get("message") or "设备诊断失败")
-    return {"success": True, "message": result.get("message") or "诊断完成", "endpoint": result.get("endpoint"), "data": result.get("data", {})}
-
-
 @router.post("/{device_id}/push-test")
 async def push_test(device_id: int, request: Request) -> dict:
     require_user(request)
@@ -795,6 +846,147 @@ def read_device_messages(device_id: int, request: Request) -> dict:
     if not result.get("ok"):
         raise HTTPException(status_code=502, detail=result.get("message") or "设备消息读取失败")
     return {"success": True, "message": result.get("message") or "设备消息读取完成", "endpoint": result.get("endpoint"), "data": result.get("data", [])}
+
+
+@router.get("/{device_id}/messages/pending")
+def read_pending_device_messages(device_id: int, request: Request) -> dict:
+    """增量拉取设备 RAM 中尚未落盘的消息。"""
+    require_user(request)
+    row = get_device_row(device_id)
+    result = get_pending_device_messages(row["ip"], DEVICE_USER, DEVICE_PASS)
+    if not result.get("ok"):
+        raise HTTPException(status_code=502, detail=result.get("message") or "设备增量消息读取失败")
+    return {"success": True, "message": result.get("message") or "增量消息读取完成", "endpoint": result.get("endpoint"), "data": result.get("data", [])}
+
+
+@router.post("/{device_id}/sms/purge")
+async def purge_device_sms(device_id: int, request: Request) -> dict:
+    """清理设备 SIM 卡中的旧短信。"""
+    require_user(request)
+    row = get_device_row(device_id)
+    try:
+        body = await request.json()
+    except Exception:
+        body = {}
+    keep = body.get("keepCount")
+    result = purge_t3_sms(
+        row["ip"],
+        int(keep) if isinstance(keep, (int, float)) and str(keep).lstrip("-").isdigit() else None,
+        DEVICE_USER,
+        DEVICE_PASS,
+    )
+    if not result.get("ok"):
+        raise HTTPException(status_code=502, detail=result.get("message") or "旧短信清理失败")
+    return {"success": True, "message": result.get("message") or "旧短信清理完成", "endpoint": result.get("endpoint"), "data": result.get("data", {})}
+
+
+@router.get("/{device_id}/esim")
+def device_esim_status(device_id: int, request: Request) -> dict:
+    """eSIM 查询：?slot=1|2&start=1 启动任务，之后不带 start 轮询。"""
+    require_user(request)
+    row = get_device_row(device_id)
+    slot = int(request.query_params.get("slot") or 0)
+    start = request.query_params.get("start") == "1"
+    if slot not in (1, 2):
+        raise HTTPException(status_code=400, detail="slot 必须为 1 或 2")
+    result = esim_query_t3(row["ip"], slot, start, DEVICE_USER, DEVICE_PASS)
+    if not result.get("ok"):
+        raise HTTPException(status_code=result.get("statusCode") or 502, detail=result.get("message") or "eSIM 查询失败")
+    return {"success": True, "message": result.get("message") or "eSIM 查询完成", "endpoint": result.get("endpoint"), "data": result.get("data", {})}
+
+
+@router.post("/{device_id}/esim/profile")
+async def device_esim_profile(device_id: int, request: Request) -> dict:
+    require_user(request)
+    row = get_device_row(device_id)
+    body = await request.json()
+    slot = int(body.get("slot") or 0)
+    action = str(body.get("action") or "").strip()
+    identifier = str(body.get("identifier") or "").strip()
+    if slot not in (1, 2):
+        raise HTTPException(status_code=400, detail="slot 必须为 1 或 2")
+    if action not in ("enable", "disable", "delete"):
+        raise HTTPException(status_code=400, detail="action 必须为 enable、disable 或 delete")
+    if not identifier:
+        raise HTTPException(status_code=400, detail="Profile 标识不能为空")
+    result = esim_profile_t3(row["ip"], slot, action, identifier, DEVICE_USER, DEVICE_PASS)
+    if not result.get("ok"):
+        raise HTTPException(status_code=result.get("statusCode") or 502, detail=result.get("message") or "eSIM Profile 操作失败")
+    return {"success": True, "message": result.get("message") or "eSIM Profile 操作已下发", "endpoint": result.get("endpoint"), "data": result.get("data", {})}
+
+
+@router.post("/{device_id}/operator/select")
+async def device_operator_select(device_id: int, request: Request) -> dict:
+    """手动运营商搜网：plmn 空 = 自动。"""
+    require_user(request)
+    row = get_device_row(device_id)
+    body = await request.json()
+    slot = int(body.get("slot") or 0)
+    plmn = str(body.get("plmn") or "").strip()
+    if slot not in (1, 2):
+        raise HTTPException(status_code=400, detail="slot 必须为 1 或 2")
+    if plmn and (not plmn.isdigit() or len(plmn) < 5 or len(plmn) > 6):
+        raise HTTPException(status_code=400, detail="运营商代码应为 5-6 位数字 PLMN")
+    result = operator_select_t3(row["ip"], slot, plmn, DEVICE_USER, DEVICE_PASS)
+    if not result.get("ok"):
+        raise HTTPException(status_code=result.get("statusCode") or 502, detail=result.get("message") or "搜网任务启动失败")
+    return {"success": True, "message": result.get("message") or "搜网任务已启动", "endpoint": result.get("endpoint"), "data": result.get("data", {})}
+
+
+@router.post("/{device_id}/keepalive-test")
+async def device_keepalive_test(device_id: int, request: Request) -> dict:
+    require_user(request)
+    row = get_device_row(device_id)
+    body = await request.json()
+    slot = int(body.get("slot") or 0)
+    mode = str(body.get("mode") or "sms").strip()
+    if slot not in (1, 2):
+        raise HTTPException(status_code=400, detail="slot 必须为 1 或 2")
+    if mode not in ("sms", "call"):
+        raise HTTPException(status_code=400, detail="mode 必须为 sms 或 call")
+    result = keepalive_test_t3(
+        row["ip"], slot, mode,
+        str(body.get("phone") or "").strip(),
+        str(body.get("message") or "").strip(),
+        DEVICE_USER, DEVICE_PASS,
+    )
+    if not result.get("ok"):
+        raise HTTPException(status_code=result.get("statusCode") or 502, detail=result.get("message") or "保活测试启动失败")
+    return {"success": True, "message": result.get("message") or "保活测试已启动", "endpoint": result.get("endpoint"), "data": result.get("data", {})}
+
+
+@router.get("/{device_id}/keepalive-test/status")
+def device_keepalive_test_status(device_id: int, request: Request) -> dict:
+    require_user(request)
+    row = get_device_row(device_id)
+    result = keepalive_test_status_t3(row["ip"], DEVICE_USER, DEVICE_PASS)
+    if not result.get("ok"):
+        raise HTTPException(status_code=502, detail=result.get("message") or "保活测试状态获取失败")
+    return {"success": True, "message": result.get("message") or "保活测试状态获取完成", "endpoint": result.get("endpoint"), "data": result.get("data", {})}
+
+
+@router.post("/{device_id}/locate")
+async def device_locate(device_id: int, request: Request) -> dict:
+    require_user(request)
+    row = get_device_row(device_id)
+    result = locate_t3(row["ip"], DEVICE_USER, DEVICE_PASS)
+    if not result.get("ok"):
+        raise HTTPException(status_code=502, detail=result.get("message") or "寻找设备失败")
+    return {"success": True, "message": "设备正在响铃" if result.get("ok") else "", "endpoint": result.get("endpoint"), "data": result.get("data", {})}
+
+
+@router.post("/{device_id}/ota/upload")
+async def device_ota_upload(device_id: int, request: Request, file: UploadFile = File(...)) -> dict:
+    """本地上传固件并触发设备刷写（固件端 /api/ota/upload）。"""
+    require_user(request)
+    row = get_device_row(device_id)
+    firmware = await file.read()
+    if not firmware:
+        raise HTTPException(status_code=400, detail="固件文件为空")
+    result = upload_t3_ota(row["ip"], firmware, file.filename or "firmware.bin", DEVICE_USER, DEVICE_PASS)
+    if not result.get("ok"):
+        raise HTTPException(status_code=502, detail=result.get("message") or "固件上传失败")
+    return {"success": True, "message": result.get("message") or "固件上传成功，设备重启中", "endpoint": result.get("endpoint"), "data": result.get("data", {})}
 
 
 @router.delete("/{device_id}")

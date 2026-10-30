@@ -1,0 +1,8 @@
+{
+    "defaults": {
+        "run-as": "package"
+    },
+    "username": "t3web",
+    "groupname": "t3web",
+    "extra-groups": ["dialout"]
+}

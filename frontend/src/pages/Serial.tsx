@@ -1,6 +1,7 @@
 import {useEffect, useMemo, useRef, useState} from 'react';
 import {Activity, Cable, Download, FileDown, FileUp, Plug, RadioReceiver, RefreshCw, Save, Unplug, Wifi} from 'lucide-react';
 import {checkSerialVersions, connectSerial, disconnectSerial, getSerialLogs, getSerialStatus, listSerialPorts, probeSerial, readSerialDeviceConfig, resetSerialDevice, saveSerialWifiBatch, sendSerialBatchOfflineConfig, setSerialControlLines, startSerialOta, type SerialBatchActionResult, type SerialDeviceConfig, type SerialLogItem, type SerialOfflineChannel, type SerialPortItem, type SerialStatus} from '../api/serial';
+import {channelMetaMap, channelTypes} from '../utils/channelMeta';
 import {getSystemVersion, type SystemVersionInfo} from '../api/devices';
 import SelfUpdateBar from '../components/SelfUpdateBar';
 
@@ -74,6 +75,7 @@ export default function Serial() {
   const currentSession = sessions.find((item) => item.port === activePort);
   const selectedConnected = Boolean(status?.connected && status.port === activePort);
   const activeChannelData = channels[activeChannel] || {};
+  const chanMeta = channelMetaMap[activeChannelData.type || 0];
   const rxCount = useMemo(() => logs.filter((item) => item.level === 'rx').length, [logs]);
   const txCount = useMemo(() => logs.filter((item) => item.level === 'tx').length, [logs]);
   const visibleLogs = useMemo(() => [...logs].reverse().slice(0, 200), [logs]);
@@ -169,13 +171,6 @@ export default function Serial() {
     return () => window.clearInterval(timer);
   }, [activePort, streamMode]);
 
-  useEffect(() => {
-    setSelectedPorts((current) => {
-      const next = current.filter((port) => connectedPorts.includes(port));
-      return next.length === current.length ? current : next;
-    });
-  }, [connectedPorts]);
-
   const selectPort = async (port: string) => {
     setActivePort(port);
     setConfigLoaded(false);
@@ -219,7 +214,7 @@ export default function Serial() {
     }
   };
 
-  const loadDeviceConfig = async (port = activePort) => {
+  const loadDeviceConfig = async (port = activePort, retry = 1) => {
     if (!port) return;
     setError('');
     setNotice('');
@@ -227,12 +222,22 @@ export default function Serial() {
       const result = await readSerialDeviceConfig(port);
       if (result.success && result.config) {
         applyConfig(result.config);
-        setNotice(`已读取 ${port} 的配置`);
+        const wifiMissing = !result.config.wifi?.ssid;
+        setNotice(wifiMissing ? `已读取 ${port} 的配置（设备未上报 WiFi 凭据，可能尚未初始化）` : `已读取 ${port} 的配置`);
+      } else if (retry > 0) {
+        // 设备刚连接时串口任务可能未就绪，稍候自动重试一次
+        await new Promise((resolve) => setTimeout(resolve, 1500));
+        await loadDeviceConfig(port, retry - 1);
       } else {
         setConfigLoaded(false);
         setError(result.message || '设备配置读取失败');
       }
     } catch (err) {
+      if (retry > 0) {
+        await new Promise((resolve) => setTimeout(resolve, 1500));
+        await loadDeviceConfig(port, retry - 1);
+        return;
+      }
       setConfigLoaded(false);
       setError(err instanceof Error ? err.message : '设备配置读取失败');
     }
@@ -400,7 +405,6 @@ export default function Serial() {
         <input
           type="checkbox"
           checked={selected}
-          disabled={!connected}
           aria-label={`选择 ${item.name} 作为保存目标`}
           onChange={(event) => setSelectedPorts((current) => event.target.checked ? [...current, item.name] : current.filter((port) => port !== item.name))}
         />
@@ -488,10 +492,10 @@ export default function Serial() {
             <div className="wizard-section-title"><span>可选转发通道</span><small>通道按固定位置写入；默认模板包含备注字段。</small></div>
             <div className="channel-tabs serial-channel-tabs compact-tabs">{channels.map((_, index) => <button key={index} className={activeChannel === index ? 'active' : ''} onClick={() => setActiveChannel(index)}>通道 {index + 1}</button>)}</div>
             <div className="compact-grid channel-compact-grid">
-              <label><span>类型</span><select value={activeChannelData.type || 0} onChange={(event) => patchChannel({type: Number(event.target.value)})}><option value={0}>关闭</option><option value={1}>Webhook</option><option value={2}>Telegram</option><option value={3}>Bark</option><option value={4}>钉钉</option><option value={5}>PushDeer</option><option value={6}>飞书</option><option value={7}>企微机器人</option><option value={8}>企微应用</option><option value={9}>Gotify</option><option value={10}>ServerChan</option><option value={11}>PushPlus</option><option value={12}>WxPusher</option><option value={13}>Pushover</option><option value={14}>Inotify</option><option value={15}>SMTP Proxy</option></select></label>
-              <label className="full-field"><span>URL</span><textarea value={activeChannelData.url || ''} onChange={(event) => patchChannel({url: event.target.value})} /></label>
-              <label><span>参数1</span><input value={activeChannelData.key1 || ''} onChange={(event) => patchChannel({key1: event.target.value})} /></label>
-              <label><span>参数2</span><input value={activeChannelData.key2 || ''} onChange={(event) => patchChannel({key2: event.target.value})} /></label>
+              <label><span>类型</span><select value={activeChannelData.type || 0} onChange={(event) => patchChannel({type: Number(event.target.value)})}>{channelTypes.map((name, i) => <option key={name} value={i}>{name}</option>)}</select></label>
+              {chanMeta && <label className="full-field"><span>{chanMeta.urlLabel}</span><textarea value={activeChannelData.url || ''} onChange={(event) => patchChannel({url: event.target.value})} placeholder={chanMeta.urlPh} /></label>}
+              {chanMeta?.k1 && <label><span>{chanMeta.k1[0]}</span><input value={activeChannelData.key1 || ''} onChange={(event) => patchChannel({key1: event.target.value})} placeholder={chanMeta.k1[1]} /></label>}
+              {chanMeta?.k2 && <label><span>{chanMeta.k2[0]}</span><input value={activeChannelData.key2 || ''} onChange={(event) => patchChannel({key2: event.target.value})} placeholder={chanMeta.k2[1]} /></label>}
               <label className="full-field"><span>模板</span><textarea value={activeChannelData.customBody || defaultChannelTemplate} onChange={(event) => patchChannel({customBody: event.target.value})} /></label>
             </div>
           </div>
@@ -513,9 +517,9 @@ export default function Serial() {
         <div className="terminal-surface compact-terminal bottom-terminal">
           {visibleLogs.length === 0 ? <div className="empty terminal-empty">连接后显示日志</div> : visibleLogs.map((item, index) => (
             <div className={`terminal-row terminal-row-${item.level}`} key={`${item.id || item.time}-${index}`}>
+              <span className="terminal-time">{timeLabel(item.time)}</span>
               <span className="terminal-level">{logLabel(item.level)}</span>
               <code>{item.content}</code>
-              <span className="terminal-time">{timeLabel(item.time)}</span>
             </div>
           ))}
         </div>

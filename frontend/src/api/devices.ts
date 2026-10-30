@@ -88,8 +88,8 @@ export interface DeviceItem {
   status: string;
   lastSeen: number;
   version: string;
-  sim1: {number: string; operator: string; signal: string; iccid?: string; registered?: boolean; present?: boolean};
-  sim2: {number: string; operator: string; signal: string; iccid?: string; registered?: boolean; present?: boolean};
+  sim1: {number: string; operator: string; signal: string; iccid?: string; imsi?: string; registered?: boolean; present?: boolean};
+  sim2: {number: string; operator: string; signal: string; iccid?: string; imsi?: string; registered?: boolean; present?: boolean};
   wifi: {name: string; dbm: string; ip?: string; connected?: boolean};
 }
 
@@ -103,6 +103,8 @@ export interface T3PushChannel {
   customBody?: string;
   recordUploadEnabled?: boolean;
   recordUrl?: string;
+  sim1Enabled?: boolean;
+  sim2Enabled?: boolean;
 }
 
 export interface T3MqttConfig {
@@ -131,6 +133,8 @@ export interface T3Config {
   smtpSendTo?: string;
   callRecordEnabled?: boolean;
   callRecordAutoAnswer?: boolean;
+  sim1CallAutoAnswer?: boolean;
+  sim2CallAutoAnswer?: boolean;
   callHangupSeconds?: number;
   callPlayEnabled?: boolean;
   callPlayFile?: string;
@@ -148,6 +152,9 @@ export interface T3Config {
   mqtt?: T3MqttConfig;
   wifi?: {configured?: boolean; ssid?: string; password?: string};
   networkMode?: number;
+  bootNotifyEnabled?: boolean;
+  bootNotifyTemplate?: string;
+  callNotifyTemplate?: string;
   webUser?: string;
   webPass?: string;
   sim1Remark?: string;
@@ -162,6 +169,8 @@ export interface T3Config {
   rebootMinute?: number;
   smsControlEnabled?: boolean;
   adminPhones?: string;
+  smsWhitelistEnabled?: boolean;
+  smsWhitelistKeywords?: string;
   smsCleanEnabled?: boolean;
   smsCleanCheckInterval?: number;
   smsCleanThreshold?: number;
@@ -194,17 +203,6 @@ export interface T3Takeover {
   configError?: string;
   statusEndpoint?: string;
   configEndpoint?: string;
-}
-
-export interface ScanStatus {
-  id: string;
-  cidr: string;
-  total: number;
-  pending: number;
-  found: number;
-  failed: number;
-  done: boolean;
-  results: Array<{ip: string; success: boolean; candidate?: boolean; autoSaved?: boolean; httpOpen?: boolean; device?: DeviceItem; realm?: string}>;
 }
 
 export function listDevices() {
@@ -259,10 +257,6 @@ export function updateDeviceSimNumber(id: number, payload: {slot: number; number
   return api.post<{success: boolean; message: string; endpoint?: string; data?: unknown; device?: DeviceItem}>(`/devices/${id}/sim-number`, payload);
 }
 
-export function sendDeviceAt(id: number, payload: {command: string; timeout?: number}) {
-  return api.post<{success: boolean; message: string; endpoint?: string; data?: {response?: string}}>(`/devices/${id}/at`, payload);
-}
-
 export function factoryResetDevice(id: number) {
   return api.post<{success: boolean; message: string; endpoint?: string}>(`/devices/${id}/factory-reset`);
 }
@@ -289,11 +283,6 @@ export function batchStartDeviceOta(ids: number[], url: string, user?: string, p
 
 export function startDeviceOta(id: number, url: string) {
   return api.post<{success: boolean; message: string; endpoint?: string; data?: unknown}>(`/devices/${id}/ota`, {url});
-}
-
-
-export function getDeviceDiag(id: number) {
-  return api.get<{success: boolean; message: string; endpoint?: string; data: Record<string, string>}>(`/devices/${id}/diag`);
 }
 
 export function pushTestDevice(id: number, channel?: number) {
@@ -326,10 +315,63 @@ export function getDeviceMessages(id: number, type = 'all') {
 }
 
 
-export function startScan(payload: {cidr?: string; startIp?: number; endIp?: number; user?: string; password?: string}) {
-  return api.post<{scanId: string; cidr: string; total: number; autoDetected: boolean}>('/scan', payload);
+export function getPendingDeviceMessages(id: number) {
+  return api.get<{success: boolean; message: string; data: DeviceMessageItem[]}>(`/devices/${id}/messages/pending`);
 }
 
-export function getScanStatus(scanId: string) {
-  return api.get<ScanStatus>(`/scan/${scanId}`);
+export function purgeDeviceSms(id: number, keepCount?: number) {
+  return api.post<{success: boolean; message: string; data?: Record<string, unknown>}>(`/devices/${id}/sms/purge`, keepCount === undefined ? {} : {keepCount});
+}
+
+export interface EsimProfile {
+  iccid?: string;
+  aid?: string;
+  nickname?: string;
+  serviceProviderName?: string;
+  profileName?: string;
+  state?: string;
+  profileClass?: string;
+}
+
+export interface EsimStatus {
+  running?: boolean;
+  done?: boolean;
+  success?: boolean;
+  slot?: number;
+  action?: string;
+  message?: string;
+  refreshRequired?: boolean;
+  supported?: boolean;
+  eid?: string;
+  profiles?: EsimProfile[];
+}
+
+export function queryDeviceEsim(id: number, slot: number, start: boolean) {
+  return api.get<{success: boolean; message: string; data: EsimStatus}>(`/devices/${id}/esim?slot=${slot}&start=${start ? 1 : 0}`);
+}
+
+export function operateDeviceEsimProfile(id: number, payload: {slot: number; action: 'enable' | 'disable' | 'delete'; identifier: string}) {
+  return api.post<{success: boolean; message: string}>(`/devices/${id}/esim/profile`, payload);
+}
+
+export function selectDeviceOperator(id: number, payload: {slot: number; plmn?: string}) {
+  return api.post<{success: boolean; message: string}>(`/devices/${id}/operator/select`, payload);
+}
+
+export function startDeviceKeepaliveTest(id: number, payload: {slot: number; mode: 'sms' | 'call'; phone?: string; message?: string}) {
+  return api.post<{success: boolean; message: string}>(`/devices/${id}/keepalive-test`, payload);
+}
+
+export function getDeviceKeepaliveTestStatus(id: number) {
+  return api.get<{success: boolean; message: string; data: {state?: string; running?: boolean; success?: boolean; message?: string}}>(`/devices/${id}/keepalive-test/status`);
+}
+
+export function locateDevice(id: number) {
+  return api.post<{success: boolean; message: string}>(`/devices/${id}/locate`);
+}
+
+export function uploadDeviceOta(id: number, file: File) {
+  const form = new FormData();
+  form.append('file', file);
+  return api.upload<{success: boolean; message: string}>(`/devices/${id}/ota/upload`, form);
 }

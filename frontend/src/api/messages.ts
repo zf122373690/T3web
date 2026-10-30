@@ -44,12 +44,13 @@ export interface SyncDeviceRecordsResult {
   errors: string[];
 }
 
-export function listMessages(params: {page?: number; pageSize?: number; search?: string; direction?: string} = {}) {
+export function listMessages(params: {page?: number; pageSize?: number; search?: string; direction?: string; deviceId?: string} = {}) {
   const query = new URLSearchParams({
     page: String(params.page ?? 1),
     page_size: String(params.pageSize ?? 50),
     search: params.search ?? '',
     direction: params.direction ?? '',
+    device_id: params.deviceId ?? '',
   });
   return api.get<{items: MessageItem[]; total: number; page: number; pageSize: number}>(`/messages?${query}`);
 }

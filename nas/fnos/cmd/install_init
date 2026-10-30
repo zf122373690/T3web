@@ -1,0 +1,11 @@
+#!/bin/bash
+# 安装前检查：Docker 可用性。镜像缺失仅提示，不阻塞安装
+# （镜像 tag 由打包时的 build-fpk.sh 注入 compose，可能与默认名不同）。
+if ! command -v docker >/dev/null 2>&1; then
+    echo "未检测到 docker 命令，请先在应用中心安装/启用 Docker，再安装本应用。" > "${TRIM_TEMP_LOGFILE}"
+    exit 1
+fi
+if ! docker image inspect "t3web:latest" >/dev/null 2>&1; then
+    echo "提示：未找到本地镜像 t3web:latest。若容器启动失败，请先构建/导入 T3 控制台镜像后再启动应用。" >> "${TRIM_TEMP_LOGFILE}"
+fi
+exit 0

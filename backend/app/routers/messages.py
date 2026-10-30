@@ -317,6 +317,7 @@ def list_messages(
     page_size: int = Query(50, ge=1, le=200),
     search: str = "",
     direction: str = "",
+    device_id: str = "",
 ) -> dict:
     require_user(request)
     offset = (page - 1) * page_size
@@ -328,6 +329,10 @@ def list_messages(
         where_parts.append("direction IN ('in', 'out')")
     elif direction == "call":
         where_parts.append("direction = 'call'")
+
+    if device_id.strip():
+        where_parts.append("device_id = ?")
+        params.append(device_id.strip())
 
     if search.strip():
         where_parts.append("(phone LIKE ? OR content LIKE ? OR direction LIKE ? OR status LIKE ? OR device_id LIKE ? OR device_name LIKE ? OR device_ip LIKE ? OR CAST(sim_slot AS TEXT) LIKE ? OR sim_number LIKE ? OR sim_type LIKE ?)")

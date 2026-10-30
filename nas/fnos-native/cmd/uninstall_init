@@ -1,0 +1,7 @@
+#!/bin/bash
+export PATH="/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
+if [ -r "${TRIM_PKGVAR}/t3web.pid" ]; then
+    kill -TERM "$(head -n 1 "${TRIM_PKGVAR}/t3web.pid" | tr -d '[:space:]')" 2>/dev/null
+    rm -f "${TRIM_PKGVAR}/t3web.pid"
+fi
+exit 0

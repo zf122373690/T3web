@@ -1,0 +1,12 @@
+{
+    "data-share": {
+        "shares": [
+            {
+                "name": "t3web",
+                "permission": {
+                    "rw": ["t3web"]
+                }
+            }
+        ]
+    }
+}

@@ -1,0 +1,12 @@
+appname         = t3web
+version         = 1.1.0
+display_name    = T3 短信转发控制台
+desc            = <p>T3 短信转发器本地管理控制台：管理局域网内的 T3 短信转发设备（扫描发现、配置读写、OTA、短信/通话记录、AT 指令、MQTT 转发通道等）。</p><p><b>运行方式：</b>基于 Docker 镜像（主机网络模式，端口 8080），需在安装前于 Docker 中准备好 <code>t3web</code> 镜像。</p><p>数据保存在本机，不依赖任何公网服务。</p>
+maintainer      = T3 Tools
+platform        = x86
+source          = thirdparty
+desktop_uidir   = ui
+desktop_applaunchname = t3web.APPLICATION
+service_port    = 8080
+checkport       = true
+checksum        =

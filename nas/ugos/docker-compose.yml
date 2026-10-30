@@ -1,0 +1,35 @@
+# ============================================================
+#  T3 短信转发控制台 · 绿联 UGOS Pro 部署配置
+#
+#  绿联 UGOS Pro 未开放第三方原生应用安装，官方推荐方式是通过
+#  系统内置 Docker 应用的「项目（Compose）」功能导入本文件。
+#
+#  步骤：
+#    1. 电脑上构建镜像：  docker build -t t3web:latest .
+#    2. 导出并导入到 NAS： docker save t3web:latest -o t3web.tar
+#                          NAS Docker 应用 → 镜像 → 导入 t3web.tar
+#       （若 NAS 可访问镜像仓库，也可把 image 改为仓库地址）
+#    3. UGOS 桌面 → Docker 应用 → 项目 → 创建项目
+#       项目名：t3web；路径任选（如 Docker/t3web）；粘贴本文件内容，启动。
+#    4. 访问 http://NAS的IP:8080 （默认账号 admin / admin）
+#
+#  数据目录：默认使用项目目录下的 data/ 子目录（随项目目录持久化）。
+#  如需放到指定共享目录，把 ./data 改为如 /volume1/T3Web/data。
+# ============================================================
+services:
+  t3web:
+    image: t3web:latest
+    container_name: t3web
+    # 主机网络模式：与 T3 设备同网段，局域网扫描可直接发现设备。
+    # UGOS Pro 为 Linux 底层，支持 host 模式。
+    network_mode: host
+    environment:
+      - TZ=Asia/Shanghai
+      # 控制台登录账号，可自行修改
+      - T3_UI_USER=admin
+      - T3_UI_PASS=admin
+      - T3_DATA_DIR=/app/data
+      - T3_DB=/app/data/app.db
+    volumes:
+      - ./data:/app/data
+    restart: unless-stopped

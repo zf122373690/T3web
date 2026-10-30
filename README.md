@@ -37,6 +37,7 @@ backend/                 后端服务
   win_launcher.py        Windows 图形启动器
 frontend/                React 前端
 build-win.ps1            Windows 单文件 EXE 打包脚本
+nas/                     NAS 适配（fnOS .fpk / UGOS Compose）
 start.bat                Windows 开发/本地启动脚本
 start.sh                 Linux/macOS 本地启动脚本
 ```
@@ -186,6 +187,37 @@ powershell -ExecutionPolicy Bypass -File .\build-win.ps1
 ```
 
 产物：`dist\T3Web.exe`（单文件、无黑色控制台窗口、自动选端口、日志写入 `launcher.log`）。
+
+## NAS 部署（飞牛 fnOS / 绿联 UGOS Pro）
+
+支持部署到飞牛 fnOS 和绿联 UGOS Pro，详见 [`nas/README.md`](nas/README.md)。
+
+### 飞牛 fnOS 原生应用（推荐）
+
+提供 `.fpk` 格式的原生安装包，可直接在 fnOS 应用中心安装，无需 Docker。
+
+**特点：**
+- 原生 Python 运行时（依赖系统 Python 3.12）
+- 监听端口 2333
+- 支持 x86 和 arm 架构
+- 数据保存在本机，不依赖公网服务
+
+**安装方式：**
+1. 从 [Releases](https://github.com/your-repo/releases) 下载对应架构的 `.fpk` 文件
+2. 在 fnOS 应用中心选择"本地安装"
+3. 安装完成后访问 `http://<fnOS-IP>:2333`
+
+**手动构建：**
+```bash
+cd nas
+./build-fpk-native.sh
+```
+
+### Docker 方式
+
+也支持以 Docker 容器方式部署到飞牛 fnOS 和绿联 UGOS Pro。
+
+> **注意**：NAS 部署仅支持局域网设备模式，串口模式请使用 Windows EXE 或源码启动。
 
 ## 环境变量
 

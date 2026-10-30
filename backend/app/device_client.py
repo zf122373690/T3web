@@ -580,24 +580,19 @@ def set_t3_sim_number(ip: str, slot: int, number: str, user: str = DEVICE_USER, 
     return result
 
 
-def send_t3_at(ip: str, command: str, timeout_ms: int = 1000, user: str = DEVICE_USER, password: str = DEVICE_PASS) -> dict[str, Any]:
-    result = _request_device(
-        ip, user, password, "POST", "/api/at",
-        json_body={"cmd": command, "timeout": timeout_ms},
-        timeout=max(HTTP_TIMEOUT, timeout_ms / 1000 + 2),
-    )
-    result["endpoint"] = "/api/at"
-    return result
-
-
 def factory_reset_t3(ip: str, user: str = DEVICE_USER, password: str = DEVICE_PASS) -> dict[str, Any]:
     result = _request_device(ip, user, password, "POST", "/api/factory_reset")
     result["endpoint"] = "/api/factory_reset"
     return result
 
 
-def get_t3_messages(ip: str, user: str = DEVICE_USER, password: str = DEVICE_PASS) -> dict[str, Any]:
-    result = _request_device(ip, user, password, "GET", "/api/messages", params={"type": "all"})
+def get_t3_messages(
+    ip: str,
+    msg_type: str = "all",
+    user: str = DEVICE_USER,
+    password: str = DEVICE_PASS,
+) -> dict[str, Any]:
+    result = _request_device(ip, user, password, "GET", "/api/messages", params={"type": msg_type})
     result["endpoint"] = "/api/messages"
     if result.get("ok"):
         data = result.get("data")
@@ -632,13 +627,6 @@ def start_t3_ota(ip: str, url: str, user: str = DEVICE_USER, password: str = DEV
     return result
 
 
-def diag_t3(ip: str, user: str = DEVICE_USER, password: str = DEVICE_PASS) -> dict[str, Any]:
-    """原始诊断：依次执行 6 条 AT 指令并返回原始响应。"""
-    result = _request_device(ip, user, password, "GET", "/api/diag", timeout=max(HTTP_TIMEOUT, 45))
-    result["endpoint"] = "/api/diag"
-    return result
-
-
 def push_test_t3(ip: str, channel: int | None = None, user: str = DEVICE_USER, password: str = DEVICE_PASS) -> dict[str, Any]:
     """测试单个推送通道（channel 缺省为 -1，由固件按配置选择）。"""
     body: dict[str, Any] = {}
@@ -665,4 +653,122 @@ def ota_progress_t3(ip: str, user: str = DEVICE_USER, password: str = DEVICE_PAS
     result = _request_device(ip, user, password, "GET", "/api/ota/progress", timeout=max(HTTP_TIMEOUT, 12))
     result["endpoint"] = "/api/ota/progress"
     return result
+
+
+def get_pending_device_messages(ip: str, user: str = DEVICE_USER, password: str = DEVICE_PASS) -> dict[str, Any]:
+    """增量拉取设备 RAM 中尚未落盘的消息（/api/messages/pending）。"""
+    result = _request_device(ip, user, password, "GET", "/api/messages/pending", timeout=max(HTTP_TIMEOUT, 8))
+    result["endpoint"] = "/api/messages/pending"
+    if result.get("ok"):
+        data = result.get("data")
+        nested = data.get("data") if isinstance(data, dict) else None
+        if isinstance(nested, dict):
+            data = nested
+        if isinstance(data, dict):
+            messages = data.get("messages")
+            result["data"] = messages if isinstance(messages, list) else []
+        elif isinstance(data, list):
+            result["data"] = data
+        else:
+            result["data"] = []
+    return result
+
+
+def purge_t3_sms(ip: str, keep_count: int | None = None, user: str = DEVICE_USER, password: str = DEVICE_PASS) -> dict[str, Any]:
+    """清理设备 SIM 卡中的旧短信（/api/sms/purge，keepCount 0-50）。"""
+    body: dict[str, Any] = {}
+    if keep_count is not None:
+        body["keepCount"] = max(0, min(50, int(keep_count)))
+    result = _request_device(
+        ip, user, password, "POST", "/api/sms/purge",
+        json_body=body or None, timeout=max(HTTP_TIMEOUT, 25),
+    )
+    result["endpoint"] = "/api/sms/purge"
+    return result
+
+
+def esim_query_t3(ip: str, slot: int, start: bool, user: str = DEVICE_USER, password: str = DEVICE_PASS) -> dict[str, Any]:
+    """eSIM 状态/Profile 查询（start=True 启动异步任务，之后轮询 start=False）。"""
+    result = _request_device(
+        ip, user, password, "GET", "/api/esim",
+        params={"slot": slot, "start": "1" if start else "0"},
+        timeout=max(HTTP_TIMEOUT, 10),
+    )
+    result["endpoint"] = "/api/esim"
+    return result
+
+
+def esim_profile_t3(ip: str, slot: int, action: str, identifier: str, user: str = DEVICE_USER, password: str = DEVICE_PASS) -> dict[str, Any]:
+    """eSIM Profile 启用/停用/删除（action: enable|disable|delete）。"""
+    result = _request_device(
+        ip, user, password, "POST", "/api/esim/profile",
+        json_body={"slot": slot, "action": action, "identifier": identifier},
+        timeout=max(HTTP_TIMEOUT, 10),
+    )
+    result["endpoint"] = "/api/esim/profile"
+    return result
+
+
+def operator_select_t3(ip: str, slot: int, plmn: str = "", user: str = DEVICE_USER, password: str = DEVICE_PASS) -> dict[str, Any]:
+    """手动运营商搜网（plmn 为 5-6 位数字，空字符串 = 自动）。"""
+    result = _request_device(
+        ip, user, password, "POST", "/api/operator/select",
+        json_body={"slot": slot, "plmn": plmn},
+        timeout=max(HTTP_TIMEOUT, 10),
+    )
+    result["endpoint"] = "/api/operator/select"
+    return result
+
+
+def keepalive_test_t3(
+    ip: str,
+    slot: int,
+    mode: str = "sms",
+    phone: str = "",
+    message: str = "",
+    user: str = DEVICE_USER,
+    password: str = DEVICE_PASS,
+) -> dict[str, Any]:
+    """保活测试（短信或拨号），异步任务，结果用 keepalive_test_status_t3 轮询。"""
+    result = _request_device(
+        ip, user, password, "POST", "/api/keepalive/test",
+        json_body={"slot": slot, "mode": mode, "phone": phone, "message": message},
+        timeout=max(HTTP_TIMEOUT, 10),
+    )
+    result["endpoint"] = "/api/keepalive/test"
+    return result
+
+
+def keepalive_test_status_t3(ip: str, user: str = DEVICE_USER, password: str = DEVICE_PASS) -> dict[str, Any]:
+    result = _request_device(ip, user, password, "GET", "/api/keepalive/test/status", timeout=max(HTTP_TIMEOUT, 8))
+    result["endpoint"] = "/api/keepalive/test/status"
+    return result
+
+
+def locate_t3(ip: str, user: str = DEVICE_USER, password: str = DEVICE_PASS) -> dict[str, Any]:
+    result = _request_device(ip, user, password, "POST", "/api/locate")
+    result["endpoint"] = "/api/locate"
+    return result
+
+
+def upload_t3_ota(ip: str, firmware: bytes, filename: str = "firmware.bin", user: str = DEVICE_USER, password: str = DEVICE_PASS) -> dict[str, Any]:
+    """本地上传固件刷写（multipart POST /api/ota/upload），支持 LAN Key 或 Basic。"""
+    ensure_private_ip(ip)
+    try:
+        with httpx.Client(timeout=max(HTTP_TIMEOUT, 180), trust_env=False) as client:
+            resp = client.post(
+                f"http://{ip}/api/ota/upload",
+                params={"key": LAN_DEVICE_KEY},
+                files={"file": (filename, firmware, "application/octet-stream")},
+            )
+            if resp.status_code in (401, 403):
+                resp = client.post(
+                    f"http://{ip}/api/ota/upload",
+                    auth=httpx.DigestAuth(user, password),
+                    files={"file": (filename, firmware, "application/octet-stream")},
+                )
+        ok = 200 <= resp.status_code < 300
+        return {"ok": ok, "message": resp.text or ("固件上传成功，设备重启中" if ok else f"HTTP {resp.status_code}"), "statusCode": resp.status_code, "endpoint": "/api/ota/upload", "data": {"text": resp.text}}
+    except Exception as exc:
+        return {"ok": False, "message": str(exc), "endpoint": "/api/ota/upload", "data": {}}
 

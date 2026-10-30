@@ -9,7 +9,7 @@ from fastapi import APIRouter, HTTPException, Request
 
 from ..auth import require_user
 from ..config import DEVICE_PASS, DEVICE_USER, SCAN_CONCURRENCY, SCAN_TTL_SECONDS
-from ..device_client import guess_ipv4_cidr, lan_discover_device, tcp_open
+from ..device_client import guess_ipv4_cidr, lan_discover_device
 from .devices import upsert_device
 
 router = APIRouter(prefix="/api/scan", tags=["scan"])
@@ -38,13 +38,11 @@ def _new_scan(cidr: str, total: int) -> dict:
 
 
 def _scan_ip(ip: str, user: str, password: str) -> dict:
-    """扫描安全约束：仅 TCP 探活 + GET /l/d，禁止 /api/status、/mgr、写号、切卡。"""
+    """扫描安全约束：仅 GET /l/d，禁止 /api/status、/mgr、写号、切卡。"""
     _ = user, password
-    if not tcp_open(ip):
-        return {"ip": ip, "success": False, "candidate": False}
     data = lan_discover_device(ip)
     if not data:
-        return {"ip": ip, "success": False, "candidate": False, "httpOpen": True}
+        return {"ip": ip, "success": False, "candidate": False}
     device = upsert_device(ip, str(data.get("MAC", "")), data)
     return {"ip": ip, "success": True, "candidate": True, "autoSaved": True, "data": data, "device": device}
 
