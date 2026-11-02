@@ -12,23 +12,14 @@ from ..db import connect, now_ts
 from ..device_client import (
     check_t3_ota,
     clear_device_messages,
-    ddns_status_t3,
-    ddns_update_t3,
-    esim_profile_t3,
-    esim_query_t3,
     factory_reset_t3,
     get_device_data,
     get_pending_device_messages,
     get_t3_config,
     get_t3_messages,
     get_t3_status,
-    keepalive_test_status_t3,
-    keepalive_test_t3,
     lan_discover_device,
-    locate_t3,
     ota_progress_t3,
-    operator_select_t3,
-    purge_t3_sms,
     push_test_t3,
     reboot_device,
     send_sms_to_device,
@@ -807,26 +798,6 @@ async def push_test(device_id: int, request: Request) -> dict:
     return {"success": True, "message": result.get("message") or "推送测试完成", "endpoint": result.get("endpoint"), "data": result.get("data", {})}
 
 
-@router.get("/{device_id}/ddns")
-def ddns_status(device_id: int, request: Request) -> dict:
-    require_user(request)
-    row = get_device_row(device_id)
-    result = ddns_status_t3(row["ip"], DEVICE_USER, DEVICE_PASS)
-    if not result.get("ok"):
-        raise HTTPException(status_code=502, detail=result.get("message") or "DDNS 状态获取失败")
-    return {"success": True, "message": result.get("message") or "DDNS 状态获取完成", "endpoint": result.get("endpoint"), "data": result.get("data", {})}
-
-
-@router.post("/{device_id}/ddns/update")
-async def ddns_update(device_id: int, request: Request) -> dict:
-    require_user(request)
-    row = get_device_row(device_id)
-    result = ddns_update_t3(row["ip"], DEVICE_USER, DEVICE_PASS)
-    if not result.get("ok"):
-        raise HTTPException(status_code=502, detail=result.get("message") or "DDNS 更新失败")
-    return {"success": True, "message": result.get("message") or "DDNS 已更新", "endpoint": result.get("endpoint"), "data": result.get("data", {})}
-
-
 @router.get("/{device_id}/ota/progress")
 def ota_progress(device_id: int, request: Request) -> dict:
     require_user(request)
@@ -857,122 +828,6 @@ def read_pending_device_messages(device_id: int, request: Request) -> dict:
     if not result.get("ok"):
         raise HTTPException(status_code=502, detail=result.get("message") or "设备增量消息读取失败")
     return {"success": True, "message": result.get("message") or "增量消息读取完成", "endpoint": result.get("endpoint"), "data": result.get("data", [])}
-
-
-@router.post("/{device_id}/sms/purge")
-async def purge_device_sms(device_id: int, request: Request) -> dict:
-    """清理设备 SIM 卡中的旧短信。"""
-    require_user(request)
-    row = get_device_row(device_id)
-    try:
-        body = await request.json()
-    except Exception:
-        body = {}
-    keep = body.get("keepCount")
-    result = purge_t3_sms(
-        row["ip"],
-        int(keep) if isinstance(keep, (int, float)) and str(keep).lstrip("-").isdigit() else None,
-        DEVICE_USER,
-        DEVICE_PASS,
-    )
-    if not result.get("ok"):
-        raise HTTPException(status_code=502, detail=result.get("message") or "旧短信清理失败")
-    return {"success": True, "message": result.get("message") or "旧短信清理完成", "endpoint": result.get("endpoint"), "data": result.get("data", {})}
-
-
-@router.get("/{device_id}/esim")
-def device_esim_status(device_id: int, request: Request) -> dict:
-    """eSIM 查询：?slot=1|2&start=1 启动任务，之后不带 start 轮询。"""
-    require_user(request)
-    row = get_device_row(device_id)
-    slot = int(request.query_params.get("slot") or 0)
-    start = request.query_params.get("start") == "1"
-    if slot not in (1, 2):
-        raise HTTPException(status_code=400, detail="slot 必须为 1 或 2")
-    result = esim_query_t3(row["ip"], slot, start, DEVICE_USER, DEVICE_PASS)
-    if not result.get("ok"):
-        raise HTTPException(status_code=result.get("statusCode") or 502, detail=result.get("message") or "eSIM 查询失败")
-    return {"success": True, "message": result.get("message") or "eSIM 查询完成", "endpoint": result.get("endpoint"), "data": result.get("data", {})}
-
-
-@router.post("/{device_id}/esim/profile")
-async def device_esim_profile(device_id: int, request: Request) -> dict:
-    require_user(request)
-    row = get_device_row(device_id)
-    body = await request.json()
-    slot = int(body.get("slot") or 0)
-    action = str(body.get("action") or "").strip()
-    identifier = str(body.get("identifier") or "").strip()
-    if slot not in (1, 2):
-        raise HTTPException(status_code=400, detail="slot 必须为 1 或 2")
-    if action not in ("enable", "disable", "delete"):
-        raise HTTPException(status_code=400, detail="action 必须为 enable、disable 或 delete")
-    if not identifier:
-        raise HTTPException(status_code=400, detail="Profile 标识不能为空")
-    result = esim_profile_t3(row["ip"], slot, action, identifier, DEVICE_USER, DEVICE_PASS)
-    if not result.get("ok"):
-        raise HTTPException(status_code=result.get("statusCode") or 502, detail=result.get("message") or "eSIM Profile 操作失败")
-    return {"success": True, "message": result.get("message") or "eSIM Profile 操作已下发", "endpoint": result.get("endpoint"), "data": result.get("data", {})}
-
-
-@router.post("/{device_id}/operator/select")
-async def device_operator_select(device_id: int, request: Request) -> dict:
-    """手动运营商搜网：plmn 空 = 自动。"""
-    require_user(request)
-    row = get_device_row(device_id)
-    body = await request.json()
-    slot = int(body.get("slot") or 0)
-    plmn = str(body.get("plmn") or "").strip()
-    if slot not in (1, 2):
-        raise HTTPException(status_code=400, detail="slot 必须为 1 或 2")
-    if plmn and (not plmn.isdigit() or len(plmn) < 5 or len(plmn) > 6):
-        raise HTTPException(status_code=400, detail="运营商代码应为 5-6 位数字 PLMN")
-    result = operator_select_t3(row["ip"], slot, plmn, DEVICE_USER, DEVICE_PASS)
-    if not result.get("ok"):
-        raise HTTPException(status_code=result.get("statusCode") or 502, detail=result.get("message") or "搜网任务启动失败")
-    return {"success": True, "message": result.get("message") or "搜网任务已启动", "endpoint": result.get("endpoint"), "data": result.get("data", {})}
-
-
-@router.post("/{device_id}/keepalive-test")
-async def device_keepalive_test(device_id: int, request: Request) -> dict:
-    require_user(request)
-    row = get_device_row(device_id)
-    body = await request.json()
-    slot = int(body.get("slot") or 0)
-    mode = str(body.get("mode") or "sms").strip()
-    if slot not in (1, 2):
-        raise HTTPException(status_code=400, detail="slot 必须为 1 或 2")
-    if mode not in ("sms", "call"):
-        raise HTTPException(status_code=400, detail="mode 必须为 sms 或 call")
-    result = keepalive_test_t3(
-        row["ip"], slot, mode,
-        str(body.get("phone") or "").strip(),
-        str(body.get("message") or "").strip(),
-        DEVICE_USER, DEVICE_PASS,
-    )
-    if not result.get("ok"):
-        raise HTTPException(status_code=result.get("statusCode") or 502, detail=result.get("message") or "保活测试启动失败")
-    return {"success": True, "message": result.get("message") or "保活测试已启动", "endpoint": result.get("endpoint"), "data": result.get("data", {})}
-
-
-@router.get("/{device_id}/keepalive-test/status")
-def device_keepalive_test_status(device_id: int, request: Request) -> dict:
-    require_user(request)
-    row = get_device_row(device_id)
-    result = keepalive_test_status_t3(row["ip"], DEVICE_USER, DEVICE_PASS)
-    if not result.get("ok"):
-        raise HTTPException(status_code=502, detail=result.get("message") or "保活测试状态获取失败")
-    return {"success": True, "message": result.get("message") or "保活测试状态获取完成", "endpoint": result.get("endpoint"), "data": result.get("data", {})}
-
-
-@router.post("/{device_id}/locate")
-async def device_locate(device_id: int, request: Request) -> dict:
-    require_user(request)
-    row = get_device_row(device_id)
-    result = locate_t3(row["ip"], DEVICE_USER, DEVICE_PASS)
-    if not result.get("ok"):
-        raise HTTPException(status_code=502, detail=result.get("message") or "寻找设备失败")
-    return {"success": True, "message": "设备正在响铃" if result.get("ok") else "", "endpoint": result.get("endpoint"), "data": result.get("data", {})}
 
 
 @router.post("/{device_id}/ota/upload")

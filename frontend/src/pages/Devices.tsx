@@ -12,30 +12,23 @@ import {
   clearDeviceMessages,
   deleteDevice,
   factoryResetDevice,
-  getDeviceDdns,
-  getDeviceKeepaliveTestStatus,
   getDeviceOtaProgress,
   getDeviceTakeover,
+  getScanStatus,
   listDevices,
-  locateDevice,
-  operateDeviceEsimProfile,
   pushTestDevice,
-  purgeDeviceSms,
-  queryDeviceEsim,
   rebootManagedDevice,
   refreshDevice,
-  selectDeviceOperator,
   sendDeviceSms,
-  startDeviceKeepaliveTest,
   startDeviceOta,
+  startScan,
   updateDeviceConfig,
-  updateDeviceDdns,
   updateDeviceSimNumber,
   updateDeviceWifi,
   uploadDeviceOta,
   type DeviceItem,
-  type EsimProfile,
   type FirmwareOtaResult,
+  type ScanStatus,
   type T3Config,
   type T3MqttConfig,
   type T3Takeover,
@@ -168,33 +161,25 @@ export default function Devices() {
   // 推送测试
   const [pushResult, setPushResult] = useState('');
   const [pushBusy, setPushBusy] = useState(false);
-  // DDNS 维护
-  const [ddnsData, setDdnsData] = useState<Record<string, string | number | boolean> | null>(null);
-  const [ddnsBusy, setDdnsBusy] = useState(false);
   // OTA 进度
   const [otaProgressData, setOtaProgressData] = useState<{running?: boolean; finished?: boolean; success?: boolean; loaded?: number; total?: number; percent?: number; message?: string} | null>(null);
-  // eSIM 管理
-  const [esimSlot, setEsimSlot] = useState(1);
-  const [esimBusy, setEsimBusy] = useState(false);
-  const [esimData, setEsimData] = useState<{eid?: string; supported?: boolean; message?: string; profiles?: EsimProfile[]} | null>(null);
-  // 手动运营商搜网
-  const [opSlot, setOpSlot] = useState(1);
-  const [opPlmn, setOpPlmn] = useState('');
-  const [opBusy, setOpBusy] = useState(false);
-  // 保活测试
-  const [kaSlot, setKaSlot] = useState(1);
-  const [kaMode, setKaMode] = useState<'sms' | 'call'>('sms');
-  const [kaPhone, setKaPhone] = useState('');
-  const [kaMessage, setKaMessage] = useState('');
-  const [kaBusy, setKaBusy] = useState(false);
-  const [kaResult, setKaResult] = useState('');
-  // 短信清理
-  const [purgeKeep, setPurgeKeep] = useState(20);
-  const [purgeBusy, setPurgeBusy] = useState(false);
-  const [purgeResult, setPurgeResult] = useState('');
   // 本地 OTA 上传
   const [otaFile, setOtaFile] = useState<File | null>(null);
   const [otaUploadBusy, setOtaUploadBusy] = useState(false);
+  // 复制配置到其他设备
+  const [copyDialogOpen, setCopyDialogOpen] = useState(false);
+  const [copyTargets, setCopyTargets] = useState<Set<number>>(new Set());
+  const [copyBusy, setCopyBusy] = useState(false);
+  // 局域网扫描
+  const [scanOpen, setScanOpen] = useState(false);
+  const [scanCidr, setScanCidr] = useState('');
+  const [scanStartIp, setScanStartIp] = useState('');
+  const [scanEndIp, setScanEndIp] = useState('');
+  const [scanUser, setScanUser] = useState('admin');
+  const [scanPassword, setScanPassword] = useState('admin');
+  const [scanRunning, setScanRunning] = useState(false);
+  const [scanStatus, setScanStatus] = useState<ScanStatus | null>(null);
+  const scanTimer = useRef<number | null>(null);
 
   // Statistics
   const stats = useMemo(() => {
@@ -379,11 +364,6 @@ export default function Devices() {
     setError('');
     setNotice('');
     setConfigReady(false);
-    setEsimData(null);
-    setEsimSlot(1);
-    setOpPlmn('');
-    setKaResult('');
-    setPurgeResult('');
     setOtaFile(null);
     setWifiSsid(device.wifi.name || '');
     setWifiPassword('');
@@ -416,6 +396,111 @@ export default function Devices() {
     if (!takeoverDevice || !configReady) return;
     await runAction(takeoverDevice, async () => updateDeviceConfig(takeoverDevice.id, configPayload(config)), '配置保存失败');
     await openTakeover(takeoverDevice);
+  };
+
+  const copyConfigToDevices = async () => {
+    if (!takeoverDevice || copyTargets.size === 0) return;
+    setCopyBusy(true);
+    const payload = configPayload(config);
+    delete payload.deviceName;
+    let successCount = 0;
+    let failCount = 0;
+    for (const targetId of copyTargets) {
+      try {
+        await updateDeviceConfig(targetId, payload);
+        successCount++;
+      } catch {
+        failCount++;
+      }
+    }
+    setCopyBusy(false);
+    setCopyDialogOpen(false);
+    setCopyTargets(new Set());
+    if (failCount === 0) {
+      setNotice(`配置已成功复制到 ${successCount} 台设备`);
+    } else {
+      setError(`复制完成：${successCount} 台成功，${failCount} 台失败`);
+    }
+  };
+
+  const stopScanTimer = () => {
+    if (scanTimer.current) {
+      window.clearInterval(scanTimer.current);
+      scanTimer.current = null;
+    }
+  };
+
+  const runScan = async () => {
+    stopScanTimer();
+    setScanRunning(true);
+    setError('');
+    setScanStatus(null);
+    setScanProgress('');
+    try {
+      const payload: {cidr?: string; startIp?: number; endIp?: number; user?: string; password?: string} = {user: scanUser, password: scanPassword};
+      if (scanCidr.trim()) {
+        payload.cidr = scanCidr.trim();
+      } else if (scanStartIp.trim() && scanEndIp.trim()) {
+        const startParts = scanStartIp.trim().split('.');
+        const endParts = scanEndIp.trim().split('.');
+        const startNum = startParts.length === 4 ? parseInt(startParts[3]) : undefined;
+        const endNum = endParts.length === 4 ? parseInt(endParts[3]) : undefined;
+        if (startNum !== undefined && endNum !== undefined) {
+          payload.startIp = startNum;
+          payload.endIp = endNum;
+          payload.cidr = startParts.slice(0, 3).join('.');
+        }
+      }
+      const started = await startScan(payload);
+      setScanStatus({
+        id: started.scanId,
+        cidr: started.cidr,
+        total: started.total,
+        pending: started.total,
+        found: 0,
+        failed: 0,
+        done: false,
+        results: [],
+      });
+      setScanProgress(`扫描中... 0/${started.total}`);
+      scanTimer.current = window.setInterval(async () => {
+        try {
+          const next = await getScanStatus(started.scanId);
+          setScanStatus(next);
+          setScanProgress(`扫描中... ${next.total - next.pending}/${next.total}，发现 ${next.found} 台`);
+          if (next.done || next.pending <= 0) {
+            setScanRunning(false);
+            stopScanTimer();
+            setScanProgress(`扫描完成：发现 ${next.found} 台设备`);
+            await load(true);
+          }
+        } catch (err) {
+          setScanRunning(false);
+          stopScanTimer();
+          setError(err instanceof Error ? err.message : '扫描状态获取失败');
+        }
+      }, 1000);
+    } catch (err) {
+      setScanRunning(false);
+      setError(err instanceof Error ? err.message : '启动扫描失败');
+    }
+  };
+
+  const claimScannedDevice = async (ip: string) => {
+    try {
+      await addDevice({ip, user: scanUser, password: scanPassword});
+      setScanStatus((current) => {
+        if (!current) return current;
+        return {
+          ...current,
+          results: current.results.map((item) => item.ip === ip ? {...item, success: true, candidate: true, autoSaved: true} : item),
+        };
+      });
+      setNotice(`设备 ${ip} 已添加`);
+      await load(true);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : '添加失败');
+    }
   };
 
   const saveWifi = async () => {
@@ -530,33 +615,6 @@ export default function Devices() {
     }
   };
 
-  // ===== DDNS 维护 =====
-  const refreshDdns = async () => {
-    if (!takeoverDevice) return;
-    setDdnsBusy(true);
-    try {
-      const result = await getDeviceDdns(takeoverDevice.id);
-      setDdnsData(result.data);
-    } catch (err) {
-      setDdnsData({'error': err instanceof Error ? err.message : 'DDNS 查询失败'});
-    } finally {
-      setDdnsBusy(false);
-    }
-  };
-
-  const runDdnsUpdate = async () => {
-    if (!takeoverDevice) return;
-    setDdnsBusy(true);
-    try {
-      const result = await updateDeviceDdns(takeoverDevice.id);
-      setDdnsData({'message': result.message || (result.success ? 'DDNS 更新已触发' : 'DDNS 更新失败')});
-    } catch (err) {
-      setDdnsData({'error': err instanceof Error ? err.message : 'DDNS 更新失败'});
-    } finally {
-      setDdnsBusy(false);
-    }
-  };
-
   // ===== OTA 进度 =====
   const refreshOtaProgress = async () => {
     if (!takeoverDevice) return;
@@ -568,98 +626,6 @@ export default function Devices() {
     }
   };
 
-
-  // ===== eSIM 管理 =====
-  const runEsimQuery = async () => {
-    if (!takeoverDevice) return;
-    setEsimBusy(true);
-    setEsimData(null);
-    try {
-      const started = await queryDeviceEsim(takeoverDevice.id, esimSlot, true);
-      const status = started.data || {};
-      // 启动后轮询，最多 90 秒
-      const deadline = Date.now() + 90_000;
-      let latest = status;
-      while (Date.now() < deadline && (latest.running || !latest.done)) {
-        await new Promise((r) => setTimeout(r, 2000));
-        const polled = await queryDeviceEsim(takeoverDevice.id, esimSlot, false);
-        latest = polled.data || {};
-      }
-      setEsimData(latest);
-      if (!latest.done) setError('eSIM 查询超时，请稍后重试');
-      else if (!latest.success) setError(latest.message || 'eSIM 查询未成功');
-      else setNotice(`eSIM 查询完成${latest.profiles?.length ? `，共 ${latest.profiles.length} 个 Profile` : ''}`);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'eSIM 查询失败');
-    } finally {
-      setEsimBusy(false);
-    }
-  };
-
-  const runEsimProfile = async (profile: EsimProfile, action: 'enable' | 'disable' | 'delete') => {
-    if (!takeoverDevice || !profile.aid) return;
-    const label = action === 'enable' ? '启用' : action === 'disable' ? '停用' : '删除';
-    if (!confirm(`确认${label} Profile「${profile.nickname || profile.profileName || profile.iccid}」？${action === 'delete' ? '删除后不可恢复！' : ''}`)) return;
-    await runAction(takeoverDevice, () => operateDeviceEsimProfile(takeoverDevice.id, {slot: esimSlot, action, identifier: profile.aid!}), `eSIM Profile ${label}失败`);
-  };
-
-  // ===== 手动运营商搜网 =====
-  const runOperatorSelect = async () => {
-    if (!takeoverDevice) return;
-    if (!confirm(`确认对 SIM${opSlot} 手动搜网？搜网期间约 1-3 分钟，请勿重复操作。`)) return;
-    setOpBusy(true);
-    try {
-      const result = await selectDeviceOperator(takeoverDevice.id, {slot: opSlot, plmn: opPlmn.trim()});
-      setNotice(result.message || '搜网任务已启动');
-    } catch (err) {
-      setError(err instanceof Error ? err.message : '搜网任务启动失败');
-    } finally {
-      setOpBusy(false);
-    }
-  };
-
-  // ===== 保活测试 =====
-  const runKeepaliveTest = async () => {
-    if (!takeoverDevice) return;
-    setKaBusy(true);
-    setKaResult('');
-    try {
-      const started = await startDeviceKeepaliveTest(takeoverDevice.id, {
-        slot: kaSlot,
-        mode: kaMode,
-        phone: kaPhone.trim(),
-        message: kaMessage.trim(),
-      });
-      const deadline = Date.now() + 60_000;
-      let status = '';
-      while (Date.now() < deadline) {
-        await new Promise((r) => setTimeout(r, 2000));
-        const polled = await getDeviceKeepaliveTestStatus(takeoverDevice.id);
-        status = polled.data?.message || polled.data?.state || '';
-        if (polled.data?.running === false && polled.data?.state && polled.data.state !== 'running') break;
-      }
-      setKaResult(status || started.message || '保活测试已启动');
-    } catch (err) {
-      setKaResult(err instanceof Error ? err.message : '保活测试启动失败');
-    } finally {
-      setKaBusy(false);
-    }
-  };
-
-  // ===== 短信清理 =====
-  const runSmsPurge = async () => {
-    if (!takeoverDevice) return;
-    if (!confirm(`确认清理设备 SIM 卡旧短信（每卡保留最新 ${purgeKeep} 条）？`)) return;
-    setPurgeBusy(true);
-    try {
-      const result = await purgeDeviceSms(takeoverDevice.id, purgeKeep);
-      setPurgeResult(result.message || '清理完成');
-    } catch (err) {
-      setPurgeResult(err instanceof Error ? err.message : '清理失败');
-    } finally {
-      setPurgeBusy(false);
-    }
-  };
 
   // ===== 本地 OTA 上传 =====
   const runOtaUpload = async () => {
@@ -700,6 +666,14 @@ export default function Devices() {
           title="对全部在线设备检查并触发固件升级"
         >
           ⚡ 全部在线 OTA
+        </button>
+        <button
+          className="stat-item stat-auto-refresh"
+          onClick={() => { setScanOpen(true); setScanStatus(null); setScanProgress(''); }}
+          disabled={scanRunning}
+          title="扫描局域网内的 T3 设备"
+        >
+          🔍 扫描发现
         </button>
       </div>
 
@@ -889,6 +863,7 @@ export default function Devices() {
 
               <div className="save-config-bar">
                 <button className="btn-primary" onClick={saveConfig} disabled={!configReady}>💾 保存固件配置</button>
+                <button className="btn-secondary" onClick={() => { setCopyTargets(new Set()); setCopyDialogOpen(true); }} disabled={!configReady}>📋 复制配置到其他设备</button>
               </div>
 
               <div className="takeover-grid" data-pane={takeoverPane}>
@@ -918,45 +893,6 @@ export default function Devices() {
                     <label style={{fontSize: 12, color: '#94a3b8'}}>SIM2 IMSI：{String((takeover?.status.modem as Record<string, unknown>).sim2_imsi)}</label>
                   )}
                   <label>网络模式<select value={config.networkMode || 0} onChange={(e) => patchConfig({networkMode: Number(e.target.value)})}><option value={0}>自动</option><option value={1}>WiFi only</option><option value={2}>4G only</option></select></label>
-                  <label>手动搜网卡槽<select value={opSlot} onChange={(e) => setOpSlot(Number(e.target.value))}><option value={1}>SIM 1</option><option value={2}>SIM 2</option></select></label>
-                  <label>运营商 PLMN<input value={opPlmn} onChange={(e) => setOpPlmn(e.target.value)} placeholder="5-6 位数字，留空=自动搜网" /></label>
-                  <button className="btn-secondary" onClick={runOperatorSelect} disabled={opBusy || busyId === takeoverDevice.id}>📡 启动手动搜网（1-3 分钟）</button>
-                  <label>保活测试卡槽<select value={kaSlot} onChange={(e) => setKaSlot(Number(e.target.value))}><option value={1}>SIM 1</option><option value={2}>SIM 2</option></select></label>
-                  <div className="takeover-two">
-                    <label>测试方式<select value={kaMode} onChange={(e) => setKaMode(e.target.value as 'sms' | 'call')}><option value="sms">短信</option><option value="call">拨号</option></select></label>
-                    <label>目标号码<input value={kaPhone} onChange={(e) => setKaPhone(e.target.value)} placeholder="留空用配置号码" /></label>
-                  </div>
-                  {kaMode === 'sms' && <label>测试内容<input value={kaMessage} onChange={(e) => setKaMessage(e.target.value)} placeholder="留空用配置内容" /></label>}
-                  <button className="btn-secondary" onClick={runKeepaliveTest} disabled={kaBusy || busyId === takeoverDevice.id}>{kaBusy ? '测试进行中…' : '🧪 启动保活测试'}</button>
-                  {kaResult && <div className="inline-error success">{kaResult}</div>}
-                </section>
-
-                <section className="takeover-card accent-green" data-pane="basic">
-                  <h3>💾 eSIM 管理</h3>
-                  <div className="takeover-two">
-                    <label>卡槽<select value={esimSlot} onChange={(e) => setEsimSlot(Number(e.target.value))}><option value={1}>SIM 1</option><option value={2}>SIM 2</option></select></label>
-                    <div className="serial-command refined" style={{marginTop: 18}}>
-                      <button className="btn-primary" onClick={runEsimQuery} disabled={esimBusy || busyId === takeoverDevice.id}>{esimBusy ? '查询中…' : '查询Profile'}</button>
-                    </div>
-                  </div>
-                  {esimData && (
-                    <div className="msg-log">
-                      {esimData.message && <div className={`inline-error ${esimData.supported ? 'success' : 'error'}`}>{esimData.message}</div>}
-                      {esimData.eid && <div className="diag-row"><span className="diag-key">EID</span><span className="diag-val">{esimData.eid}</span></div>}
-                      {esimData.profiles?.length ? esimData.profiles.map((profile, idx) => (
-                        <div className="diag-row" key={profile.aid || idx}>
-                          <span className="diag-key">{profile.nickname || profile.profileName || profile.iccid}<br /><small>{profile.iccid || ''} {profile.state || ''} {profile.profileClass || ''}</small></span>
-                          <span className="diag-val">
-                            {profile.aid && (<>
-                              {profile.state !== 'enabled' && <button className="btn-action" onClick={() => runEsimProfile(profile, 'enable')}>启用</button>}
-                              {profile.state === 'enabled' && <button className="btn-action" onClick={() => runEsimProfile(profile, 'disable')}>停用</button>}
-                              <button className="btn-action btn-danger" onClick={() => runEsimProfile(profile, 'delete')}>删除</button>
-                            </>)}
-                          </span>
-                        </div>
-                      )) : <div className="text-muted">暂无 Profile 数据，请先查询</div>}
-                    </div>
-                  )}
                 </section>
 
                 <section className="takeover-card" data-pane="forward">
@@ -1032,16 +968,6 @@ export default function Devices() {
                   <label>Client ID<input value={config.mqttClientId || ''} onChange={(e) => patchConfig({mqttClientId: e.target.value})} placeholder="留空自动生成" /></label>
                 </section>
 
-                <section className="takeover-card wide" data-pane="network">
-                  <h3>☁️ Cloudflare DDNS</h3>
-                  <div className="takeover-two">
-                    <label>DDNS 开关<select value={config.ddnsEnabled ? 1 : 0} onChange={(e) => patchConfig({ddnsEnabled: e.target.value === '1'})}><option value={0}>关闭</option><option value={1}>开启</option></select></label>
-                    <label>更新间隔(分钟)<input type="number" value={config.ddnsInterval || 30} onChange={(e) => patchConfig({ddnsInterval: Number(e.target.value)})} min={5} max={1440} /></label>
-                  </div>
-                  <label>API Token<input type="password" value={config.ddnsApiToken || ''} onChange={(e) => patchConfig({ddnsApiToken: e.target.value})} placeholder="Cloudflare API Token" /></label>
-                  <label>子域名<input value={config.ddnsSubDomain || ''} onChange={(e) => patchConfig({ddnsSubDomain: e.target.value})} placeholder="例如：t3.example.com" /></label>
-                </section>
-
                 <section className="takeover-card wide" data-pane="maint">
                   <h3>⚙️ 系统与维护</h3>
                   <div className="takeover-two">
@@ -1052,23 +978,7 @@ export default function Devices() {
                     <label>短信控制<select value={config.smsControlEnabled ? 1 : 0} onChange={(e) => patchConfig({smsControlEnabled: e.target.value === '1'})}><option value={0}>关闭</option><option value={1}>开启</option></select></label>
                     <label>管理员号码<input value={config.adminPhones || ''} onChange={(e) => patchConfig({adminPhones: e.target.value})} placeholder="逗号分隔" /></label>
                   </div>
-                  <div className="takeover-two">
-                    <label>短信清理<select value={config.smsCleanEnabled ? 1 : 0} onChange={(e) => patchConfig({smsCleanEnabled: e.target.value === '1'})}><option value={0}>关闭</option><option value={1}>开启</option></select></label>
-                    <label>清理阈值(%)<input type="number" value={config.smsCleanThreshold ?? 80} onChange={(e) => patchConfig({smsCleanThreshold: Number(e.target.value)})} /></label>
-                  </div>
-                  <div className="takeover-two">
-                    <label>检测周期(分钟)<input type="number" value={config.smsCleanCheckInterval ?? 60} onChange={(e) => patchConfig({smsCleanCheckInterval: Number(e.target.value)})} /></label>
-                    <label>保留条数<input type="number" value={config.smsCleanKeepCount ?? 50} onChange={(e) => patchConfig({smsCleanKeepCount: Number(e.target.value)})} /></label>
-                  </div>
                   <label>Web 端口<input type="number" value={config.webPort ?? 80} onChange={(e) => patchConfig({webPort: Number(e.target.value)})} min={1} max={65535} placeholder="80" /></label>
-                  <div className="takeover-two">
-                    <label>清理保留条数<input type="number" value={purgeKeep} onChange={(e) => setPurgeKeep(Number(e.target.value))} min={0} max={50} /></label>
-                    <div className="serial-command refined" style={{marginTop: 18}}>
-                      <button className="btn-secondary" onClick={runSmsPurge} disabled={purgeBusy || busyId === takeoverDevice.id}>{purgeBusy ? '清理中…' : '🧹 清理 SIM 旧短信'}</button>
-                      <button className="btn-secondary" onClick={() => runAction(takeoverDevice, () => locateDevice(takeoverDevice.id), '寻找设备失败')}>🔔 寻找设备</button>
-                    </div>
-                  </div>
-                  {purgeResult && <div className="inline-error success">{purgeResult}</div>}
                   <label>本地固件上传<div className="serial-command refined"><input type="file" accept=".bin" onChange={(e) => setOtaFile(e.target.files?.[0] || null)} /><button className="btn-secondary" onClick={runOtaUpload} disabled={!otaFile || otaUploadBusy || busyId === takeoverDevice.id}>{otaUploadBusy ? '上传中…' : '上传并刷写'}</button></div></label>
                   <div className="serial-command refined">
                     <input value={otaUrl} onChange={(e) => setOtaUrl(e.target.value)} placeholder="OTA 固件 URL" />
@@ -1080,21 +990,6 @@ export default function Devices() {
                     <button className="btn-secondary btn-danger" onClick={() => confirm('清空设备 messages.log 消息日志？') && runAction(takeoverDevice, () => clearDeviceMessages(takeoverDevice.id), '清空设备日志失败')}>🗑️ 清空设备日志</button>
                     <button className="btn-secondary btn-danger" onClick={() => runAction(takeoverDevice, () => rebootManagedDevice(takeoverDevice.id), '重启失败')}>⚡ 重启</button>
                   </div>
-                </section>
-
-                <section className="takeover-card accent-amber" data-pane="network">
-                  <h3>🌐 DDNS 状态</h3>
-                  <div className="serial-command refined">
-                    <button className="btn-secondary" onClick={refreshDdns} disabled={ddnsBusy}>查询状态</button>
-                    <button className="btn-secondary" onClick={runDdnsUpdate} disabled={ddnsBusy}>立即更新</button>
-                  </div>
-                  {ddnsData && (
-                    <div className="diag-result">
-                      {Object.entries(ddnsData).map(([k, v]) => (
-                        <div className="diag-row" key={k}><span className="diag-key">{k}</span><span className="diag-val">{String(v)}</span></div>
-                      ))}
-                    </div>
-                  )}
                 </section>
 
                 <section className="takeover-card accent-red" data-pane="maint">
@@ -1116,8 +1011,112 @@ export default function Devices() {
               </div>
               <div className="save-config-bar">
                 <button className="btn-primary" onClick={saveConfig} disabled={!configReady}>💾 保存固件配置</button>
+                <button className="btn-secondary" onClick={() => { setCopyTargets(new Set()); setCopyDialogOpen(true); }} disabled={!configReady}>📋 复制配置到其他设备</button>
               </div>
             </div>
+          </div>
+        </div>
+      )}
+
+      {/* Copy Config Dialog */}
+      {copyDialogOpen && (
+        <div className="modal-backdrop" onClick={() => setCopyDialogOpen(false)}>
+          <div className="modal-panel" onClick={(e) => e.stopPropagation()}>
+            <div className="modal-header">
+              <h2>复制配置到其他设备</h2>
+              <button onClick={() => setCopyDialogOpen(false)}>✕</button>
+            </div>
+            <div className="copy-config-info">
+              <p>将当前设备配置（不含设备名称）复制到选中的设备：</p>
+              <ul>
+                <li>WiFi 设置、SIM 号码/PIN、网络模式</li>
+                <li>通话录音、TTS 播报</li>
+                <li>转发通道（5 个）</li>
+                <li>MQTT 上报配置</li>
+                <li>系统维护设置</li>
+              </ul>
+              <p style={{color: 'var(--amber)', fontWeight: 600}}>⚠️ 设备名称不会被复制，每台设备保留自己的名称</p>
+            </div>
+            <div className="copy-device-list">
+              {items.filter(d => d.id !== takeoverDevice?.id).map((device) => (
+                <label key={device.id} className="copy-device-item">
+                  <input
+                    type="checkbox"
+                    checked={copyTargets.has(device.id)}
+                    onChange={(e) => {
+                      const next = new Set(copyTargets);
+                      if (e.target.checked) next.add(device.id);
+                      else next.delete(device.id);
+                      setCopyTargets(next);
+                    }}
+                  />
+                  <span className="copy-device-name">{device.name || device.ip}</span>
+                  <span className={`copy-device-status ${device.status === 'online' ? 'online' : 'offline'}`}>
+                    {device.status === 'online' ? '在线' : '离线'}
+                  </span>
+                </label>
+              ))}
+              {items.filter(d => d.id !== takeoverDevice?.id).length === 0 && (
+                <div className="empty">没有其他可复制的设备</div>
+              )}
+            </div>
+            <div className="modal-actions">
+              <button className="btn-secondary" onClick={() => setCopyDialogOpen(false)}>取消</button>
+              <button
+                className="btn-primary"
+                onClick={copyConfigToDevices}
+                disabled={copyBusy || copyTargets.size === 0}
+              >
+                {copyBusy ? '复制中...' : `确认复制 (${copyTargets.size})`}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Scan Dialog */}
+      {scanOpen && (
+        <div className="modal-backdrop" onClick={() => !scanRunning && setScanOpen(false)}>
+          <div className="modal-panel modal-large" onClick={(e) => e.stopPropagation()}>
+            <div className="modal-header">
+              <h2>🔍 扫描局域网设备</h2>
+              <button onClick={() => !scanRunning && setScanOpen(false)}>✕</button>
+            </div>
+            <div className="scan-config">
+              <div className="scan-config-row">
+                <label>网段 CIDR<input value={scanCidr} onChange={(e) => setScanCidr(e.target.value)} placeholder="例如 192.168.1.0/24，留空自动检测" disabled={scanRunning} /></label>
+              </div>
+              <div className="scan-config-row">
+                <label>起始 IP<input value={scanStartIp} onChange={(e) => setScanStartIp(e.target.value)} placeholder="例如 192.168.1.1" disabled={scanRunning} /></label>
+                <label>结束 IP<input value={scanEndIp} onChange={(e) => setScanEndIp(e.target.value)} placeholder="例如 192.168.1.254" disabled={scanRunning} /></label>
+              </div>
+              <div className="scan-config-row">
+                <label>设备用户名<input value={scanUser} onChange={(e) => setScanUser(e.target.value)} disabled={scanRunning} /></label>
+                <label>设备密码<input type="password" value={scanPassword} onChange={(e) => setScanPassword(e.target.value)} disabled={scanRunning} /></label>
+              </div>
+            </div>
+            <div className="modal-actions">
+              <button className="btn-secondary" onClick={() => !scanRunning && setScanOpen(false)}>取消</button>
+              <button className="btn-primary" onClick={runScan} disabled={scanRunning}>
+                {scanRunning ? '扫描中...' : '开始扫描'}
+              </button>
+            </div>
+            {scanProgress && <div className="scan-progress">{scanProgress}</div>}
+            {scanStatus && scanStatus.results.length > 0 && (
+              <div className="scan-results">
+                <h3>发现设备 ({scanStatus.found})</h3>
+                {scanStatus.results.filter(r => r.httpOpen).map((result) => (
+                  <div key={result.ip} className="scan-result-item">
+                    <span className="scan-result-ip">{result.ip}</span>
+                    {result.success ? (
+                      <span className="scan-result-status success">✓ 已添加</span>
+                    ) : (
+                      <button className="btn-action" onClick={() => claimScannedDevice(result.ip)} disabled={scanRunning}>添加</button>
+                    )}
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
         </div>
       )}

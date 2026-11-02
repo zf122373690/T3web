@@ -804,6 +804,33 @@ label > span { display: block; }
 .modal-actions { display: flex; gap: 10px; margin-top: 18px; flex-wrap: wrap; }
 .modal-actions > * { flex: 1; min-width: 110px; }
 
+/* ============ 复制配置对话框 ============ */
+.copy-config-info { background: var(--bg-card2); border-radius: var(--radius); padding: 12px 14px; margin-bottom: 14px; font-size: 13px; color: var(--fg-dim); }
+.copy-config-info p { margin: 0 0 8px; }
+.copy-config-info ul { margin: 0; padding-left: 18px; }
+.copy-config-info li { margin: 2px 0; }
+.copy-device-list { max-height: 240px; overflow-y: auto; display: flex; flex-direction: column; gap: 6px; margin-bottom: 10px; }
+.copy-device-item { display: flex; align-items: center; gap: 10px; padding: 8px 12px; border-radius: var(--radius); background: var(--bg-card2); border: 1px solid var(--border-subtle); cursor: pointer; transition: all 0.15s ease; }
+.copy-device-item:hover { border-color: var(--accent-border); background: var(--bg-card); }
+.copy-device-item input[type="checkbox"] { width: 16px; height: 16px; accent-color: var(--accent); }
+.copy-device-name { flex: 1; font-size: 13px; font-weight: 500; }
+.copy-device-status { font-size: 11px; padding: 2px 8px; border-radius: 10px; }
+.copy-device-status.online { color: var(--green); background: var(--green-subtle); }
+.copy-device-status.offline { color: var(--fg-muted); background: var(--bg-card); }
+
+/* ============ 扫描对话框 ============ */
+.scan-config { display: flex; flex-direction: column; gap: 10px; margin-bottom: 14px; }
+.scan-config-row { display: flex; gap: 10px; }
+.scan-config-row label { flex: 1; display: flex; flex-direction: column; gap: 4px; font-size: 12px; color: var(--fg-dim); }
+.scan-config-row input { padding: 8px 10px; border-radius: var(--radius); border: 1px solid var(--border-subtle); background: var(--bg-card2); color: var(--fg); font-size: 13px; }
+.scan-config-row input:disabled { opacity: 0.6; }
+.scan-progress { padding: 10px 14px; border-radius: var(--radius); background: var(--accent-subtle); color: var(--accent); font-size: 13px; margin-bottom: 12px; }
+.scan-results { margin-top: 12px; }
+.scan-results h3 { font-size: 14px; margin: 0 0 8px; color: var(--fg); }
+.scan-result-item { display: flex; align-items: center; justify-content: space-between; padding: 8px 12px; border-radius: var(--radius); background: var(--bg-card2); border: 1px solid var(--border-subtle); margin-bottom: 6px; }
+.scan-result-ip { font-family: monospace; font-size: 13px; color: var(--fg); }
+.scan-result-status.success { color: var(--green); font-size: 12px; }
+
 /* ============ 接管面板 ============ */
 .takeover-content { display: flex; flex-direction: column; gap: 14px; }
 .takeover-metrics { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }

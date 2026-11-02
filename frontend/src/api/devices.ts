@@ -60,6 +60,25 @@ export function runSelfUpdate(force = false, restart = true) {
   return api.post<SelfUpdateState>('/self-update/run', {force, restart});
 }
 
+export interface ScanStatus {
+  id: string;
+  cidr: string;
+  total: number;
+  pending: number;
+  found: number;
+  failed: number;
+  done: boolean;
+  results: Array<{ip: string; success: boolean; candidate?: boolean; autoSaved?: boolean; httpOpen?: boolean; device?: DeviceItem; realm?: string}>;
+}
+
+export function startScan(payload: {cidr?: string; startIp?: number; endIp?: number; user?: string; password?: string}) {
+  return api.post<{scanId: string; cidr: string; total: number; autoDetected: boolean}>('/scan', payload);
+}
+
+export function getScanStatus(scanId: string) {
+  return api.get<ScanStatus>(`/scan/${scanId}`);
+}
+
 export interface LanCidrInfo {
   cidr: string;
   prefix: string;
@@ -171,14 +190,6 @@ export interface T3Config {
   adminPhones?: string;
   smsWhitelistEnabled?: boolean;
   smsWhitelistKeywords?: string;
-  smsCleanEnabled?: boolean;
-  smsCleanCheckInterval?: number;
-  smsCleanThreshold?: number;
-  smsCleanKeepCount?: number;
-  ddnsEnabled?: boolean;
-  ddnsApiToken?: string;
-  ddnsSubDomain?: string;
-  ddnsInterval?: number;
   webPort?: number;
 }
 
@@ -289,14 +300,6 @@ export function pushTestDevice(id: number, channel?: number) {
   return api.post<{success: boolean; message: string; endpoint?: string; data?: Record<string, unknown>}>(`/devices/${id}/push-test`, channel === undefined ? {} : {channel});
 }
 
-export function getDeviceDdns(id: number) {
-  return api.get<{success: boolean; message: string; endpoint?: string; data: Record<string, string | number | boolean>}>(`/devices/${id}/ddns`);
-}
-
-export function updateDeviceDdns(id: number) {
-  return api.post<{success: boolean; message: string; endpoint?: string; data?: Record<string, unknown>}>(`/devices/${id}/ddns/update`);
-}
-
 export function getDeviceOtaProgress(id: number) {
   return api.get<{success: boolean; message: string; endpoint?: string; data: {running?: boolean; finished?: boolean; success?: boolean; loaded?: number; total?: number; percent?: number; message?: string}}>(`/devices/${id}/ota/progress`);
 }
@@ -317,57 +320,6 @@ export function getDeviceMessages(id: number, type = 'all') {
 
 export function getPendingDeviceMessages(id: number) {
   return api.get<{success: boolean; message: string; data: DeviceMessageItem[]}>(`/devices/${id}/messages/pending`);
-}
-
-export function purgeDeviceSms(id: number, keepCount?: number) {
-  return api.post<{success: boolean; message: string; data?: Record<string, unknown>}>(`/devices/${id}/sms/purge`, keepCount === undefined ? {} : {keepCount});
-}
-
-export interface EsimProfile {
-  iccid?: string;
-  aid?: string;
-  nickname?: string;
-  serviceProviderName?: string;
-  profileName?: string;
-  state?: string;
-  profileClass?: string;
-}
-
-export interface EsimStatus {
-  running?: boolean;
-  done?: boolean;
-  success?: boolean;
-  slot?: number;
-  action?: string;
-  message?: string;
-  refreshRequired?: boolean;
-  supported?: boolean;
-  eid?: string;
-  profiles?: EsimProfile[];
-}
-
-export function queryDeviceEsim(id: number, slot: number, start: boolean) {
-  return api.get<{success: boolean; message: string; data: EsimStatus}>(`/devices/${id}/esim?slot=${slot}&start=${start ? 1 : 0}`);
-}
-
-export function operateDeviceEsimProfile(id: number, payload: {slot: number; action: 'enable' | 'disable' | 'delete'; identifier: string}) {
-  return api.post<{success: boolean; message: string}>(`/devices/${id}/esim/profile`, payload);
-}
-
-export function selectDeviceOperator(id: number, payload: {slot: number; plmn?: string}) {
-  return api.post<{success: boolean; message: string}>(`/devices/${id}/operator/select`, payload);
-}
-
-export function startDeviceKeepaliveTest(id: number, payload: {slot: number; mode: 'sms' | 'call'; phone?: string; message?: string}) {
-  return api.post<{success: boolean; message: string}>(`/devices/${id}/keepalive-test`, payload);
-}
-
-export function getDeviceKeepaliveTestStatus(id: number) {
-  return api.get<{success: boolean; message: string; data: {state?: string; running?: boolean; success?: boolean; message?: string}}>(`/devices/${id}/keepalive-test/status`);
-}
-
-export function locateDevice(id: number) {
-  return api.post<{success: boolean; message: string}>(`/devices/${id}/locate`);
 }
 
 export function uploadDeviceOta(id: number, file: File) {

@@ -637,18 +637,6 @@ def push_test_t3(ip: str, channel: int | None = None, user: str = DEVICE_USER, p
     return result
 
 
-def ddns_status_t3(ip: str, user: str = DEVICE_USER, password: str = DEVICE_PASS) -> dict[str, Any]:
-    result = _request_device(ip, user, password, "GET", "/api/ddns/status", timeout=max(HTTP_TIMEOUT, 12))
-    result["endpoint"] = "/api/ddns/status"
-    return result
-
-
-def ddns_update_t3(ip: str, user: str = DEVICE_USER, password: str = DEVICE_PASS) -> dict[str, Any]:
-    result = _request_device(ip, user, password, "POST", "/api/ddns/update", timeout=max(HTTP_TIMEOUT, 35))
-    result["endpoint"] = "/api/ddns/update"
-    return result
-
-
 def ota_progress_t3(ip: str, user: str = DEVICE_USER, password: str = DEVICE_PASS) -> dict[str, Any]:
     result = _request_device(ip, user, password, "GET", "/api/ota/progress", timeout=max(HTTP_TIMEOUT, 12))
     result["endpoint"] = "/api/ota/progress"
@@ -671,83 +659,6 @@ def get_pending_device_messages(ip: str, user: str = DEVICE_USER, password: str 
             result["data"] = data
         else:
             result["data"] = []
-    return result
-
-
-def purge_t3_sms(ip: str, keep_count: int | None = None, user: str = DEVICE_USER, password: str = DEVICE_PASS) -> dict[str, Any]:
-    """清理设备 SIM 卡中的旧短信（/api/sms/purge，keepCount 0-50）。"""
-    body: dict[str, Any] = {}
-    if keep_count is not None:
-        body["keepCount"] = max(0, min(50, int(keep_count)))
-    result = _request_device(
-        ip, user, password, "POST", "/api/sms/purge",
-        json_body=body or None, timeout=max(HTTP_TIMEOUT, 25),
-    )
-    result["endpoint"] = "/api/sms/purge"
-    return result
-
-
-def esim_query_t3(ip: str, slot: int, start: bool, user: str = DEVICE_USER, password: str = DEVICE_PASS) -> dict[str, Any]:
-    """eSIM 状态/Profile 查询（start=True 启动异步任务，之后轮询 start=False）。"""
-    result = _request_device(
-        ip, user, password, "GET", "/api/esim",
-        params={"slot": slot, "start": "1" if start else "0"},
-        timeout=max(HTTP_TIMEOUT, 10),
-    )
-    result["endpoint"] = "/api/esim"
-    return result
-
-
-def esim_profile_t3(ip: str, slot: int, action: str, identifier: str, user: str = DEVICE_USER, password: str = DEVICE_PASS) -> dict[str, Any]:
-    """eSIM Profile 启用/停用/删除（action: enable|disable|delete）。"""
-    result = _request_device(
-        ip, user, password, "POST", "/api/esim/profile",
-        json_body={"slot": slot, "action": action, "identifier": identifier},
-        timeout=max(HTTP_TIMEOUT, 10),
-    )
-    result["endpoint"] = "/api/esim/profile"
-    return result
-
-
-def operator_select_t3(ip: str, slot: int, plmn: str = "", user: str = DEVICE_USER, password: str = DEVICE_PASS) -> dict[str, Any]:
-    """手动运营商搜网（plmn 为 5-6 位数字，空字符串 = 自动）。"""
-    result = _request_device(
-        ip, user, password, "POST", "/api/operator/select",
-        json_body={"slot": slot, "plmn": plmn},
-        timeout=max(HTTP_TIMEOUT, 10),
-    )
-    result["endpoint"] = "/api/operator/select"
-    return result
-
-
-def keepalive_test_t3(
-    ip: str,
-    slot: int,
-    mode: str = "sms",
-    phone: str = "",
-    message: str = "",
-    user: str = DEVICE_USER,
-    password: str = DEVICE_PASS,
-) -> dict[str, Any]:
-    """保活测试（短信或拨号），异步任务，结果用 keepalive_test_status_t3 轮询。"""
-    result = _request_device(
-        ip, user, password, "POST", "/api/keepalive/test",
-        json_body={"slot": slot, "mode": mode, "phone": phone, "message": message},
-        timeout=max(HTTP_TIMEOUT, 10),
-    )
-    result["endpoint"] = "/api/keepalive/test"
-    return result
-
-
-def keepalive_test_status_t3(ip: str, user: str = DEVICE_USER, password: str = DEVICE_PASS) -> dict[str, Any]:
-    result = _request_device(ip, user, password, "GET", "/api/keepalive/test/status", timeout=max(HTTP_TIMEOUT, 8))
-    result["endpoint"] = "/api/keepalive/test/status"
-    return result
-
-
-def locate_t3(ip: str, user: str = DEVICE_USER, password: str = DEVICE_PASS) -> dict[str, Any]:
-    result = _request_device(ip, user, password, "POST", "/api/locate")
-    result["endpoint"] = "/api/locate"
     return result
 
 
